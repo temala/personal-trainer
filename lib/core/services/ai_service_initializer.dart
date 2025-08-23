@@ -1,9 +1,9 @@
 import 'package:logger/logger.dart';
 
-import 'package:fitness_training_app/shared/data/repositories/ai_provider_manager.dart';
-import 'package:fitness_training_app/shared/data/repositories/ai_service_repository_impl.dart';
-import 'package:fitness_training_app/shared/domain/repositories/ai_service_repository.dart';
 import 'package:fitness_training_app/core/config/ai_config_service.dart';
+import 'package:fitness_training_app/shared/data/repositories/ai_service_repository_impl.dart';
+import 'package:fitness_training_app/shared/data/services/ai_provider_manager.dart';
+import 'package:fitness_training_app/shared/domain/repositories/ai_service_repository.dart';
 
 /// Service to initialize AI providers for the app
 class AIServiceInitializer {
@@ -25,7 +25,10 @@ class AIServiceInitializer {
       }
 
       // Initialize provider manager
-      _providerManager = AIProviderManager(config, logger: _logger);
+      _providerManager = AIProviderManager(
+        configuration: config,
+        logger: _logger,
+      );
 
       // Test connections
       final connectionResults = await _providerManager!.testAllConnections();
@@ -41,10 +44,11 @@ class AIServiceInitializer {
       // Initialize high-level AI service
       _aiService = AIServiceRepositoryImpl(_providerManager!, logger: _logger);
 
-      _logger.i('AI services initialized successfully');
-      _logger.i(
-        'Working providers: ${connectionResults.entries.where((e) => e.value).map((e) => e.key).toList()}',
-      );
+      _logger
+        ..i('AI services initialized successfully')
+        ..i(
+          'Working providers: ${connectionResults.entries.where((e) => e.value).map((e) => e.key).toList()}',
+        );
 
       return true;
     } catch (e) {
@@ -69,15 +73,17 @@ class AIServiceInitializer {
     }
 
     try {
-      final statuses = await _providerManager!.getAllProviderStatuses();
+      final connectionResults = await _providerManager!.testAllConnections();
+      final providerStatuses = _providerManager!.getProviderStatus();
+
       return {
         'initialized': true,
-        'available': statuses.values.any((status) => status.isAvailable),
-        'providers': statuses.map(
-          (type, status) => MapEntry(type.toString(), {
-            'available': status.isAvailable,
-            'lastChecked': status.lastChecked.toIso8601String(),
-            'error': status.errorMessage,
+        'available': connectionResults.values.any((result) => result),
+        'providers': connectionResults.map<String, Map<String, dynamic>>(
+          (type, isConnected) => MapEntry(type.toString(), {
+            'available': isConnected,
+            'configured': providerStatuses[type] ?? false,
+            'lastChecked': DateTime.now().toIso8601String(),
           }),
         ),
       };
@@ -88,7 +94,7 @@ class AIServiceInitializer {
 
   /// Dispose AI services
   static void dispose() {
-    _providerManager?.dispose();
+    // AIProviderManager doesn't have a dispose method, just clear references
     _providerManager = null;
     _aiService = null;
     _logger.i('AI services disposed');

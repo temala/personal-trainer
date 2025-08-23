@@ -1,8 +1,9 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
 
-import 'package:fitness_training_app/shared/domain/entities/ai_entities.dart';
 import 'package:fitness_training_app/core/config/env_config.dart';
+import 'package:fitness_training_app/shared/data/models/ai_provider_config.dart';
+import 'package:fitness_training_app/shared/domain/repositories/ai_service_repository.dart';
 
 /// Service for managing AI configuration from various sources
 class AIConfigService {
@@ -33,9 +34,32 @@ class AIConfigService {
         return null;
       }
 
-      return AIConfiguration.defaultConfig(
-        chatgptApiKey: chatgptApiKey,
-        n8nWebhookUrl: n8nWebhookUrl,
+      final providers = <AIProviderType, AIProviderConfig>{
+        AIProviderType.chatgpt: AIProviderConfig(
+          type: AIProviderType.chatgpt,
+          apiKey: chatgptApiKey,
+          baseUrl: 'https://api.openai.com/v1',
+          model: 'gpt-4',
+          additionalConfig: {'max_tokens': 2000, 'temperature': 0.7},
+        ),
+      };
+
+      if (n8nWebhookUrl != null && n8nWebhookUrl.isNotEmpty) {
+        providers[AIProviderType.n8nWorkflow] = AIProviderConfig(
+          type: AIProviderType.n8nWorkflow,
+          apiKey: '',
+          webhookUrl: n8nWebhookUrl,
+          additionalConfig: {'webhook_url': n8nWebhookUrl},
+        );
+      }
+
+      return AIConfiguration(
+        providers: providers,
+        primaryProvider: AIProviderType.chatgpt,
+        fallbackProviders:
+            n8nWebhookUrl != null && n8nWebhookUrl.isNotEmpty
+                ? [AIProviderType.n8nWorkflow]
+                : [],
       );
     } catch (e) {
       _logger.e('Error loading AI configuration: $e');

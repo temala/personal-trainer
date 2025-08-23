@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 
+import 'package:fitness_training_app/shared/domain/entities/ai_provider_config.dart';
 import 'package:fitness_training_app/shared/domain/entities/ai_request.dart';
 import 'package:fitness_training_app/shared/domain/entities/ai_response.dart';
-import 'package:fitness_training_app/shared/domain/entities/ai_provider_config.dart';
 import 'package:fitness_training_app/shared/domain/repositories/ai_provider_repository.dart';
 
 /// N8N workflow provider implementation
@@ -43,8 +43,7 @@ class N8NProvider extends BaseAIProvider {
   @override
   bool get isConfigured =>
       config.additionalConfig.containsKey('webhook_url') &&
-          config.additionalConfig['webhook_url']!.toString().isNotEmpty ??
-      false;
+      (config.additionalConfig['webhook_url']?.toString().isNotEmpty ?? false);
 
   String get webhookUrl =>
       config.additionalConfig['webhook_url']?.toString() ??
@@ -93,7 +92,7 @@ class N8NProvider extends BaseAIProvider {
       _logger.e('N8N workflow error: $e');
       return createErrorResponse(
         request.requestId,
-        'N8N workflow error: ${e}',
+        'N8N workflow error: $e',
         errorCode: 'WORKFLOW_ERROR',
       );
     }
@@ -118,12 +117,15 @@ class N8NProvider extends BaseAIProvider {
       'inputData': n8nRequest.inputData,
     };
 
-    final customWebhookUrl = n8nRequest.webhookUrl ?? webhookUrl;
+    final customWebhookUrl =
+        n8nRequest.metadata['webhookUrl']?.toString() ?? webhookUrl;
+    final customHeaders =
+        n8nRequest.metadata['headers'] as Map<String, String>?;
     return _callN8NWebhook(
       workflowData,
       request.requestId,
       customUrl: customWebhookUrl,
-      customHeaders: n8nRequest.headers,
+      customHeaders: customHeaders,
     );
   }
 
@@ -157,7 +159,7 @@ class N8NProvider extends BaseAIProvider {
         ...?customHeaders,
       };
 
-      final response = await _dio.post(
+      final response = await _dio.post<Map<String, dynamic>>(
         url,
         data: data,
         options: Options(headers: headers),
@@ -215,7 +217,8 @@ class N8NProvider extends BaseAIProvider {
 
         // Try to extract error details from response
         if (e.response!.data is Map<String, dynamic>) {
-          final errorDetails = e.response!.data['error']?.toString();
+          final responseData = e.response!.data as Map<String, dynamic>;
+          final errorDetails = responseData['error']?.toString();
           if (errorDetails != null) {
             errorMessage = '$errorMessage - $errorDetails';
           }
@@ -284,7 +287,8 @@ class N8NProvider extends BaseAIProvider {
     final workflowRequest = N8NWorkflowRequest(
       workflowId: workflowId,
       inputData: inputData,
-      webhookUrl: customWebhookUrl,
+      metadata:
+          customWebhookUrl != null ? {'webhookUrl': customWebhookUrl} : {},
     );
 
     final aiRequest = AIRequest(
@@ -305,7 +309,7 @@ class N8NProvider extends BaseAIProvider {
     try {
       // This would require N8N API access, not just webhook
       // Implementation depends on N8N instance configuration
-      final response = await _dio.get(
+      final response = await _dio.get<Map<String, dynamic>>(
         '/api/v1/executions/$executionId',
         options: Options(
           headers: {

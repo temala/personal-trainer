@@ -162,7 +162,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
           const SizedBox(height: 8),
 
           Text(
-            'Let\'s start with some basic information',
+            "Let's start with some basic information",
             style: Theme.of(
               context,
             ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
@@ -405,7 +405,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   decoration: BoxDecoration(
                     color:
                         isSelected
-                            ? Theme.of(context).primaryColor.withOpacity(0.1)
+                            ? Theme.of(
+                              context,
+                            ).primaryColor.withValues(alpha: 0.1)
                             : Colors.grey[100],
                     border: Border.all(
                       color:
@@ -606,23 +608,30 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
       return;
     }
 
-    // Exercise types are optional - user can proceed without selecting any
-    final controller = ref.read(profileControllerProvider);
+    try {
+      // Exercise types are optional - user can proceed without selecting any
+      final controller = ref.read(profileControllerProvider);
 
-    final success = await controller.createUserProfile(
-      name: _nameController.text.trim(),
-      age: int.parse(_ageController.text),
-      height: double.parse(_heightController.text),
-      weight: double.parse(_weightController.text),
-      targetWeight: double.parse(_targetWeightController.text),
-      fitnessGoal: _selectedGoal,
-      activityLevel: _selectedActivityLevel,
-      preferredExerciseTypes: _selectedExerciseTypes,
-    );
+      final success = await controller.createUserProfile(
+        name: _nameController.text.trim(),
+        age: int.parse(_ageController.text),
+        height: double.parse(_heightController.text),
+        weight: double.parse(_weightController.text),
+        targetWeight: double.parse(_targetWeightController.text),
+        fitnessGoal: _selectedGoal,
+        activityLevel: _selectedActivityLevel,
+        preferredExerciseTypes: _selectedExerciseTypes,
+      );
 
-    if (success && mounted) {
-      // Navigate to main app
-      await Navigator.of(context).pushReplacementNamed('/home');
+      if (success && mounted) {
+        // Navigate to home screen directly since profile is now created
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil('/home', (route) => false);
+      }
+    } catch (e) {
+      // Error is already handled by the controller and shown via profileErrorProvider
+      // The error will be displayed in the UI automatically
     }
   }
 

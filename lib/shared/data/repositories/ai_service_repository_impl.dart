@@ -1,10 +1,11 @@
 import 'package:logger/logger.dart';
 
+import 'package:fitness_training_app/shared/data/services/ai_provider_manager.dart';
+import 'package:fitness_training_app/shared/domain/entities/ai_request.dart';
 import 'package:fitness_training_app/shared/domain/entities/exercise.dart';
 import 'package:fitness_training_app/shared/domain/entities/user_profile.dart';
 import 'package:fitness_training_app/shared/domain/entities/workout_plan.dart';
 import 'package:fitness_training_app/shared/domain/repositories/ai_service_repository.dart';
-import 'package:fitness_training_app/shared/data/repositories/ai_provider_manager.dart';
 
 /// Simplified implementation of AIServiceRepository using AIProviderManager
 class AIServiceRepositoryImpl implements AIServiceRepository {
@@ -16,34 +17,19 @@ class AIServiceRepositoryImpl implements AIServiceRepository {
   @override
   Future<WorkoutPlan> generateWeeklyPlan(
     UserProfile profile,
-    List<Exercise> availableExercises,
-  ) async {
+    List<Exercise> availableExercises, {
+    Map<String, dynamic>? preferences,
+    Map<String, dynamic>? constraints,
+  }) async {
     try {
-      final response = await _providerManager.generateWorkoutPlan(
-        userId: profile.id,
-        userProfile: {
-          'id': profile.id,
-          'name': profile.name,
-          'age': profile.age,
-        },
-        availableExercises:
-            availableExercises
-                .map(
-                  (e) => {
-                    'id': e.id,
-                    'name': e.name,
-                    'description': e.description,
-                  },
-                )
-                .toList(),
+      final workoutPlan = await _providerManager.generateWeeklyPlan(
+        profile,
+        availableExercises,
+        preferences: preferences,
+        constraints: constraints,
       );
 
-      if (!response.success) {
-        throw Exception('Failed to generate workout plan: ${response.error}');
-      }
-
-      // Return a simple default workout plan for now
-      return _createSimpleWorkoutPlan(profile.id);
+      return workoutPlan;
     } catch (e) {
       _logger.e('Error generating workout plan: $e');
       return _createSimpleWorkoutPlan(profile.id);
@@ -54,35 +40,25 @@ class AIServiceRepositoryImpl implements AIServiceRepository {
   Future<Exercise?> getAlternativeExercise(
     String currentExerciseId,
     AlternativeType type,
-    List<Exercise> availableExercises,
-    UserProfile userProfile,
-  ) async {
+    List<Exercise> availableExercises, {
+    String? userId,
+    Map<String, dynamic>? userContext,
+    List<String>? excludeExerciseIds,
+  }) async {
     // Return first available exercise as a simple fallback
     return availableExercises.isNotEmpty ? availableExercises.first : null;
   }
 
   @override
   Future<String> generateNotificationMessage(
-    UserProfile userProfile,
-    Map<String, dynamic> context,
+    Map<String, dynamic> userContext,
   ) async {
     try {
-      final response = await _providerManager.generateNotification(
-        userId: userProfile.id,
-        userContext: {
-          'name': userProfile.name,
-          'age': userProfile.age,
-          ...context,
-        },
+      final message = await _providerManager.generateNotificationMessage(
+        userContext,
       );
 
-      if (!response.success) {
-        return "Time for your workout! Let's get moving! 💪";
-      }
-
-      final notificationData = response.data['notification'] ?? response.data;
-      return notificationData['message']?.toString() ??
-          "Time for your workout! Let's get moving! 💪";
+      return message;
     } catch (e) {
       _logger.e('Error generating notification: $e');
       return "Time for your workout! Let's get moving! 💪";
@@ -91,7 +67,7 @@ class AIServiceRepositoryImpl implements AIServiceRepository {
 
   @override
   Future<Map<String, dynamic>> analyzeProgress(
-    UserProfile userProfile,
+    String userId,
     Map<String, dynamic> progressData,
   ) async {
     // Return a simple placeholder for now
@@ -104,7 +80,19 @@ class AIServiceRepositoryImpl implements AIServiceRepository {
   }
 
   @override
-  Future<bool> isServiceAvailable() async {
+  Future<Map<String, dynamic>> generateUserAvatar(
+    String userPhotoPath, {
+    Map<String, dynamic>? stylePreferences,
+  }) async {
+    // Placeholder implementation
+    return {
+      'avatarUrl': 'placeholder_avatar.png',
+      'style': stylePreferences ?? {},
+    };
+  }
+
+  @override
+  Future<bool> testConnection() async {
     try {
       final results = await _providerManager.testAllConnections();
       return results.values.any((isAvailable) => isAvailable);
@@ -114,17 +102,14 @@ class AIServiceRepositoryImpl implements AIServiceRepository {
   }
 
   @override
-  Future<Map<String, dynamic>> getServiceStatus() async {
-    try {
-      final statuses = await _providerManager.getAllProviderStatuses();
-      return {
-        'available': statuses.values.any((s) => s.isAvailable),
-        'providers': statuses.length,
-      };
-    } catch (e) {
-      return {'available': false, 'providers': 0};
-    }
-  }
+  bool get isConfigured =>
+      _providerManager.getProviderStatus().values.any((status) => status);
+
+  @override
+  String get providerName => 'AIServiceRepository';
+
+  @override
+  AIProviderType get providerType => AIProviderType.custom;
 
   WorkoutPlan _createSimpleWorkoutPlan(String userId) {
     // Create a minimal workout plan that satisfies the interface

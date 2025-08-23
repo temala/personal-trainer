@@ -13,10 +13,12 @@ _$AIRequestImpl _$$AIRequestImplFromJson(Map<String, dynamic> json) =>
       payload: json['payload'] as Map<String, dynamic>,
       timestamp: DateTime.parse(json['timestamp'] as String),
       userId: json['userId'] as String,
-      headers: (json['headers'] as Map<String, dynamic>?)?.map(
-        (k, e) => MapEntry(k, e as String),
-      ),
-      timeoutSeconds: (json['timeoutSeconds'] as num?)?.toInt(),
+      headers:
+          (json['headers'] as Map<String, dynamic>?)?.map(
+            (k, e) => MapEntry(k, e as String),
+          ) ??
+          const {},
+      timeoutSeconds: (json['timeoutSeconds'] as num?)?.toInt() ?? 30,
     );
 
 Map<String, dynamic> _$$AIRequestImplToJson(_$AIRequestImpl instance) =>
@@ -31,12 +33,12 @@ Map<String, dynamic> _$$AIRequestImplToJson(_$AIRequestImpl instance) =>
     };
 
 const _$AIRequestTypeEnumMap = {
-  AIRequestType.generateWorkoutPlan: 'generate_workout_plan',
-  AIRequestType.getAlternativeExercise: 'get_alternative_exercise',
-  AIRequestType.generateNotification: 'generate_notification',
-  AIRequestType.createAvatar: 'create_avatar',
-  AIRequestType.analyzeProgress: 'analyze_progress',
-  AIRequestType.customWorkflow: 'custom_workflow',
+  AIRequestType.generateWorkoutPlan: 'generateWorkoutPlan',
+  AIRequestType.getAlternativeExercise: 'getAlternativeExercise',
+  AIRequestType.generateNotification: 'generateNotification',
+  AIRequestType.createAvatar: 'createAvatar',
+  AIRequestType.analyzeProgress: 'analyzeProgress',
+  AIRequestType.customWorkflow: 'customWorkflow',
 };
 
 _$WorkoutPlanRequestImpl _$$WorkoutPlanRequestImplFromJson(
@@ -48,11 +50,8 @@ _$WorkoutPlanRequestImpl _$$WorkoutPlanRequestImplFromJson(
       (json['availableExercises'] as List<dynamic>)
           .map((e) => e as Map<String, dynamic>)
           .toList(),
-  preferences: json['preferences'] as Map<String, dynamic>?,
-  excludedExercises:
-      (json['excludedExercises'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList(),
+  preferences: json['preferences'] as Map<String, dynamic>? ?? const {},
+  constraints: json['constraints'] as Map<String, dynamic>? ?? const {},
 );
 
 Map<String, dynamic> _$$WorkoutPlanRequestImplToJson(
@@ -62,7 +61,7 @@ Map<String, dynamic> _$$WorkoutPlanRequestImplToJson(
   'userProfile': instance.userProfile,
   'availableExercises': instance.availableExercises,
   'preferences': instance.preferences,
-  'excludedExercises': instance.excludedExercises,
+  'constraints': instance.constraints,
 };
 
 _$AlternativeExerciseRequestImpl _$$AlternativeExerciseRequestImplFromJson(
@@ -70,12 +69,20 @@ _$AlternativeExerciseRequestImpl _$$AlternativeExerciseRequestImplFromJson(
 ) => _$AlternativeExerciseRequestImpl(
   userId: json['userId'] as String,
   currentExerciseId: json['currentExerciseId'] as String,
-  alternativeType: json['alternativeType'] as String,
+  alternativeType: $enumDecode(
+    _$AlternativeTypeEnumMap,
+    json['alternativeType'],
+  ),
   availableExercises:
       (json['availableExercises'] as List<dynamic>)
           .map((e) => e as Map<String, dynamic>)
           .toList(),
-  userContext: json['userContext'] as Map<String, dynamic>?,
+  userContext: json['userContext'] as Map<String, dynamic>? ?? const {},
+  excludeExerciseIds:
+      (json['excludeExerciseIds'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
 );
 
 Map<String, dynamic> _$$AlternativeExerciseRequestImplToJson(
@@ -83,9 +90,18 @@ Map<String, dynamic> _$$AlternativeExerciseRequestImplToJson(
 ) => <String, dynamic>{
   'userId': instance.userId,
   'currentExerciseId': instance.currentExerciseId,
-  'alternativeType': instance.alternativeType,
+  'alternativeType': _$AlternativeTypeEnumMap[instance.alternativeType]!,
   'availableExercises': instance.availableExercises,
   'userContext': instance.userContext,
+  'excludeExerciseIds': instance.excludeExerciseIds,
+};
+
+const _$AlternativeTypeEnumMap = {
+  AlternativeType.dontLike: 'dontLike',
+  AlternativeType.notPossibleNow: 'notPossibleNow',
+  AlternativeType.tooEasy: 'tooEasy',
+  AlternativeType.tooHard: 'tooHard',
+  AlternativeType.noEquipment: 'noEquipment',
 };
 
 _$NotificationRequestImpl _$$NotificationRequestImplFromJson(
@@ -94,7 +110,7 @@ _$NotificationRequestImpl _$$NotificationRequestImplFromJson(
   userId: json['userId'] as String,
   userContext: json['userContext'] as Map<String, dynamic>,
   notificationType: json['notificationType'] as String?,
-  additionalData: json['additionalData'] as Map<String, dynamic>?,
+  additionalData: json['additionalData'] as Map<String, dynamic>? ?? const {},
 );
 
 Map<String, dynamic> _$$NotificationRequestImplToJson(
@@ -111,10 +127,7 @@ _$N8NWorkflowRequestImpl _$$N8NWorkflowRequestImplFromJson(
 ) => _$N8NWorkflowRequestImpl(
   workflowId: json['workflowId'] as String,
   inputData: json['inputData'] as Map<String, dynamic>,
-  webhookUrl: json['webhookUrl'] as String?,
-  headers: (json['headers'] as Map<String, dynamic>?)?.map(
-    (k, e) => MapEntry(k, e as String),
-  ),
+  metadata: json['metadata'] as Map<String, dynamic>? ?? const {},
 );
 
 Map<String, dynamic> _$$N8NWorkflowRequestImplToJson(
@@ -122,6 +135,5 @@ Map<String, dynamic> _$$N8NWorkflowRequestImplToJson(
 ) => <String, dynamic>{
   'workflowId': instance.workflowId,
   'inputData': instance.inputData,
-  'webhookUrl': instance.webhookUrl,
-  'headers': instance.headers,
+  'metadata': instance.metadata,
 };

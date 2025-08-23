@@ -1,7 +1,7 @@
 import 'package:logger/logger.dart';
 
-import 'package:fitness_training_app/shared/domain/entities/ai_entities.dart';
 import 'package:fitness_training_app/shared/data/repositories/ai_provider_manager.dart';
+import 'package:fitness_training_app/shared/domain/entities/ai_request.dart';
 
 /// Simplified AI service for demonstration purposes
 class SimpleAIService {
@@ -80,10 +80,11 @@ class SimpleAIService {
     List<String>? availableExercises,
   }) async {
     try {
+      final alternativeType = _parseAlternativeType(reason);
       final response = await _providerManager.getAlternativeExercise(
         userId: userId,
         currentExerciseId: currentExercise,
-        alternativeType: reason,
+        alternativeType: alternativeType,
         availableExercises:
             (availableExercises ?? _getDefaultExercises())
                 .map(
@@ -175,4 +176,23 @@ class SimpleAIService {
       // ... more days
     ],
   };
+
+  AlternativeType _parseAlternativeType(String reason) {
+    switch (reason.toLowerCase()) {
+      case 'dislike':
+      case 'dont_like':
+        return AlternativeType.dontLike;
+      case 'not_possible':
+      case 'not_possible_now':
+        return AlternativeType.notPossibleNow;
+      case 'too_easy':
+        return AlternativeType.tooEasy;
+      case 'too_hard':
+        return AlternativeType.tooHard;
+      case 'no_equipment':
+        return AlternativeType.noEquipment;
+      default:
+        return AlternativeType.dontLike;
+    }
+  }
 }

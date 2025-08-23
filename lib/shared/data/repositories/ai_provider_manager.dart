@@ -267,10 +267,13 @@ class AIProviderManager {
       payload:
           WorkoutPlanRequest(
             userId: userId,
-            userProfile: userProfile,
+            userProfile: userProfile ?? {},
             availableExercises: availableExercises,
-            preferences: preferences,
-            excludedExercises: excludedExercises,
+            preferences: preferences ?? {},
+            constraints:
+                excludedExercises != null
+                    ? {'excludedExercises': excludedExercises}
+                    : {},
           ).toJson(),
       timestamp: DateTime.now(),
       userId: userId,
@@ -283,7 +286,7 @@ class AIProviderManager {
   Future<AIResponse> getAlternativeExercise({
     required String userId,
     required String currentExerciseId,
-    required String alternativeType,
+    required AlternativeType alternativeType,
     required List<Map<String, dynamic>> availableExercises,
     Map<String, dynamic>? userContext,
   }) async {
@@ -296,7 +299,7 @@ class AIProviderManager {
             currentExerciseId: currentExerciseId,
             alternativeType: alternativeType,
             availableExercises: availableExercises,
-            userContext: userContext,
+            userContext: userContext ?? {},
           ).toJson(),
       timestamp: DateTime.now(),
       userId: userId,
@@ -318,9 +321,9 @@ class AIProviderManager {
       payload:
           NotificationRequest(
             userId: userId,
-            userContext: userContext,
+            userContext: userContext ?? {},
             notificationType: notificationType,
-            additionalData: additionalData,
+            additionalData: additionalData ?? {},
           ).toJson(),
       timestamp: DateTime.now(),
       userId: userId,

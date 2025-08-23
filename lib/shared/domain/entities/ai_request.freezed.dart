@@ -26,8 +26,8 @@ mixin _$AIRequest {
   Map<String, dynamic> get payload => throw _privateConstructorUsedError;
   DateTime get timestamp => throw _privateConstructorUsedError;
   String get userId => throw _privateConstructorUsedError;
-  Map<String, String>? get headers => throw _privateConstructorUsedError;
-  int? get timeoutSeconds => throw _privateConstructorUsedError;
+  Map<String, String> get headers => throw _privateConstructorUsedError;
+  int get timeoutSeconds => throw _privateConstructorUsedError;
 
   /// Serializes this AIRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -50,8 +50,8 @@ abstract class $AIRequestCopyWith<$Res> {
     Map<String, dynamic> payload,
     DateTime timestamp,
     String userId,
-    Map<String, String>? headers,
-    int? timeoutSeconds,
+    Map<String, String> headers,
+    int timeoutSeconds,
   });
 }
 
@@ -75,8 +75,8 @@ class _$AIRequestCopyWithImpl<$Res, $Val extends AIRequest>
     Object? payload = null,
     Object? timestamp = null,
     Object? userId = null,
-    Object? headers = freezed,
-    Object? timeoutSeconds = freezed,
+    Object? headers = null,
+    Object? timeoutSeconds = null,
   }) {
     return _then(
       _value.copyWith(
@@ -106,15 +106,15 @@ class _$AIRequestCopyWithImpl<$Res, $Val extends AIRequest>
                     : userId // ignore: cast_nullable_to_non_nullable
                         as String,
             headers:
-                freezed == headers
+                null == headers
                     ? _value.headers
                     : headers // ignore: cast_nullable_to_non_nullable
-                        as Map<String, String>?,
+                        as Map<String, String>,
             timeoutSeconds:
-                freezed == timeoutSeconds
+                null == timeoutSeconds
                     ? _value.timeoutSeconds
                     : timeoutSeconds // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as int,
           )
           as $Val,
     );
@@ -136,8 +136,8 @@ abstract class _$$AIRequestImplCopyWith<$Res>
     Map<String, dynamic> payload,
     DateTime timestamp,
     String userId,
-    Map<String, String>? headers,
-    int? timeoutSeconds,
+    Map<String, String> headers,
+    int timeoutSeconds,
   });
 }
 
@@ -160,8 +160,8 @@ class __$$AIRequestImplCopyWithImpl<$Res>
     Object? payload = null,
     Object? timestamp = null,
     Object? userId = null,
-    Object? headers = freezed,
-    Object? timeoutSeconds = freezed,
+    Object? headers = null,
+    Object? timeoutSeconds = null,
   }) {
     return _then(
       _$AIRequestImpl(
@@ -191,15 +191,15 @@ class __$$AIRequestImplCopyWithImpl<$Res>
                 : userId // ignore: cast_nullable_to_non_nullable
                     as String,
         headers:
-            freezed == headers
+            null == headers
                 ? _value._headers
                 : headers // ignore: cast_nullable_to_non_nullable
-                    as Map<String, String>?,
+                    as Map<String, String>,
         timeoutSeconds:
-            freezed == timeoutSeconds
+            null == timeoutSeconds
                 ? _value.timeoutSeconds
                 : timeoutSeconds // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as int,
       ),
     );
   }
@@ -214,8 +214,8 @@ class _$AIRequestImpl implements _AIRequest {
     required final Map<String, dynamic> payload,
     required this.timestamp,
     required this.userId,
-    final Map<String, String>? headers,
-    this.timeoutSeconds,
+    final Map<String, String> headers = const {},
+    this.timeoutSeconds = 30,
   }) : _payload = payload,
        _headers = headers;
 
@@ -238,18 +238,18 @@ class _$AIRequestImpl implements _AIRequest {
   final DateTime timestamp;
   @override
   final String userId;
-  final Map<String, String>? _headers;
+  final Map<String, String> _headers;
   @override
-  Map<String, String>? get headers {
-    final value = _headers;
-    if (value == null) return null;
+  @JsonKey()
+  Map<String, String> get headers {
     if (_headers is EqualUnmodifiableMapView) return _headers;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(value);
+    return EqualUnmodifiableMapView(_headers);
   }
 
   @override
-  final int? timeoutSeconds;
+  @JsonKey()
+  final int timeoutSeconds;
 
   @override
   String toString() {
@@ -307,8 +307,8 @@ abstract class _AIRequest implements AIRequest {
     required final Map<String, dynamic> payload,
     required final DateTime timestamp,
     required final String userId,
-    final Map<String, String>? headers,
-    final int? timeoutSeconds,
+    final Map<String, String> headers,
+    final int timeoutSeconds,
   }) = _$AIRequestImpl;
 
   factory _AIRequest.fromJson(Map<String, dynamic> json) =
@@ -325,9 +325,9 @@ abstract class _AIRequest implements AIRequest {
   @override
   String get userId;
   @override
-  Map<String, String>? get headers;
+  Map<String, String> get headers;
   @override
-  int? get timeoutSeconds;
+  int get timeoutSeconds;
 
   /// Create a copy of AIRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -347,8 +347,8 @@ mixin _$WorkoutPlanRequest {
   Map<String, dynamic> get userProfile => throw _privateConstructorUsedError;
   List<Map<String, dynamic>> get availableExercises =>
       throw _privateConstructorUsedError;
-  Map<String, dynamic>? get preferences => throw _privateConstructorUsedError;
-  List<String>? get excludedExercises => throw _privateConstructorUsedError;
+  Map<String, dynamic> get preferences => throw _privateConstructorUsedError;
+  Map<String, dynamic> get constraints => throw _privateConstructorUsedError;
 
   /// Serializes this WorkoutPlanRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -371,8 +371,8 @@ abstract class $WorkoutPlanRequestCopyWith<$Res> {
     String userId,
     Map<String, dynamic> userProfile,
     List<Map<String, dynamic>> availableExercises,
-    Map<String, dynamic>? preferences,
-    List<String>? excludedExercises,
+    Map<String, dynamic> preferences,
+    Map<String, dynamic> constraints,
   });
 }
 
@@ -394,8 +394,8 @@ class _$WorkoutPlanRequestCopyWithImpl<$Res, $Val extends WorkoutPlanRequest>
     Object? userId = null,
     Object? userProfile = null,
     Object? availableExercises = null,
-    Object? preferences = freezed,
-    Object? excludedExercises = freezed,
+    Object? preferences = null,
+    Object? constraints = null,
   }) {
     return _then(
       _value.copyWith(
@@ -415,15 +415,15 @@ class _$WorkoutPlanRequestCopyWithImpl<$Res, $Val extends WorkoutPlanRequest>
                     : availableExercises // ignore: cast_nullable_to_non_nullable
                         as List<Map<String, dynamic>>,
             preferences:
-                freezed == preferences
+                null == preferences
                     ? _value.preferences
                     : preferences // ignore: cast_nullable_to_non_nullable
-                        as Map<String, dynamic>?,
-            excludedExercises:
-                freezed == excludedExercises
-                    ? _value.excludedExercises
-                    : excludedExercises // ignore: cast_nullable_to_non_nullable
-                        as List<String>?,
+                        as Map<String, dynamic>,
+            constraints:
+                null == constraints
+                    ? _value.constraints
+                    : constraints // ignore: cast_nullable_to_non_nullable
+                        as Map<String, dynamic>,
           )
           as $Val,
     );
@@ -443,8 +443,8 @@ abstract class _$$WorkoutPlanRequestImplCopyWith<$Res>
     String userId,
     Map<String, dynamic> userProfile,
     List<Map<String, dynamic>> availableExercises,
-    Map<String, dynamic>? preferences,
-    List<String>? excludedExercises,
+    Map<String, dynamic> preferences,
+    Map<String, dynamic> constraints,
   });
 }
 
@@ -465,8 +465,8 @@ class __$$WorkoutPlanRequestImplCopyWithImpl<$Res>
     Object? userId = null,
     Object? userProfile = null,
     Object? availableExercises = null,
-    Object? preferences = freezed,
-    Object? excludedExercises = freezed,
+    Object? preferences = null,
+    Object? constraints = null,
   }) {
     return _then(
       _$WorkoutPlanRequestImpl(
@@ -486,15 +486,15 @@ class __$$WorkoutPlanRequestImplCopyWithImpl<$Res>
                 : availableExercises // ignore: cast_nullable_to_non_nullable
                     as List<Map<String, dynamic>>,
         preferences:
-            freezed == preferences
+            null == preferences
                 ? _value._preferences
                 : preferences // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>?,
-        excludedExercises:
-            freezed == excludedExercises
-                ? _value._excludedExercises
-                : excludedExercises // ignore: cast_nullable_to_non_nullable
-                    as List<String>?,
+                    as Map<String, dynamic>,
+        constraints:
+            null == constraints
+                ? _value._constraints
+                : constraints // ignore: cast_nullable_to_non_nullable
+                    as Map<String, dynamic>,
       ),
     );
   }
@@ -507,12 +507,12 @@ class _$WorkoutPlanRequestImpl implements _WorkoutPlanRequest {
     required this.userId,
     required final Map<String, dynamic> userProfile,
     required final List<Map<String, dynamic>> availableExercises,
-    final Map<String, dynamic>? preferences,
-    final List<String>? excludedExercises,
+    final Map<String, dynamic> preferences = const {},
+    final Map<String, dynamic> constraints = const {},
   }) : _userProfile = userProfile,
        _availableExercises = availableExercises,
        _preferences = preferences,
-       _excludedExercises = excludedExercises;
+       _constraints = constraints;
 
   factory _$WorkoutPlanRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$WorkoutPlanRequestImplFromJson(json);
@@ -536,30 +536,27 @@ class _$WorkoutPlanRequestImpl implements _WorkoutPlanRequest {
     return EqualUnmodifiableListView(_availableExercises);
   }
 
-  final Map<String, dynamic>? _preferences;
+  final Map<String, dynamic> _preferences;
   @override
-  Map<String, dynamic>? get preferences {
-    final value = _preferences;
-    if (value == null) return null;
+  @JsonKey()
+  Map<String, dynamic> get preferences {
     if (_preferences is EqualUnmodifiableMapView) return _preferences;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(value);
+    return EqualUnmodifiableMapView(_preferences);
   }
 
-  final List<String>? _excludedExercises;
+  final Map<String, dynamic> _constraints;
   @override
-  List<String>? get excludedExercises {
-    final value = _excludedExercises;
-    if (value == null) return null;
-    if (_excludedExercises is EqualUnmodifiableListView)
-      return _excludedExercises;
+  @JsonKey()
+  Map<String, dynamic> get constraints {
+    if (_constraints is EqualUnmodifiableMapView) return _constraints;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
+    return EqualUnmodifiableMapView(_constraints);
   }
 
   @override
   String toString() {
-    return 'WorkoutPlanRequest(userId: $userId, userProfile: $userProfile, availableExercises: $availableExercises, preferences: $preferences, excludedExercises: $excludedExercises)';
+    return 'WorkoutPlanRequest(userId: $userId, userProfile: $userProfile, availableExercises: $availableExercises, preferences: $preferences, constraints: $constraints)';
   }
 
   @override
@@ -581,8 +578,8 @@ class _$WorkoutPlanRequestImpl implements _WorkoutPlanRequest {
               _preferences,
             ) &&
             const DeepCollectionEquality().equals(
-              other._excludedExercises,
-              _excludedExercises,
+              other._constraints,
+              _constraints,
             ));
   }
 
@@ -594,7 +591,7 @@ class _$WorkoutPlanRequestImpl implements _WorkoutPlanRequest {
     const DeepCollectionEquality().hash(_userProfile),
     const DeepCollectionEquality().hash(_availableExercises),
     const DeepCollectionEquality().hash(_preferences),
-    const DeepCollectionEquality().hash(_excludedExercises),
+    const DeepCollectionEquality().hash(_constraints),
   );
 
   /// Create a copy of WorkoutPlanRequest
@@ -619,8 +616,8 @@ abstract class _WorkoutPlanRequest implements WorkoutPlanRequest {
     required final String userId,
     required final Map<String, dynamic> userProfile,
     required final List<Map<String, dynamic>> availableExercises,
-    final Map<String, dynamic>? preferences,
-    final List<String>? excludedExercises,
+    final Map<String, dynamic> preferences,
+    final Map<String, dynamic> constraints,
   }) = _$WorkoutPlanRequestImpl;
 
   factory _WorkoutPlanRequest.fromJson(Map<String, dynamic> json) =
@@ -633,9 +630,9 @@ abstract class _WorkoutPlanRequest implements WorkoutPlanRequest {
   @override
   List<Map<String, dynamic>> get availableExercises;
   @override
-  Map<String, dynamic>? get preferences;
+  Map<String, dynamic> get preferences;
   @override
-  List<String>? get excludedExercises;
+  Map<String, dynamic> get constraints;
 
   /// Create a copy of WorkoutPlanRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -655,11 +652,11 @@ AlternativeExerciseRequest _$AlternativeExerciseRequestFromJson(
 mixin _$AlternativeExerciseRequest {
   String get userId => throw _privateConstructorUsedError;
   String get currentExerciseId => throw _privateConstructorUsedError;
-  String get alternativeType =>
-      throw _privateConstructorUsedError; // 'dislike' or 'not_possible'
+  AlternativeType get alternativeType => throw _privateConstructorUsedError;
   List<Map<String, dynamic>> get availableExercises =>
       throw _privateConstructorUsedError;
-  Map<String, dynamic>? get userContext => throw _privateConstructorUsedError;
+  Map<String, dynamic> get userContext => throw _privateConstructorUsedError;
+  List<String> get excludeExerciseIds => throw _privateConstructorUsedError;
 
   /// Serializes this AlternativeExerciseRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -685,9 +682,10 @@ abstract class $AlternativeExerciseRequestCopyWith<$Res> {
   $Res call({
     String userId,
     String currentExerciseId,
-    String alternativeType,
+    AlternativeType alternativeType,
     List<Map<String, dynamic>> availableExercises,
-    Map<String, dynamic>? userContext,
+    Map<String, dynamic> userContext,
+    List<String> excludeExerciseIds,
   });
 }
 
@@ -713,7 +711,8 @@ class _$AlternativeExerciseRequestCopyWithImpl<
     Object? currentExerciseId = null,
     Object? alternativeType = null,
     Object? availableExercises = null,
-    Object? userContext = freezed,
+    Object? userContext = null,
+    Object? excludeExerciseIds = null,
   }) {
     return _then(
       _value.copyWith(
@@ -731,17 +730,22 @@ class _$AlternativeExerciseRequestCopyWithImpl<
                 null == alternativeType
                     ? _value.alternativeType
                     : alternativeType // ignore: cast_nullable_to_non_nullable
-                        as String,
+                        as AlternativeType,
             availableExercises:
                 null == availableExercises
                     ? _value.availableExercises
                     : availableExercises // ignore: cast_nullable_to_non_nullable
                         as List<Map<String, dynamic>>,
             userContext:
-                freezed == userContext
+                null == userContext
                     ? _value.userContext
                     : userContext // ignore: cast_nullable_to_non_nullable
-                        as Map<String, dynamic>?,
+                        as Map<String, dynamic>,
+            excludeExerciseIds:
+                null == excludeExerciseIds
+                    ? _value.excludeExerciseIds
+                    : excludeExerciseIds // ignore: cast_nullable_to_non_nullable
+                        as List<String>,
           )
           as $Val,
     );
@@ -760,9 +764,10 @@ abstract class _$$AlternativeExerciseRequestImplCopyWith<$Res>
   $Res call({
     String userId,
     String currentExerciseId,
-    String alternativeType,
+    AlternativeType alternativeType,
     List<Map<String, dynamic>> availableExercises,
-    Map<String, dynamic>? userContext,
+    Map<String, dynamic> userContext,
+    List<String> excludeExerciseIds,
   });
 }
 
@@ -788,7 +793,8 @@ class __$$AlternativeExerciseRequestImplCopyWithImpl<$Res>
     Object? currentExerciseId = null,
     Object? alternativeType = null,
     Object? availableExercises = null,
-    Object? userContext = freezed,
+    Object? userContext = null,
+    Object? excludeExerciseIds = null,
   }) {
     return _then(
       _$AlternativeExerciseRequestImpl(
@@ -806,17 +812,22 @@ class __$$AlternativeExerciseRequestImplCopyWithImpl<$Res>
             null == alternativeType
                 ? _value.alternativeType
                 : alternativeType // ignore: cast_nullable_to_non_nullable
-                    as String,
+                    as AlternativeType,
         availableExercises:
             null == availableExercises
                 ? _value._availableExercises
                 : availableExercises // ignore: cast_nullable_to_non_nullable
                     as List<Map<String, dynamic>>,
         userContext:
-            freezed == userContext
+            null == userContext
                 ? _value._userContext
                 : userContext // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>?,
+                    as Map<String, dynamic>,
+        excludeExerciseIds:
+            null == excludeExerciseIds
+                ? _value._excludeExerciseIds
+                : excludeExerciseIds // ignore: cast_nullable_to_non_nullable
+                    as List<String>,
       ),
     );
   }
@@ -830,9 +841,11 @@ class _$AlternativeExerciseRequestImpl implements _AlternativeExerciseRequest {
     required this.currentExerciseId,
     required this.alternativeType,
     required final List<Map<String, dynamic>> availableExercises,
-    final Map<String, dynamic>? userContext,
+    final Map<String, dynamic> userContext = const {},
+    final List<String> excludeExerciseIds = const [],
   }) : _availableExercises = availableExercises,
-       _userContext = userContext;
+       _userContext = userContext,
+       _excludeExerciseIds = excludeExerciseIds;
 
   factory _$AlternativeExerciseRequestImpl.fromJson(
     Map<String, dynamic> json,
@@ -843,10 +856,8 @@ class _$AlternativeExerciseRequestImpl implements _AlternativeExerciseRequest {
   @override
   final String currentExerciseId;
   @override
-  final String alternativeType;
-  // 'dislike' or 'not_possible'
+  final AlternativeType alternativeType;
   final List<Map<String, dynamic>> _availableExercises;
-  // 'dislike' or 'not_possible'
   @override
   List<Map<String, dynamic>> get availableExercises {
     if (_availableExercises is EqualUnmodifiableListView)
@@ -855,19 +866,28 @@ class _$AlternativeExerciseRequestImpl implements _AlternativeExerciseRequest {
     return EqualUnmodifiableListView(_availableExercises);
   }
 
-  final Map<String, dynamic>? _userContext;
+  final Map<String, dynamic> _userContext;
   @override
-  Map<String, dynamic>? get userContext {
-    final value = _userContext;
-    if (value == null) return null;
+  @JsonKey()
+  Map<String, dynamic> get userContext {
     if (_userContext is EqualUnmodifiableMapView) return _userContext;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(value);
+    return EqualUnmodifiableMapView(_userContext);
+  }
+
+  final List<String> _excludeExerciseIds;
+  @override
+  @JsonKey()
+  List<String> get excludeExerciseIds {
+    if (_excludeExerciseIds is EqualUnmodifiableListView)
+      return _excludeExerciseIds;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_excludeExerciseIds);
   }
 
   @override
   String toString() {
-    return 'AlternativeExerciseRequest(userId: $userId, currentExerciseId: $currentExerciseId, alternativeType: $alternativeType, availableExercises: $availableExercises, userContext: $userContext)';
+    return 'AlternativeExerciseRequest(userId: $userId, currentExerciseId: $currentExerciseId, alternativeType: $alternativeType, availableExercises: $availableExercises, userContext: $userContext, excludeExerciseIds: $excludeExerciseIds)';
   }
 
   @override
@@ -887,6 +907,10 @@ class _$AlternativeExerciseRequestImpl implements _AlternativeExerciseRequest {
             const DeepCollectionEquality().equals(
               other._userContext,
               _userContext,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._excludeExerciseIds,
+              _excludeExerciseIds,
             ));
   }
 
@@ -899,6 +923,7 @@ class _$AlternativeExerciseRequestImpl implements _AlternativeExerciseRequest {
     alternativeType,
     const DeepCollectionEquality().hash(_availableExercises),
     const DeepCollectionEquality().hash(_userContext),
+    const DeepCollectionEquality().hash(_excludeExerciseIds),
   );
 
   /// Create a copy of AlternativeExerciseRequest
@@ -922,9 +947,10 @@ abstract class _AlternativeExerciseRequest
   const factory _AlternativeExerciseRequest({
     required final String userId,
     required final String currentExerciseId,
-    required final String alternativeType,
+    required final AlternativeType alternativeType,
     required final List<Map<String, dynamic>> availableExercises,
-    final Map<String, dynamic>? userContext,
+    final Map<String, dynamic> userContext,
+    final List<String> excludeExerciseIds,
   }) = _$AlternativeExerciseRequestImpl;
 
   factory _AlternativeExerciseRequest.fromJson(Map<String, dynamic> json) =
@@ -935,11 +961,13 @@ abstract class _AlternativeExerciseRequest
   @override
   String get currentExerciseId;
   @override
-  String get alternativeType; // 'dislike' or 'not_possible'
+  AlternativeType get alternativeType;
   @override
   List<Map<String, dynamic>> get availableExercises;
   @override
-  Map<String, dynamic>? get userContext;
+  Map<String, dynamic> get userContext;
+  @override
+  List<String> get excludeExerciseIds;
 
   /// Create a copy of AlternativeExerciseRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -958,8 +986,7 @@ mixin _$NotificationRequest {
   String get userId => throw _privateConstructorUsedError;
   Map<String, dynamic> get userContext => throw _privateConstructorUsedError;
   String? get notificationType => throw _privateConstructorUsedError;
-  Map<String, dynamic>? get additionalData =>
-      throw _privateConstructorUsedError;
+  Map<String, dynamic> get additionalData => throw _privateConstructorUsedError;
 
   /// Serializes this NotificationRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -982,7 +1009,7 @@ abstract class $NotificationRequestCopyWith<$Res> {
     String userId,
     Map<String, dynamic> userContext,
     String? notificationType,
-    Map<String, dynamic>? additionalData,
+    Map<String, dynamic> additionalData,
   });
 }
 
@@ -1004,7 +1031,7 @@ class _$NotificationRequestCopyWithImpl<$Res, $Val extends NotificationRequest>
     Object? userId = null,
     Object? userContext = null,
     Object? notificationType = freezed,
-    Object? additionalData = freezed,
+    Object? additionalData = null,
   }) {
     return _then(
       _value.copyWith(
@@ -1024,10 +1051,10 @@ class _$NotificationRequestCopyWithImpl<$Res, $Val extends NotificationRequest>
                     : notificationType // ignore: cast_nullable_to_non_nullable
                         as String?,
             additionalData:
-                freezed == additionalData
+                null == additionalData
                     ? _value.additionalData
                     : additionalData // ignore: cast_nullable_to_non_nullable
-                        as Map<String, dynamic>?,
+                        as Map<String, dynamic>,
           )
           as $Val,
     );
@@ -1047,7 +1074,7 @@ abstract class _$$NotificationRequestImplCopyWith<$Res>
     String userId,
     Map<String, dynamic> userContext,
     String? notificationType,
-    Map<String, dynamic>? additionalData,
+    Map<String, dynamic> additionalData,
   });
 }
 
@@ -1068,7 +1095,7 @@ class __$$NotificationRequestImplCopyWithImpl<$Res>
     Object? userId = null,
     Object? userContext = null,
     Object? notificationType = freezed,
-    Object? additionalData = freezed,
+    Object? additionalData = null,
   }) {
     return _then(
       _$NotificationRequestImpl(
@@ -1088,10 +1115,10 @@ class __$$NotificationRequestImplCopyWithImpl<$Res>
                 : notificationType // ignore: cast_nullable_to_non_nullable
                     as String?,
         additionalData:
-            freezed == additionalData
+            null == additionalData
                 ? _value._additionalData
                 : additionalData // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>?,
+                    as Map<String, dynamic>,
       ),
     );
   }
@@ -1104,7 +1131,7 @@ class _$NotificationRequestImpl implements _NotificationRequest {
     required this.userId,
     required final Map<String, dynamic> userContext,
     this.notificationType,
-    final Map<String, dynamic>? additionalData,
+    final Map<String, dynamic> additionalData = const {},
   }) : _userContext = userContext,
        _additionalData = additionalData;
 
@@ -1123,14 +1150,13 @@ class _$NotificationRequestImpl implements _NotificationRequest {
 
   @override
   final String? notificationType;
-  final Map<String, dynamic>? _additionalData;
+  final Map<String, dynamic> _additionalData;
   @override
-  Map<String, dynamic>? get additionalData {
-    final value = _additionalData;
-    if (value == null) return null;
+  @JsonKey()
+  Map<String, dynamic> get additionalData {
     if (_additionalData is EqualUnmodifiableMapView) return _additionalData;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(value);
+    return EqualUnmodifiableMapView(_additionalData);
   }
 
   @override
@@ -1188,7 +1214,7 @@ abstract class _NotificationRequest implements NotificationRequest {
     required final String userId,
     required final Map<String, dynamic> userContext,
     final String? notificationType,
-    final Map<String, dynamic>? additionalData,
+    final Map<String, dynamic> additionalData,
   }) = _$NotificationRequestImpl;
 
   factory _NotificationRequest.fromJson(Map<String, dynamic> json) =
@@ -1201,7 +1227,7 @@ abstract class _NotificationRequest implements NotificationRequest {
   @override
   String? get notificationType;
   @override
-  Map<String, dynamic>? get additionalData;
+  Map<String, dynamic> get additionalData;
 
   /// Create a copy of NotificationRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -1219,8 +1245,7 @@ N8NWorkflowRequest _$N8NWorkflowRequestFromJson(Map<String, dynamic> json) {
 mixin _$N8NWorkflowRequest {
   String get workflowId => throw _privateConstructorUsedError;
   Map<String, dynamic> get inputData => throw _privateConstructorUsedError;
-  String? get webhookUrl => throw _privateConstructorUsedError;
-  Map<String, String>? get headers => throw _privateConstructorUsedError;
+  Map<String, dynamic> get metadata => throw _privateConstructorUsedError;
 
   /// Serializes this N8NWorkflowRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1242,8 +1267,7 @@ abstract class $N8NWorkflowRequestCopyWith<$Res> {
   $Res call({
     String workflowId,
     Map<String, dynamic> inputData,
-    String? webhookUrl,
-    Map<String, String>? headers,
+    Map<String, dynamic> metadata,
   });
 }
 
@@ -1264,8 +1288,7 @@ class _$N8NWorkflowRequestCopyWithImpl<$Res, $Val extends N8NWorkflowRequest>
   $Res call({
     Object? workflowId = null,
     Object? inputData = null,
-    Object? webhookUrl = freezed,
-    Object? headers = freezed,
+    Object? metadata = null,
   }) {
     return _then(
       _value.copyWith(
@@ -1279,16 +1302,11 @@ class _$N8NWorkflowRequestCopyWithImpl<$Res, $Val extends N8NWorkflowRequest>
                     ? _value.inputData
                     : inputData // ignore: cast_nullable_to_non_nullable
                         as Map<String, dynamic>,
-            webhookUrl:
-                freezed == webhookUrl
-                    ? _value.webhookUrl
-                    : webhookUrl // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            headers:
-                freezed == headers
-                    ? _value.headers
-                    : headers // ignore: cast_nullable_to_non_nullable
-                        as Map<String, String>?,
+            metadata:
+                null == metadata
+                    ? _value.metadata
+                    : metadata // ignore: cast_nullable_to_non_nullable
+                        as Map<String, dynamic>,
           )
           as $Val,
     );
@@ -1307,8 +1325,7 @@ abstract class _$$N8NWorkflowRequestImplCopyWith<$Res>
   $Res call({
     String workflowId,
     Map<String, dynamic> inputData,
-    String? webhookUrl,
-    Map<String, String>? headers,
+    Map<String, dynamic> metadata,
   });
 }
 
@@ -1328,8 +1345,7 @@ class __$$N8NWorkflowRequestImplCopyWithImpl<$Res>
   $Res call({
     Object? workflowId = null,
     Object? inputData = null,
-    Object? webhookUrl = freezed,
-    Object? headers = freezed,
+    Object? metadata = null,
   }) {
     return _then(
       _$N8NWorkflowRequestImpl(
@@ -1343,16 +1359,11 @@ class __$$N8NWorkflowRequestImplCopyWithImpl<$Res>
                 ? _value._inputData
                 : inputData // ignore: cast_nullable_to_non_nullable
                     as Map<String, dynamic>,
-        webhookUrl:
-            freezed == webhookUrl
-                ? _value.webhookUrl
-                : webhookUrl // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        headers:
-            freezed == headers
-                ? _value._headers
-                : headers // ignore: cast_nullable_to_non_nullable
-                    as Map<String, String>?,
+        metadata:
+            null == metadata
+                ? _value._metadata
+                : metadata // ignore: cast_nullable_to_non_nullable
+                    as Map<String, dynamic>,
       ),
     );
   }
@@ -1364,10 +1375,9 @@ class _$N8NWorkflowRequestImpl implements _N8NWorkflowRequest {
   const _$N8NWorkflowRequestImpl({
     required this.workflowId,
     required final Map<String, dynamic> inputData,
-    this.webhookUrl,
-    final Map<String, String>? headers,
+    final Map<String, dynamic> metadata = const {},
   }) : _inputData = inputData,
-       _headers = headers;
+       _metadata = metadata;
 
   factory _$N8NWorkflowRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$N8NWorkflowRequestImplFromJson(json);
@@ -1382,21 +1392,18 @@ class _$N8NWorkflowRequestImpl implements _N8NWorkflowRequest {
     return EqualUnmodifiableMapView(_inputData);
   }
 
+  final Map<String, dynamic> _metadata;
   @override
-  final String? webhookUrl;
-  final Map<String, String>? _headers;
-  @override
-  Map<String, String>? get headers {
-    final value = _headers;
-    if (value == null) return null;
-    if (_headers is EqualUnmodifiableMapView) return _headers;
+  @JsonKey()
+  Map<String, dynamic> get metadata {
+    if (_metadata is EqualUnmodifiableMapView) return _metadata;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(value);
+    return EqualUnmodifiableMapView(_metadata);
   }
 
   @override
   String toString() {
-    return 'N8NWorkflowRequest(workflowId: $workflowId, inputData: $inputData, webhookUrl: $webhookUrl, headers: $headers)';
+    return 'N8NWorkflowRequest(workflowId: $workflowId, inputData: $inputData, metadata: $metadata)';
   }
 
   @override
@@ -1410,9 +1417,7 @@ class _$N8NWorkflowRequestImpl implements _N8NWorkflowRequest {
               other._inputData,
               _inputData,
             ) &&
-            (identical(other.webhookUrl, webhookUrl) ||
-                other.webhookUrl == webhookUrl) &&
-            const DeepCollectionEquality().equals(other._headers, _headers));
+            const DeepCollectionEquality().equals(other._metadata, _metadata));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1421,8 +1426,7 @@ class _$N8NWorkflowRequestImpl implements _N8NWorkflowRequest {
     runtimeType,
     workflowId,
     const DeepCollectionEquality().hash(_inputData),
-    webhookUrl,
-    const DeepCollectionEquality().hash(_headers),
+    const DeepCollectionEquality().hash(_metadata),
   );
 
   /// Create a copy of N8NWorkflowRequest
@@ -1446,8 +1450,7 @@ abstract class _N8NWorkflowRequest implements N8NWorkflowRequest {
   const factory _N8NWorkflowRequest({
     required final String workflowId,
     required final Map<String, dynamic> inputData,
-    final String? webhookUrl,
-    final Map<String, String>? headers,
+    final Map<String, dynamic> metadata,
   }) = _$N8NWorkflowRequestImpl;
 
   factory _N8NWorkflowRequest.fromJson(Map<String, dynamic> json) =
@@ -1458,9 +1461,7 @@ abstract class _N8NWorkflowRequest implements N8NWorkflowRequest {
   @override
   Map<String, dynamic> get inputData;
   @override
-  String? get webhookUrl;
-  @override
-  Map<String, String>? get headers;
+  Map<String, dynamic> get metadata;
 
   /// Create a copy of N8NWorkflowRequest
   /// with the given fields replaced by the non-null parameter values.
