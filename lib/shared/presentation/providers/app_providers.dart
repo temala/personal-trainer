@@ -1,9 +1,10 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:fitness_training_app/core/utils/logger.dart';
-import 'package:fitness_training_app/shared/data/models/offline/local_database.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:fitness_training_app/core/utils/logger.dart';
+import 'package:fitness_training_app/shared/presentation/providers/exercise_providers.dart';
 
 /// Connectivity provider to monitor network status
 final connectivityProvider = StreamProvider<List<ConnectivityResult>>((ref) {
@@ -43,8 +44,21 @@ final appInitializationProvider = FutureProvider<void>((ref) async {
     throw Exception('Hive database not initialized');
   }
 
-  // Additional initialization logic will be added here
-  AppLogger.info('App initialization completed successfully');
+  try {
+    // Initialize exercise animation service
+    final animationService = ref.read(exerciseAnimationServiceProvider);
+    await animationService.initialize();
+    AppLogger.info('Exercise animation service initialized');
+
+    // Initialize exercise database (non-blocking)
+    ref.read(exerciseDatabaseInitializationProvider);
+    AppLogger.info('Exercise database initialization started');
+
+    AppLogger.info('App initialization completed successfully');
+  } catch (e, stackTrace) {
+    AppLogger.error('Error during app initialization', e, stackTrace);
+    // Don't rethrow - allow app to continue with limited functionality
+  }
 });
 
 /// Theme mode provider

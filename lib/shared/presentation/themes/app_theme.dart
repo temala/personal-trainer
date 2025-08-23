@@ -30,6 +30,12 @@ class AppTheme {
     end: Alignment.bottomRight,
   );
 
+  static const LinearGradient cardGradient = LinearGradient(
+    colors: [Color(0xFFFFFFFF), Color(0xFFF8F9FA)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
   /// Light theme configuration
   static ThemeData get lightTheme {
     return ThemeData(

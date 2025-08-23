@@ -42,7 +42,7 @@ class CustomButton extends StatelessWidget {
     final primaryColor = color ?? theme.primaryColor;
     final isDisabled = onPressed == null || isLoading;
 
-    Widget child = Row(
+    final Widget child = Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -62,12 +62,16 @@ class CustomButton extends StatelessWidget {
           Icon(icon, size: 20, color: _getTextColor(context)),
           const SizedBox(width: 8),
         ],
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w600,
-            color: _getTextColor(context),
+        Flexible(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.w600,
+              color: _getTextColor(context),
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
           ),
         ),
       ],

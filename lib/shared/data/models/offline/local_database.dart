@@ -1,7 +1,9 @@
 import 'package:hive_flutter/hive_flutter.dart';
+
 import 'package:fitness_training_app/core/utils/logger.dart';
 import 'package:fitness_training_app/shared/data/models/offline/hive_adapters.dart';
 import 'package:fitness_training_app/shared/data/models/offline/offline_models.dart';
+import 'package:fitness_training_app/shared/data/services/exercise_animation_service.dart';
 import 'package:fitness_training_app/shared/domain/entities/user_profile.dart';
 
 /// Local database manager using Hive for offline storage
@@ -14,6 +16,7 @@ class LocalDatabase {
   static const String _offlineSessionsBox = 'offline_sessions';
   static const String _cachedExercisesBox = 'cached_exercises';
   static const String _syncQueueBox = 'sync_queue';
+  static const String _animationCacheBox = 'exercise_animations_cache';
   static const String _metadataBox = 'metadata';
 
   static const int _currentSchemaVersion = 1;
@@ -53,6 +56,7 @@ class LocalDatabase {
       _offlineSessionsBox,
       _cachedExercisesBox,
       _syncQueueBox,
+      _animationCacheBox,
       _metadataBox,
     ];
 
@@ -69,6 +73,8 @@ class LocalDatabase {
           await Hive.openBox<CachedExercise>(boxName);
         } else if (boxName == _syncQueueBox) {
           await Hive.openBox<SyncQueueItem>(boxName);
+        } else if (boxName == _animationCacheBox) {
+          await Hive.openBox<CachedAnimation>(boxName);
         } else {
           await Hive.openBox(boxName);
         }
@@ -178,6 +184,10 @@ class LocalDatabase {
   /// Get sync queue box
   static Box<SyncQueueItem> get syncQueueBox =>
       Hive.box<SyncQueueItem>(_syncQueueBox);
+
+  /// Get animation cache box
+  static Box<CachedAnimation> get animationCacheBox =>
+      Hive.box<CachedAnimation>(_animationCacheBox);
 
   /// Get metadata box
   static Box get metadataBox => Hive.box(_metadataBox);

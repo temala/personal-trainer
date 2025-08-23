@@ -12,6 +12,12 @@ import 'package:fitness_training_app/shared/domain/repositories/exercise_reposit
 
 /// Firebase implementation of ExerciseRepository with offline caching
 class FirebaseExerciseRepository implements ExerciseRepository {
+  FirebaseExerciseRepository({
+    FirebaseFirestore? firestore,
+    Connectivity? connectivity,
+  }) : _firestore = firestore ?? FirebaseFirestore.instance,
+       _connectivity = connectivity ?? Connectivity();
+
   final FirebaseFirestore _firestore;
   final Connectivity _connectivity;
 
@@ -20,17 +26,10 @@ class FirebaseExerciseRepository implements ExerciseRepository {
   static const String _cacheBoxName = 'exercises_cache';
   static const Duration _cacheValidityDuration = Duration(days: 7);
 
-  FirebaseExerciseRepository({
-    FirebaseFirestore? firestore,
-    Connectivity? connectivity,
-  }) : _firestore = firestore ?? FirebaseFirestore.instance,
-       _connectivity = connectivity ?? Connectivity();
-
   /// Safely get exercise cache box
   Box<CachedExercise>? get _safeExerciseCache {
     try {
-      _exerciseCache ??= Hive.box<CachedExercise>(_cacheBoxName);
-      return _exerciseCache;
+      return _exerciseCache ??= Hive.box<CachedExercise>(_cacheBoxName);
     } catch (e) {
       AppLogger.warning('Exercise cache box not available: $e');
       return null;
@@ -99,7 +98,8 @@ class FirebaseExerciseRepository implements ExerciseRepository {
   Future<Exercise?> getExerciseById(String id) async {
     try {
       // Check cache first
-      final cachedExercise = _exerciseCache.get(id);
+      final cache = _safeExerciseCache;
+      final cachedExercise = cache?.get(id);
       if (cachedExercise != null) {
         cachedExercise.markAccessed();
 
@@ -138,7 +138,8 @@ class FirebaseExerciseRepository implements ExerciseRepository {
       AppLogger.error('Error getting exercise $id', e, stackTrace);
 
       // Fallback to cache on error
-      final cachedExercise = _exerciseCache.get(id);
+      final cache = _safeExerciseCache;
+      final cachedExercise = cache?.get(id);
       if (cachedExercise != null) {
         AppLogger.info('Returning cached exercise $id due to error');
         return cachedExercise.exercise;
@@ -302,7 +303,8 @@ class FirebaseExerciseRepository implements ExerciseRepository {
 
   @override
   Future<bool> isAvailableOffline() async {
-    return _exerciseCache.isNotEmpty;
+    final cache = _safeExerciseCache;
+    return cache?.isNotEmpty ?? false;
   }
 
   @override
@@ -325,8 +327,9 @@ class FirebaseExerciseRepository implements ExerciseRepository {
 
   @override
   Future<Map<String, dynamic>> getCacheStatus() async {
-    final cacheSize = _exerciseCache.length;
-    final oldestCacheEntry = _exerciseCache.values
+    final cache = _safeExerciseCache;
+    final cacheSize = cache?.length ?? 0;
+    final oldestCacheEntry = cache?.values
         .map((cached) => cached.cachedAt)
         .fold<DateTime?>(null, (oldest, current) {
           if (oldest == null || current.isBefore(oldest)) {
@@ -335,7 +338,7 @@ class FirebaseExerciseRepository implements ExerciseRepository {
           return oldest;
         });
 
-    final newestCacheEntry = _exerciseCache.values
+    final newestCacheEntry = cache?.values
         .map((cached) => cached.cachedAt)
         .fold<DateTime?>(null, (newest, current) {
           if (newest == null || current.isAfter(newest)) {
@@ -365,7 +368,8 @@ class FirebaseExerciseRepository implements ExerciseRepository {
   }
 
   List<Exercise> _getCachedExercises() {
-    return _exerciseCache.values.map((cached) => cached.exercise).toList();
+    final cache = _safeExerciseCache;
+    return cache?.values.map((cached) => cached.exercise).toList() ?? [];
   }
 
   Future<void> _cacheExercises(List<Exercise> exercises) async {
@@ -375,14 +379,18 @@ class FirebaseExerciseRepository implements ExerciseRepository {
   }
 
   Future<void> _cacheExercise(Exercise exercise) async {
-    final cachedExercise = CachedExercise.fromExercise(exercise);
-    await _exerciseCache.put(exercise.id, cachedExercise);
+    final cache = _safeExerciseCache;
+    if (cache != null) {
+      final cachedExercise = CachedExercise.fromExercise(exercise);
+      await cache.put(exercise.id, cachedExercise);
+    }
   }
 
   bool _isCacheStale() {
-    if (_exerciseCache.isEmpty) return true;
+    final cache = _safeExerciseCache;
+    if (cache == null || cache.isEmpty) return true;
 
-    final oldestEntry = _exerciseCache.values
+    final oldestEntry = cache.values
         .map((cached) => cached.cachedAt)
         .fold<DateTime?>(null, (oldest, current) {
           if (oldest == null || current.isBefore(oldest)) {
