@@ -98,7 +98,6 @@ class CustomButton extends StatelessWidget {
           ),
           child: child,
         );
-        break;
 
       case ButtonVariant.outlined:
         button = OutlinedButton(
@@ -121,7 +120,6 @@ class CustomButton extends StatelessWidget {
           ),
           child: child,
         );
-        break;
 
       case ButtonVariant.text:
         button = TextButton(
@@ -137,7 +135,6 @@ class CustomButton extends StatelessWidget {
           ),
           child: child,
         );
-        break;
     }
 
     return SizedBox(width: width, height: height, child: button);

@@ -586,7 +586,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   Future<void> _handleNext() async {
     if (_currentStep < 3) {
       // Validate current step
-      if (_currentStep <= 1 && !_formKey.currentState!.validate()) {
+      if (_currentStep <= 1 &&
+          (_formKey.currentState == null ||
+              !_formKey.currentState!.validate())) {
         return;
       }
 
