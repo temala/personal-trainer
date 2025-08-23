@@ -2,6 +2,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:fitness_training_app/core/utils/logger.dart';
 import 'package:fitness_training_app/shared/data/models/offline/hive_adapters.dart';
 import 'package:fitness_training_app/shared/data/models/offline/offline_models.dart';
+import 'package:fitness_training_app/shared/domain/entities/user_profile.dart';
 
 /// Local database manager using Hive for offline storage
 class LocalDatabase {
@@ -57,7 +58,20 @@ class LocalDatabase {
 
     for (final boxName in boxes) {
       try {
-        await Hive.openBox(boxName);
+        // Open typed boxes for specific data types
+        if (boxName == _userProfileBox) {
+          await Hive.openBox<UserProfile>(boxName);
+        } else if (boxName == _cachedWorkoutPlansBox) {
+          await Hive.openBox<CachedWorkoutPlan>(boxName);
+        } else if (boxName == _offlineSessionsBox) {
+          await Hive.openBox<OfflineWorkoutSession>(boxName);
+        } else if (boxName == _cachedExercisesBox) {
+          await Hive.openBox<CachedExercise>(boxName);
+        } else if (boxName == _syncQueueBox) {
+          await Hive.openBox<SyncQueueItem>(boxName);
+        } else {
+          await Hive.openBox(boxName);
+        }
         AppLogger.debug('Opened box: $boxName');
       } catch (e) {
         AppLogger.error('Failed to open box: $boxName', e);
@@ -137,7 +151,8 @@ class LocalDatabase {
   }
 
   /// Get user profile box
-  static Box get userProfileBox => Hive.box(_userProfileBox);
+  static Box<UserProfile> get userProfileBox =>
+      Hive.box<UserProfile>(_userProfileBox);
 
   /// Get exercises box
   static Box get exercisesBox => Hive.box(_exercisesBox);

@@ -14,6 +14,20 @@ class Validators {
     return null;
   }
 
+  /// Check if email is valid (boolean)
+  static bool isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return emailRegex.hasMatch(email);
+  }
+
+  /// Check if password is valid (boolean)
+  static bool isValidPassword(String password) {
+    if (password.length < 8) return false;
+    if (!password.contains(RegExp(r'[a-zA-Z]'))) return false;
+    if (!password.contains(RegExp(r'[0-9]'))) return false;
+    return true;
+  }
+
   /// Password validation
   static String? password(String? value) {
     if (value == null || value.isEmpty) {

@@ -1,4 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:fitness_training_app/core/utils/logger.dart';
+import 'package:fitness_training_app/shared/data/models/offline/local_database.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +13,11 @@ final connectivityProvider = StreamProvider<List<ConnectivityResult>>((ref) {
 /// Shared preferences provider
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
   throw UnimplementedError('SharedPreferences must be overridden');
+});
+
+/// Hive initialization status provider
+final hiveInitializedProvider = Provider<bool>((ref) {
+  return true; // Will be overridden in main.dart
 });
 
 /// Hive database provider
@@ -30,10 +37,14 @@ final networkStatusProvider = Provider<bool>((ref) {
 
 /// App initialization provider
 final appInitializationProvider = FutureProvider<void>((ref) async {
-  // Initialize Hive
-  await Hive.initFlutter();
+  // Check if Hive is initialized
+  final hiveInitialized = ref.watch(hiveInitializedProvider);
+  if (!hiveInitialized) {
+    throw Exception('Hive database not initialized');
+  }
 
   // Additional initialization logic will be added here
+  AppLogger.info('App initialization completed successfully');
 });
 
 /// Theme mode provider

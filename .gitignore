@@ -51,3 +51,14 @@ app.*.map.json
 .env.staging
 *.key
 secrets/
+api_keys.dart
+config/secrets.dart
+
+# Firebase sensitive files (these should be added to version control)
+# but keeping here as reminder to be careful
+# android/app/google-services.json
+# ios/Runner/GoogleService-Info.plist
+
+# Generated files that might contain sensitive data
+lib/generated/
+*.g.dart.bak

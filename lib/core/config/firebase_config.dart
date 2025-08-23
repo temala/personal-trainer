@@ -14,20 +14,47 @@ class FirebaseConfig {
     if (_initialized) return;
 
     try {
+      // Check if Firebase is already initialized
+      try {
+        Firebase.app();
+        AppLogger.info('Firebase already initialized');
+        _initialized = true;
+        return;
+      } catch (e) {
+        // Firebase not initialized, proceed with initialization
+        AppLogger.info('Initializing Firebase...');
+      }
+
       // Initialize Firebase
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
       AppLogger.info('Firebase initialized successfully');
 
-      // Initialize Crashlytics
-      await _initializeCrashlytics();
+      // Initialize Crashlytics (optional, don't fail if it doesn't work)
+      try {
+        await _initializeCrashlytics();
+      } catch (e, stackTrace) {
+        AppLogger.error(
+          'Failed to initialize Crashlytics (non-critical)',
+          e,
+          stackTrace,
+        );
+      }
 
-      // Initialize Firebase Messaging
-      await _initializeMessaging();
+      // Initialize Firebase Messaging (optional, don't fail if it doesn't work)
+      try {
+        await _initializeMessaging();
+      } catch (e, stackTrace) {
+        AppLogger.error(
+          'Failed to initialize Firebase Messaging (non-critical)',
+          e,
+          stackTrace,
+        );
+      }
 
       _initialized = true;
-      AppLogger.info('All Firebase services initialized');
+      AppLogger.info('Firebase core services initialized');
     } catch (e, stackTrace) {
       AppLogger.error('Failed to initialize Firebase', e, stackTrace);
       rethrow;

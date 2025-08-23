@@ -13,20 +13,29 @@ import 'package:fitness_training_app/shared/domain/repositories/exercise_reposit
 /// Firebase implementation of ExerciseRepository with offline caching
 class FirebaseExerciseRepository implements ExerciseRepository {
   final FirebaseFirestore _firestore;
-  final Box<CachedExercise> _exerciseCache;
   final Connectivity _connectivity;
+
+  Box<CachedExercise>? _exerciseCache;
 
   static const String _cacheBoxName = 'exercises_cache';
   static const Duration _cacheValidityDuration = Duration(days: 7);
 
   FirebaseExerciseRepository({
     FirebaseFirestore? firestore,
-    Box<CachedExercise>? exerciseCache,
     Connectivity? connectivity,
   }) : _firestore = firestore ?? FirebaseFirestore.instance,
-       _exerciseCache =
-           exerciseCache ?? Hive.box<CachedExercise>(_cacheBoxName),
        _connectivity = connectivity ?? Connectivity();
+
+  /// Safely get exercise cache box
+  Box<CachedExercise>? get _safeExerciseCache {
+    try {
+      _exerciseCache ??= Hive.box<CachedExercise>(_cacheBoxName);
+      return _exerciseCache;
+    } catch (e) {
+      AppLogger.warning('Exercise cache box not available: $e');
+      return null;
+    }
+  }
 
   @override
   Future<List<Exercise>> getAllExercises() async {

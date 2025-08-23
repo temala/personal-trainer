@@ -13,28 +13,48 @@ import 'package:fitness_training_app/shared/domain/repositories/user_repository.
 /// Firebase implementation of UserRepository with offline caching
 class FirebaseUserRepository implements UserRepository {
   final FirebaseFirestore _firestore;
-  final Box<UserProfile> _userCache;
-  final Box<SyncQueueItem> _syncQueue;
   final Connectivity _connectivity;
 
-  static const String _userCacheBoxName = 'user_cache';
+  Box<UserProfile>? _userCache;
+  Box<SyncQueueItem>? _syncQueue;
+
+  static const String _userCacheBoxName = 'user_profiles';
   static const String _syncQueueBoxName = 'sync_queue';
 
   FirebaseUserRepository({
     FirebaseFirestore? firestore,
-    Box<UserProfile>? userCache,
-    Box<SyncQueueItem>? syncQueue,
     Connectivity? connectivity,
   }) : _firestore = firestore ?? FirebaseFirestore.instance,
-       _userCache = userCache ?? Hive.box<UserProfile>(_userCacheBoxName),
-       _syncQueue = syncQueue ?? Hive.box<SyncQueueItem>(_syncQueueBoxName),
        _connectivity = connectivity ?? Connectivity();
+
+  /// Safely get user cache box
+  Box<UserProfile>? get _safeUserCache {
+    try {
+      _userCache ??= Hive.box<UserProfile>(_userCacheBoxName);
+      return _userCache;
+    } catch (e) {
+      AppLogger.warning('User cache box not available: $e');
+      return null;
+    }
+  }
+
+  /// Safely get sync queue box
+  Box<SyncQueueItem>? get _safeSyncQueue {
+    try {
+      _syncQueue ??= Hive.box<SyncQueueItem>(_syncQueueBoxName);
+      return _syncQueue;
+    } catch (e) {
+      AppLogger.warning('Sync queue box not available: $e');
+      return null;
+    }
+  }
 
   @override
   Future<UserProfile?> getUserProfile(String userId) async {
     try {
       // Check cache first
-      final cachedProfile = _userCache.get(userId);
+      final userCache = _safeUserCache;
+      final cachedProfile = userCache?.get(userId);
       final isOnline = await _isOnline();
 
       // If offline, return cached profile
@@ -73,7 +93,8 @@ class FirebaseUserRepository implements UserRepository {
       AppLogger.error('Error getting user profile $userId', e, stackTrace);
 
       // Fallback to cache on error
-      final cachedProfile = _userCache.get(userId);
+      final userCache = _safeUserCache;
+      final cachedProfile = userCache?.get(userId);
       if (cachedProfile != null) {
         AppLogger.info('Returning cached user profile $userId due to error');
         return cachedProfile;
@@ -106,13 +127,20 @@ class FirebaseUserRepository implements UserRepository {
         AppLogger.info('Created user profile ${profile.id} in Firestore');
       } else {
         // Queue for sync when online
-        final syncItem = SyncQueueItem.forUserProfile(
-          profile,
-          operation: SyncOperation.create,
-          priority: 0, // High priority
-        );
-        await _syncQueue.put(syncItem.id, syncItem);
-        AppLogger.info('Queued user profile ${profile.id} creation for sync');
+        final syncQueue = _safeSyncQueue;
+        if (syncQueue != null) {
+          final syncItem = SyncQueueItem.forUserProfile(
+            profile,
+            operation: SyncOperation.create,
+            priority: 0, // High priority
+          );
+          await syncQueue.put(syncItem.id, syncItem);
+          AppLogger.info('Queued user profile ${profile.id} creation for sync');
+        } else {
+          AppLogger.warning(
+            'Sync queue not available, cannot queue profile creation',
+          );
+        }
       }
 
       // Cache the profile
@@ -152,13 +180,20 @@ class FirebaseUserRepository implements UserRepository {
         AppLogger.info('Updated user profile ${profile.id} in Firestore');
       } else {
         // Queue for sync when online
-        final syncItem = SyncQueueItem.forUserProfile(
-          profile,
-          operation: SyncOperation.update,
-          priority: 1, // High priority
-        );
-        await _syncQueue.put(syncItem.id, syncItem);
-        AppLogger.info('Queued user profile ${profile.id} update for sync');
+        final syncQueue = _safeSyncQueue;
+        if (syncQueue != null) {
+          final syncItem = SyncQueueItem.forUserProfile(
+            profile,
+            operation: SyncOperation.update,
+            priority: 1, // High priority
+          );
+          await syncQueue.put(syncItem.id, syncItem);
+          AppLogger.info('Queued user profile ${profile.id} update for sync');
+        } else {
+          AppLogger.warning(
+            'Sync queue not available, cannot queue profile update',
+          );
+        }
       }
 
       // Cache the updated profile
@@ -190,22 +225,32 @@ class FirebaseUserRepository implements UserRepository {
         AppLogger.info('Deleted user profile $userId from Firestore');
       } else {
         // Queue for sync when online
-        final syncItem = SyncQueueItem(
-          id: 'delete_profile_$userId',
-          operation: SyncOperation.delete,
-          entityType: 'UserProfile',
-          entityId: userId,
-          data: {},
-          createdAt: DateTime.now(),
-          priority: 0, // High priority
-          metadata: {'userId': userId},
-        );
-        await _syncQueue.put(syncItem.id, syncItem);
-        AppLogger.info('Queued user profile $userId deletion for sync');
+        final syncQueue = _safeSyncQueue;
+        if (syncQueue != null) {
+          final syncItem = SyncQueueItem(
+            id: 'delete_profile_$userId',
+            operation: SyncOperation.delete,
+            entityType: 'UserProfile',
+            entityId: userId,
+            data: {},
+            createdAt: DateTime.now(),
+            priority: 0, // High priority
+            metadata: {'userId': userId},
+          );
+          await syncQueue.put(syncItem.id, syncItem);
+          AppLogger.info('Queued user profile $userId deletion for sync');
+        } else {
+          AppLogger.warning(
+            'Sync queue not available, cannot queue profile deletion',
+          );
+        }
       }
 
       // Remove from cache
-      await _userCache.delete(userId);
+      final userCache = _safeUserCache;
+      if (userCache != null) {
+        await userCache.delete(userId);
+      }
     } catch (e, stackTrace) {
       AppLogger.error('Error deleting user profile $userId', e, stackTrace);
       rethrow;
@@ -229,22 +274,30 @@ class FirebaseUserRepository implements UserRepository {
         AppLogger.info('Updated user preferences for $userId in Firestore');
       } else {
         // Queue for sync when online
-        final syncItem = SyncQueueItem(
-          id: 'update_preferences_$userId',
-          operation: SyncOperation.update,
-          entityType: 'UserProfile',
-          entityId: userId,
-          data: {'preferences': preferences},
-          createdAt: DateTime.now(),
-          priority: 2, // Medium priority
-          metadata: {'userId': userId, 'updateType': 'preferences'},
-        );
-        await _syncQueue.put(syncItem.id, syncItem);
-        AppLogger.info('Queued user preferences update for $userId for sync');
+        final syncQueue = _safeSyncQueue;
+        if (syncQueue != null) {
+          final syncItem = SyncQueueItem(
+            id: 'update_preferences_$userId',
+            operation: SyncOperation.update,
+            entityType: 'UserProfile',
+            entityId: userId,
+            data: {'preferences': preferences},
+            createdAt: DateTime.now(),
+            priority: 2, // Medium priority
+            metadata: {'userId': userId, 'updateType': 'preferences'},
+          );
+          await syncQueue.put(syncItem.id, syncItem);
+          AppLogger.info('Queued user preferences update for $userId for sync');
+        } else {
+          AppLogger.warning(
+            'Sync queue not available, cannot queue preferences update',
+          );
+        }
       }
 
       // Update cached profile if available
-      final cachedProfile = _userCache.get(userId);
+      final userCache = _safeUserCache;
+      final cachedProfile = userCache?.get(userId);
       if (cachedProfile != null) {
         final updatedProfile = cachedProfile.copyWith(
           preferences: preferences,
@@ -288,22 +341,30 @@ class FirebaseUserRepository implements UserRepository {
         AppLogger.info('Updated fitness metrics for $userId in Firestore');
       } else {
         // Queue for sync when online
-        final syncItem = SyncQueueItem(
-          id: 'update_metrics_$userId',
-          operation: SyncOperation.update,
-          entityType: 'UserProfile',
-          entityId: userId,
-          data: updateData,
-          createdAt: DateTime.now(),
-          priority: 1, // High priority
-          metadata: {'userId': userId, 'updateType': 'fitnessMetrics'},
-        );
-        await _syncQueue.put(syncItem.id, syncItem);
-        AppLogger.info('Queued fitness metrics update for $userId for sync');
+        final syncQueue = _safeSyncQueue;
+        if (syncQueue != null) {
+          final syncItem = SyncQueueItem(
+            id: 'update_metrics_$userId',
+            operation: SyncOperation.update,
+            entityType: 'UserProfile',
+            entityId: userId,
+            data: updateData,
+            createdAt: DateTime.now(),
+            priority: 1, // High priority
+            metadata: {'userId': userId, 'updateType': 'fitnessMetrics'},
+          );
+          await syncQueue.put(syncItem.id, syncItem);
+          AppLogger.info('Queued fitness metrics update for $userId for sync');
+        } else {
+          AppLogger.warning(
+            'Sync queue not available, cannot queue metrics update',
+          );
+        }
       }
 
       // Update cached profile if available
-      final cachedProfile = _userCache.get(userId);
+      final userCache = _safeUserCache;
+      final cachedProfile = userCache?.get(userId);
       if (cachedProfile != null) {
         final updatedProfile = cachedProfile.copyWith(
           weight: weight ?? cachedProfile.weight,
@@ -348,22 +409,30 @@ class FirebaseUserRepository implements UserRepository {
         AppLogger.info('Updated premium status for $userId in Firestore');
       } else {
         // Queue for sync when online
-        final syncItem = SyncQueueItem(
-          id: 'update_premium_$userId',
-          operation: SyncOperation.update,
-          entityType: 'UserProfile',
-          entityId: userId,
-          data: updateData,
-          createdAt: DateTime.now(),
-          priority: 0, // High priority
-          metadata: {'userId': userId, 'updateType': 'premiumStatus'},
-        );
-        await _syncQueue.put(syncItem.id, syncItem);
-        AppLogger.info('Queued premium status update for $userId for sync');
+        final syncQueue = _safeSyncQueue;
+        if (syncQueue != null) {
+          final syncItem = SyncQueueItem(
+            id: 'update_premium_$userId',
+            operation: SyncOperation.update,
+            entityType: 'UserProfile',
+            entityId: userId,
+            data: updateData,
+            createdAt: DateTime.now(),
+            priority: 0, // High priority
+            metadata: {'userId': userId, 'updateType': 'premiumStatus'},
+          );
+          await syncQueue.put(syncItem.id, syncItem);
+          AppLogger.info('Queued premium status update for $userId for sync');
+        } else {
+          AppLogger.warning(
+            'Sync queue not available, cannot queue premium status update',
+          );
+        }
       }
 
       // Update cached profile if available
-      final cachedProfile = _userCache.get(userId);
+      final userCache = _safeUserCache;
+      final cachedProfile = userCache?.get(userId);
       if (cachedProfile != null) {
         final updatedProfile = cachedProfile.copyWith(
           isPremium: isPremium,
@@ -402,22 +471,30 @@ class FirebaseUserRepository implements UserRepository {
         AppLogger.info('Updated FCM token for $userId in Firestore');
       } else {
         // Queue for sync when online
-        final syncItem = SyncQueueItem(
-          id: 'update_fcm_$userId',
-          operation: SyncOperation.update,
-          entityType: 'UserProfile',
-          entityId: userId,
-          data: updateData,
-          createdAt: DateTime.now(),
-          priority: 2, // Medium priority
-          metadata: {'userId': userId, 'updateType': 'fcmToken'},
-        );
-        await _syncQueue.put(syncItem.id, syncItem);
-        AppLogger.info('Queued FCM token update for $userId for sync');
+        final syncQueue = _safeSyncQueue;
+        if (syncQueue != null) {
+          final syncItem = SyncQueueItem(
+            id: 'update_fcm_$userId',
+            operation: SyncOperation.update,
+            entityType: 'UserProfile',
+            entityId: userId,
+            data: updateData,
+            createdAt: DateTime.now(),
+            priority: 2, // Medium priority
+            metadata: {'userId': userId, 'updateType': 'fcmToken'},
+          );
+          await syncQueue.put(syncItem.id, syncItem);
+          AppLogger.info('Queued FCM token update for $userId for sync');
+        } else {
+          AppLogger.warning(
+            'Sync queue not available, cannot queue FCM token update',
+          );
+        }
       }
 
       // Update cached profile if available
-      final cachedProfile = _userCache.get(userId);
+      final userCache = _safeUserCache;
+      final cachedProfile = userCache?.get(userId);
       if (cachedProfile != null) {
         final updatedProfile = cachedProfile.copyWith(
           fcmToken: fcmToken,
@@ -454,22 +531,32 @@ class FirebaseUserRepository implements UserRepository {
         AppLogger.info('Updated AI provider config for $userId in Firestore');
       } else {
         // Queue for sync when online
-        final syncItem = SyncQueueItem(
-          id: 'update_ai_config_$userId',
-          operation: SyncOperation.update,
-          entityType: 'UserProfile',
-          entityId: userId,
-          data: updateData,
-          createdAt: DateTime.now(),
-          priority: 2, // Medium priority
-          metadata: {'userId': userId, 'updateType': 'aiProviderConfig'},
-        );
-        await _syncQueue.put(syncItem.id, syncItem);
-        AppLogger.info('Queued AI provider config update for $userId for sync');
+        final syncQueue = _safeSyncQueue;
+        if (syncQueue != null) {
+          final syncItem = SyncQueueItem(
+            id: 'update_ai_config_$userId',
+            operation: SyncOperation.update,
+            entityType: 'UserProfile',
+            entityId: userId,
+            data: updateData,
+            createdAt: DateTime.now(),
+            priority: 2, // Medium priority
+            metadata: {'userId': userId, 'updateType': 'aiProviderConfig'},
+          );
+          await syncQueue.put(syncItem.id, syncItem);
+          AppLogger.info(
+            'Queued AI provider config update for $userId for sync',
+          );
+        } else {
+          AppLogger.warning(
+            'Sync queue not available, cannot queue AI config update',
+          );
+        }
       }
 
       // Update cached profile if available
-      final cachedProfile = _userCache.get(userId);
+      final userCache = _safeUserCache;
+      final cachedProfile = userCache?.get(userId);
       if (cachedProfile != null) {
         final updatedProfile = cachedProfile.copyWith(
           aiProviderConfig: config,
@@ -512,7 +599,8 @@ class FirebaseUserRepository implements UserRepository {
             stackTrace,
           );
           // Return cached profile on error
-          final cachedProfile = _userCache.get(userId);
+          final userCache = _safeUserCache;
+          final cachedProfile = userCache?.get(userId);
           return Stream.value(cachedProfile);
         });
   }
@@ -521,7 +609,8 @@ class FirebaseUserRepository implements UserRepository {
   Future<bool> userExists(String userId) async {
     try {
       // Check cache first
-      if (_userCache.containsKey(userId)) {
+      final userCache = _safeUserCache;
+      if (userCache?.containsKey(userId) == true) {
         return true;
       }
 
@@ -602,7 +691,8 @@ class FirebaseUserRepository implements UserRepository {
 
   @override
   Future<bool> isAvailableOffline(String userId) async {
-    return _userCache.containsKey(userId);
+    final userCache = _safeUserCache;
+    return userCache?.containsKey(userId) ?? false;
   }
 
   @override
@@ -637,24 +727,35 @@ class FirebaseUserRepository implements UserRepository {
 
   @override
   Future<Map<String, dynamic>> getCacheStatus(String userId) async {
-    final hasCachedProfile = _userCache.containsKey(userId);
-    final cachedProfile = _userCache.get(userId);
+    final userCache = _safeUserCache;
+    final syncQueue = _safeSyncQueue;
+
+    final hasCachedProfile = userCache?.containsKey(userId) ?? false;
+    final cachedProfile = userCache?.get(userId);
 
     return {
       'hasCachedProfile': hasCachedProfile,
       'lastUpdated': cachedProfile?.updatedAt.toIso8601String(),
       'isOnline': await _isOnline(),
       'pendingSyncItems':
-          _syncQueue.values
+          syncQueue?.values
               .where((item) => item.metadata['userId'] == userId)
-              .length,
+              .length ??
+          0,
     };
   }
 
   // Private helper methods
 
   Future<void> _cacheUserProfile(UserProfile profile) async {
-    await _userCache.put(profile.id, profile);
+    final userCache = _safeUserCache;
+    if (userCache != null) {
+      await userCache.put(profile.id, profile);
+    } else {
+      AppLogger.warning(
+        'User cache not available, cannot cache profile ${profile.id}',
+      );
+    }
   }
 
   Future<bool> _isOnline() async {

@@ -41,46 +41,46 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'demo-api-key',
-    appId: '1:123456789:web:demo',
-    messagingSenderId: '123456789',
-    projectId: 'fitness-training-app-demo',
-    authDomain: 'fitness-training-app-demo.firebaseapp.com',
-    storageBucket: 'fitness-training-app-demo.appspot.com',
+    apiKey: 'AIzaSyDbAby9wtr1-b714zBOi13peNYsxpHzCU8',
+    appId: '1:131153934641:web:16e1323e6895798eea5810',
+    messagingSenderId: '131153934641',
+    projectId: 'personal-trainer-d1db2',
+    authDomain: 'personal-trainer-d1db2.firebaseapp.com',
+    storageBucket: 'personal-trainer-d1db2.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'demo-api-key',
-    appId: '1:123456789:android:demo',
-    messagingSenderId: '123456789',
-    projectId: 'fitness-training-app-demo',
-    storageBucket: 'fitness-training-app-demo.appspot.com',
+    apiKey: 'AIzaSyDbAby9wtr1-b714zBOi13peNYsxpHzCU8',
+    appId: '1:131153934641:android:16e1323e6895798eea5810',
+    messagingSenderId: '131153934641',
+    projectId: 'personal-trainer-d1db2',
+    storageBucket: 'personal-trainer-d1db2.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'demo-api-key',
-    appId: '1:123456789:ios:demo',
-    messagingSenderId: '123456789',
-    projectId: 'fitness-training-app-demo',
-    storageBucket: 'fitness-training-app-demo.appspot.com',
+    apiKey: 'AIzaSyDbAby9wtr1-b714zBOi13peNYsxpHzCU8',
+    appId: '1:131153934641:ios:16e1323e6895798eea5810',
+    messagingSenderId: '131153934641',
+    projectId: 'personal-trainer-d1db2',
+    storageBucket: 'personal-trainer-d1db2.firebasestorage.app',
     iosBundleId: 'com.fitnessapp.fitnessTrainingApp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'demo-api-key',
-    appId: '1:123456789:ios:demo',
-    messagingSenderId: '123456789',
-    projectId: 'fitness-training-app-demo',
-    storageBucket: 'fitness-training-app-demo.appspot.com',
+    apiKey: 'AIzaSyDbAby9wtr1-b714zBOi13peNYsxpHzCU8',
+    appId: '1:131153934641:ios:16e1323e6895798eea5810',
+    messagingSenderId: '131153934641',
+    projectId: 'personal-trainer-d1db2',
+    storageBucket: 'personal-trainer-d1db2.firebasestorage.app',
     iosBundleId: 'com.fitnessapp.fitnessTrainingApp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'demo-api-key',
-    appId: '1:123456789:web:demo',
-    messagingSenderId: '123456789',
-    projectId: 'fitness-training-app-demo',
-    authDomain: 'fitness-training-app-demo.firebaseapp.com',
-    storageBucket: 'fitness-training-app-demo.appspot.com',
+    apiKey: 'AIzaSyDbAby9wtr1-b714zBOi13peNYsxpHzCU8',
+    appId: '1:131153934641:web:16e1323e6895798eea5810',
+    messagingSenderId: '131153934641',
+    projectId: 'personal-trainer-d1db2',
+    authDomain: 'personal-trainer-d1db2.firebaseapp.com',
+    storageBucket: 'personal-trainer-d1db2.firebasestorage.app',
   );
 }
