@@ -17,7 +17,8 @@ class ProfileSetupScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final _basicInfoFormKey = GlobalKey<FormState>();
+  final _physicalInfoFormKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
   final _heightController = TextEditingController();
@@ -28,6 +29,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   ActivityLevel _selectedActivityLevel = ActivityLevel.moderatelyActive;
   final List<String> _selectedExerciseTypes = [];
   int _currentStep = 0;
+
+  // Track validation state for each step
+  bool _basicInfoValid = false;
+  bool _physicalInfoValid = false;
 
   final List<String> _exerciseTypes = [
     'Cardio',
@@ -109,7 +114,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
       child: Row(
         children: List.generate(4, (index) {
           final isActive = index <= _currentStep;
-          final isCompleted = index < _currentStep;
 
           return Expanded(
             child: Container(
@@ -146,7 +150,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
 
   Widget _buildBasicInfoStep() {
     return Form(
-      key: _formKey,
+      key: _basicInfoFormKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -211,7 +215,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
 
   Widget _buildPhysicalInfoStep() {
     return Form(
-      key: _formKey,
+      key: _physicalInfoFormKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -309,7 +313,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'What\'s your goal?',
+          "What's your goal?",
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).primaryColor,
@@ -330,7 +334,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         const SizedBox(height: 40),
 
         // Fitness goals
-        ...FitnessGoal.values.map((goal) => _buildGoalOption(goal)),
+        ...FitnessGoal.values.map(_buildGoalOption),
 
         const SizedBox(height: 32),
 
@@ -345,9 +349,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         const SizedBox(height: 16),
 
         // Activity levels
-        ...ActivityLevel.values.map(
-          (level) => _buildActivityLevelOption(level),
-        ),
+        ...ActivityLevel.values.map(_buildActivityLevelOption),
       ],
     );
   }
@@ -456,7 +458,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         decoration: BoxDecoration(
           color:
               isSelected
-                  ? Theme.of(context).primaryColor.withOpacity(0.1)
+                  ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
                   : Colors.grey[100],
           border: Border.all(
             color:
@@ -511,7 +513,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         decoration: BoxDecoration(
           color:
               isSelected
-                  ? Theme.of(context).primaryColor.withOpacity(0.1)
+                  ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
                   : Colors.grey[100],
           border: Border.all(
             color:
@@ -587,10 +589,21 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
 
   Future<void> _handleNext() async {
     if (_currentStep < 3) {
-      // Validate current step
-      if (_currentStep <= 1 &&
-          (_formKey.currentState == null ||
-              !_formKey.currentState!.validate())) {
+      // Validate current step before proceeding
+      bool isValid = true;
+
+      if (_currentStep == 0) {
+        // Validate basic info step
+        isValid = _basicInfoFormKey.currentState?.validate() ?? false;
+        _basicInfoValid = isValid; // Store validation state
+      } else if (_currentStep == 1) {
+        // Validate physical info step
+        isValid = _physicalInfoFormKey.currentState?.validate() ?? false;
+        _physicalInfoValid = isValid; // Store validation state
+      }
+      // Steps 2 and 3 don't require form validation (just selections)
+
+      if (!isValid) {
         return;
       }
 
@@ -604,11 +617,25 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   }
 
   Future<void> _handleCompleteSetup() async {
-    if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
+    // Use stored validation states instead of re-validating forms that may not be in the widget tree
+    if (!_basicInfoValid || !_physicalInfoValid) {
+      // Show error and return to the first invalid step
+      ref.read(profileErrorProvider.notifier).state =
+          'Please complete all required fields in previous steps';
+
+      // Find the first invalid step and navigate back to it
+      if (!_basicInfoValid) {
+        setState(() => _currentStep = 0);
+      } else if (!_physicalInfoValid) {
+        setState(() => _currentStep = 1);
+      }
       return;
     }
 
     try {
+      // Clear any previous errors
+      ref.read(profileErrorProvider.notifier).state = null;
+
       // Exercise types are optional - user can proceed without selecting any
       final controller = ref.read(profileControllerProvider);
 
@@ -625,7 +652,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
 
       if (success && mounted) {
         // Navigate to home screen directly since profile is now created
-        Navigator.of(
+        await Navigator.of(
           context,
         ).pushNamedAndRemoveUntil('/home', (route) => false);
       }

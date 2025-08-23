@@ -36,16 +36,30 @@ class ExerciseDatabaseService {
 
       AppLogger.info('Exercise database initialization completed');
     } catch (e, stackTrace) {
-      AppLogger.error('Failed to initialize exercise database', e, stackTrace);
-      rethrow;
+      AppLogger.warning(
+        'Exercise database initialization failed, app will continue with limited functionality: $e',
+      );
+      // Don't rethrow - allow app to continue even if exercise database fails to initialize
+      // The app can still function for user profile setup and other features
     }
   }
 
   /// Check if database has been initialized
   Future<bool> _isDatabaseInitialized() async {
     try {
-      final doc =
-          await _firestore.collection('_system').doc('exercise_database').get();
+      final doc = await _firestore
+          .collection('_system')
+          .doc('exercise_database')
+          .get()
+          .timeout(
+            const Duration(seconds: 5),
+            onTimeout: () {
+              throw TimeoutException(
+                'Database check timed out',
+                const Duration(seconds: 5),
+              );
+            },
+          );
 
       return doc.exists && doc.data()?['initialized'] == true;
     } catch (e) {
@@ -56,12 +70,29 @@ class ExerciseDatabaseService {
 
   /// Mark database as initialized
   Future<void> _markDatabaseInitialized() async {
-    await _firestore.collection('_system').doc('exercise_database').set({
-      'initialized': true,
-      'version': 1,
-      'initializedAt': FieldValue.serverTimestamp(),
-      'exerciseCount': await _getExerciseCount(),
-    });
+    try {
+      await _firestore
+          .collection('_system')
+          .doc('exercise_database')
+          .set({
+            'initialized': true,
+            'version': 1,
+            'initializedAt': FieldValue.serverTimestamp(),
+            'exerciseCount': await _getExerciseCount(),
+          })
+          .timeout(
+            const Duration(seconds: 5),
+            onTimeout: () {
+              throw TimeoutException(
+                'Database marking timed out',
+                const Duration(seconds: 5),
+              );
+            },
+          );
+    } catch (e) {
+      AppLogger.warning('Failed to mark database as initialized: $e');
+      // Don't rethrow - allow app to continue
+    }
   }
 
   /// Get current exercise count
@@ -94,18 +125,34 @@ Please create these indexes in Firebase Console for optimal query performance.
   Future<void> _seedExerciseData() async {
     AppLogger.info('Seeding initial exercise data...');
 
-    final exercises = _getInitialExercises();
-    final batch = _firestore.batch();
+    try {
+      final exercises = _getInitialExercises();
+      final batch = _firestore.batch();
 
-    for (final exercise in exercises) {
-      final docRef = _firestore
-          .collection(FirebaseConstants.exercises)
-          .doc(exercise.id);
-      batch.set(docRef, exercise.toFirestore());
+      for (final exercise in exercises) {
+        final docRef = _firestore
+            .collection(FirebaseConstants.exercises)
+            .doc(exercise.id);
+        batch.set(docRef, exercise.toFirestore());
+      }
+
+      // Add timeout to prevent hanging when Firestore is unavailable
+      await batch.commit().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw TimeoutException(
+            'Exercise seeding timed out',
+            const Duration(seconds: 10),
+          );
+        },
+      );
+
+      AppLogger.info('Seeded ${exercises.length} exercises');
+    } catch (e) {
+      AppLogger.warning('Failed to seed exercise data: $e');
+      // Don't rethrow - allow app to continue without seeded data
+      // The app can still function with an empty exercise database
     }
-
-    await batch.commit();
-    AppLogger.info('Seeded ${exercises.length} exercises');
   }
 
   /// Get initial exercise data for seeding
