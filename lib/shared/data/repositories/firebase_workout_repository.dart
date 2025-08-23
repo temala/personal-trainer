@@ -61,7 +61,7 @@ class FirebaseWorkoutRepository implements WorkoutRepository {
                 .get();
 
         if (doc.exists && doc.data() != null) {
-          final plan = WorkoutPlan.fromFirestore(doc.id, doc.data()!);
+          final plan = WorkoutPlanHelper.fromFirestore(doc.id, doc.data()!);
           await _cacheWorkoutPlan(plan);
           AppLogger.info(
             'Fetched and cached workout plan $planId from Firestore',
@@ -108,7 +108,9 @@ class FirebaseWorkoutRepository implements WorkoutRepository {
 
         final plans =
             snapshot.docs
-                .map((doc) => WorkoutPlan.fromFirestore(doc.id, doc.data()))
+                .map(
+                  (doc) => WorkoutPlanHelper.fromFirestore(doc.id, doc.data()),
+                )
                 .toList();
 
         // Cache the plans
@@ -367,7 +369,10 @@ class FirebaseWorkoutRepository implements WorkoutRepository {
                 .get();
 
         if (doc.exists && doc.data() != null) {
-          final session = WorkoutSession.fromFirestore(doc.id, doc.data()!);
+          final session = WorkoutSessionHelper.fromFirestore(
+            doc.id,
+            doc.data()!,
+          );
           await _cacheWorkoutSession(session);
           AppLogger.info(
             'Fetched and cached workout session $sessionId from Firestore',
@@ -437,7 +442,7 @@ class FirebaseWorkoutRepository implements WorkoutRepository {
         final sessions =
             snapshot.docs
                 .map(
-                  (doc) => WorkoutSession.fromFirestore(
+                  (doc) => WorkoutSessionHelper.fromFirestore(
                     doc.id,
                     doc.data() as Map<String, dynamic>,
                   ),
@@ -688,11 +693,11 @@ class FirebaseWorkoutRepository implements WorkoutRepository {
       final completedSession = session.copyWith(
         status: SessionStatus.completed,
         completedAt: DateTime.now(),
-        totalDurationSeconds: completionData['totalDurationSeconds'],
-        completionPercentage: completionData['completionPercentage'],
-        totalCaloriesBurned: completionData['totalCaloriesBurned'],
-        aiEvaluation: completionData['aiEvaluation'],
-        userNotes: completionData['userNotes'],
+        totalDurationSeconds: completionData['totalDurationSeconds'] as int?,
+        completionPercentage: completionData['completionPercentage'] as double?,
+        totalCaloriesBurned: completionData['totalCaloriesBurned'] as int?,
+        aiEvaluation: completionData['aiEvaluation'] as Map<String, dynamic>?,
+        userNotes: completionData['userNotes'] as String?,
         sessionData: completionData,
       );
 
@@ -825,7 +830,7 @@ class FirebaseWorkoutRepository implements WorkoutRepository {
   Future<double> getWorkoutCompletionRate(String userId) async {
     try {
       final stats = await getUserWorkoutStats(userId);
-      return stats['completionRate'] ?? 0.0;
+      return (stats['completionRate'] as double?) ?? 0.0;
     } catch (e, stackTrace) {
       AppLogger.error(
         'Error getting completion rate for user $userId',
@@ -848,7 +853,10 @@ class FirebaseWorkoutRepository implements WorkoutRepository {
         .map((snapshot) {
           final plans =
               snapshot.docs
-                  .map((doc) => WorkoutPlan.fromFirestore(doc.id, doc.data()))
+                  .map(
+                    (doc) =>
+                        WorkoutPlanHelper.fromFirestore(doc.id, doc.data()),
+                  )
                   .toList();
 
           // Cache the plans asynchronously
@@ -858,7 +866,7 @@ class FirebaseWorkoutRepository implements WorkoutRepository {
 
           return plans;
         })
-        .handleError((error, stackTrace) {
+        .handleError((Object error, StackTrace stackTrace) {
           AppLogger.error(
             'Error watching workout plans for user $userId',
             error,
@@ -885,7 +893,8 @@ class FirebaseWorkoutRepository implements WorkoutRepository {
           final sessions =
               snapshot.docs
                   .map(
-                    (doc) => WorkoutSession.fromFirestore(doc.id, doc.data()),
+                    (doc) =>
+                        WorkoutSessionHelper.fromFirestore(doc.id, doc.data()),
                   )
                   .toList();
 
@@ -896,7 +905,7 @@ class FirebaseWorkoutRepository implements WorkoutRepository {
 
           return sessions;
         })
-        .handleError((error, stackTrace) {
+        .handleError((Object error, StackTrace stackTrace) {
           AppLogger.error(
             'Error watching workout sessions for user $userId',
             error,
@@ -926,7 +935,7 @@ class FirebaseWorkoutRepository implements WorkoutRepository {
         .snapshots()
         .map((snapshot) {
           if (snapshot.docs.isNotEmpty) {
-            final session = WorkoutSession.fromFirestore(
+            final session = WorkoutSessionHelper.fromFirestore(
               snapshot.docs.first.id,
               snapshot.docs.first.data(),
             );
@@ -936,7 +945,7 @@ class FirebaseWorkoutRepository implements WorkoutRepository {
           }
           return null;
         })
-        .handleError((error, stackTrace) {
+        .handleError((Object error, StackTrace stackTrace) {
           AppLogger.error(
             'Error watching active workout session for user $userId',
             error,
@@ -983,7 +992,7 @@ class FirebaseWorkoutRepository implements WorkoutRepository {
               .get();
 
       for (final doc in plansSnapshot.docs) {
-        final plan = WorkoutPlan.fromFirestore(doc.id, doc.data());
+        final plan = WorkoutPlanHelper.fromFirestore(doc.id, doc.data());
         await _cacheWorkoutPlan(plan);
       }
 
@@ -995,7 +1004,7 @@ class FirebaseWorkoutRepository implements WorkoutRepository {
               .get();
 
       for (final doc in sessionsSnapshot.docs) {
-        final session = WorkoutSession.fromFirestore(doc.id, doc.data());
+        final session = WorkoutSessionHelper.fromFirestore(doc.id, doc.data());
         await _cacheWorkoutSession(session);
       }
 

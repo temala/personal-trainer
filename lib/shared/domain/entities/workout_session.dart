@@ -218,8 +218,11 @@ extension WorkoutSessionExtension on WorkoutSession {
   Map<String, dynamic> toFirestore() {
     return toJson()..remove('id'); // Firestore document ID is separate
   }
+}
 
-  /// Create from Firestore document
+/// Helper methods for WorkoutSession
+class WorkoutSessionHelper {
+  /// Create WorkoutSession from Firestore document
   static WorkoutSession fromFirestore(String id, Map<String, dynamic> data) {
     return WorkoutSession.fromJson({'id': id, ...data});
   }

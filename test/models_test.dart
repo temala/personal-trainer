@@ -96,7 +96,7 @@ void main() {
         metadata: {},
       );
 
-      final session = WorkoutSessionExtension.createFromPlan(
+      final session = WorkoutSessionHelper.createFromPlan(
         userId: 'user-1',
         workoutPlan: workoutPlan,
       );

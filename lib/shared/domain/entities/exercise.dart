@@ -158,11 +158,6 @@ extension ExerciseExtension on Exercise {
     return toJson()..remove('id'); // Firestore document ID is separate
   }
 
-  /// Create from Firestore document
-  static Exercise fromFirestore(String id, Map<String, dynamic> data) {
-    return Exercise.fromJson({'id': id, ...data});
-  }
-
   /// Check if exercise matches user preferences
   bool matchesPreferences({
     required List<String> preferredTypes,
@@ -192,5 +187,13 @@ extension ExerciseExtension on Exercise {
     }
 
     return true;
+  }
+}
+
+/// Helper methods for Exercise
+class ExerciseHelper {
+  /// Create Exercise from Firestore document
+  static Exercise fromFirestore(String id, Map<String, dynamic> data) {
+    return Exercise.fromJson({'id': id, ...data});
   }
 }

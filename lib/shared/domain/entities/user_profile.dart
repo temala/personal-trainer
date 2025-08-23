@@ -122,8 +122,11 @@ extension UserProfileExtension on UserProfile {
   Map<String, dynamic> toFirestore() {
     return toJson()..remove('id'); // Firestore document ID is separate
   }
+}
 
-  /// Create from Firestore document
+/// Helper methods for UserProfile
+class UserProfileHelper {
+  /// Create UserProfile from Firestore document
   static UserProfile fromFirestore(String id, Map<String, dynamic> data) {
     return UserProfile.fromJson({'id': id, ...data});
   }

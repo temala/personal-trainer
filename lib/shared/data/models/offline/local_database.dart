@@ -218,7 +218,10 @@ class LocalDatabase {
         'sync_queue_count': syncQueueBox.length,
         'total_size_estimate_kb': _estimateTotalSize(),
         'last_cleanup':
-            metadataBox.get('cache_metadata', defaultValue: {})['last_cleanup'],
+            metadataBox.get(
+              'cache_metadata',
+              defaultValue: <String, dynamic>{},
+            )['last_cleanup'],
       };
     } catch (e) {
       AppLogger.error('Failed to get database statistics', e);
@@ -290,7 +293,8 @@ class LocalDatabase {
       // Update cleanup metadata
       final metadataBox = Hive.box(_metadataBox);
       final cacheMetadata = Map<String, dynamic>.from(
-        metadataBox.get('cache_metadata', defaultValue: {}),
+        metadataBox.get('cache_metadata', defaultValue: <String, dynamic>{})
+            as Map<dynamic, dynamic>,
       );
       cacheMetadata['last_cleanup'] = now.toIso8601String();
       cacheMetadata['last_cleanup_items_removed'] = cleanedItems;
@@ -306,7 +310,10 @@ class LocalDatabase {
   static bool isCacheCleanupNeeded() {
     try {
       final metadataBox = Hive.box(_metadataBox);
-      final cacheMetadata = metadataBox.get('cache_metadata', defaultValue: {});
+      final cacheMetadata = metadataBox.get(
+        'cache_metadata',
+        defaultValue: <String, dynamic>{},
+      );
       final lastCleanupStr = cacheMetadata['last_cleanup'] as String?;
 
       if (lastCleanupStr == null) return true;

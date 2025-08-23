@@ -52,7 +52,7 @@ class FirebaseUserRepository implements UserRepository {
                 .get();
 
         if (doc.exists && doc.data() != null) {
-          final profile = UserProfile.fromFirestore(doc.id, doc.data()!);
+          final profile = UserProfileHelper.fromFirestore(doc.id, doc.data()!);
           await _cacheUserProfile(profile);
           AppLogger.info(
             'Fetched and cached user profile $userId from Firestore',
@@ -495,14 +495,17 @@ class FirebaseUserRepository implements UserRepository {
         .snapshots()
         .map((doc) {
           if (doc.exists && doc.data() != null) {
-            final profile = UserProfile.fromFirestore(doc.id, doc.data()!);
+            final profile = UserProfileHelper.fromFirestore(
+              doc.id,
+              doc.data()!,
+            );
             // Cache the profile asynchronously
             _cacheUserProfile(profile);
             return profile;
           }
           return null;
         })
-        .handleError((error, stackTrace) {
+        .handleError((Object error, StackTrace stackTrace) {
           AppLogger.error(
             'Error watching user profile $userId',
             error,
@@ -577,10 +580,11 @@ class FirebaseUserRepository implements UserRepository {
 
       final updatedProfile = profile.copyWith(
         preferredExerciseTypes:
-            preferences['preferredExerciseTypes'] ??
+            (preferences['preferredExerciseTypes'] as List<String>?) ??
             profile.preferredExerciseTypes,
         dislikedExercises:
-            preferences['dislikedExercises'] ?? profile.dislikedExercises,
+            (preferences['dislikedExercises'] as List<String>?) ??
+            profile.dislikedExercises,
         preferences: {...profile.preferences, ...preferences},
         updatedAt: DateTime.now(),
       );
@@ -615,7 +619,7 @@ class FirebaseUserRepository implements UserRepository {
               .get();
 
       if (doc.exists && doc.data() != null) {
-        final profile = UserProfile.fromFirestore(doc.id, doc.data()!);
+        final profile = UserProfileHelper.fromFirestore(doc.id, doc.data()!);
         await _cacheUserProfile(profile);
         AppLogger.info(
           'Successfully refreshed user profile $userId from remote',

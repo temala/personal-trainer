@@ -36,7 +36,7 @@ class OfflineManager {
       // Listen to connectivity changes
       _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
         _onConnectivityChanged,
-        onError: (error) {
+        onError: (Object error) {
           AppLogger.error('Connectivity stream error', error);
         },
       );
@@ -260,7 +260,7 @@ class OfflineManager {
         for (final entry in exerciseBox.toMap().entries) {
           final cached = entry.value;
           if (cached.isStale && !cached.isFrequentlyAccessed) {
-            staleKeys.add(entry.key);
+            staleKeys.add(entry.key as String);
           }
         }
 
@@ -278,7 +278,7 @@ class OfflineManager {
         for (final entry in planBox.toMap().entries) {
           final cached = entry.value;
           if (cached.isStale) {
-            staleKeys.add(entry.key);
+            staleKeys.add(entry.key as String);
           }
         }
 

@@ -1,6 +1,6 @@
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:logger/logger.dart';
 import 'package:fitness_training_app/core/errors/app_error.dart';
+import 'package:logger/logger.dart';
 
 /// Global error handler for the application
 class ErrorHandler {

@@ -172,11 +172,6 @@ extension WorkoutPlanExtension on WorkoutPlan {
     return toJson()..remove('id'); // Firestore document ID is separate
   }
 
-  /// Create from Firestore document
-  static WorkoutPlan fromFirestore(String id, Map<String, dynamic> data) {
-    return WorkoutPlan.fromJson({'id': id, ...data});
-  }
-
   /// Check if workout plan is suitable for user
   bool isSuitableForUser({
     required DifficultyLevel userLevel,
@@ -193,7 +188,7 @@ extension WorkoutPlanExtension on WorkoutPlan {
     }
 
     // Check time availability
-    if (totalEstimatedMinutes > availableTimeMinutes) {
+    if (estimatedDurationMinutes > availableTimeMinutes) {
       return false;
     }
 
@@ -207,6 +202,14 @@ extension WorkoutPlanExtension on WorkoutPlan {
     }
 
     return true;
+  }
+}
+
+/// Helper methods for WorkoutPlan
+class WorkoutPlanHelper {
+  /// Create WorkoutPlan from Firestore document
+  static WorkoutPlan fromFirestore(String id, Map<String, dynamic> data) {
+    return WorkoutPlan.fromJson({'id': id, ...data});
   }
 }
 

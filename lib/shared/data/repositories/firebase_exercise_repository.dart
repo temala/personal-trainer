@@ -110,7 +110,7 @@ class FirebaseExerciseRepository implements ExerciseRepository {
                 .get();
 
         if (doc.exists && doc.data() != null) {
-          final exercise = Exercise.fromFirestore(doc.id, doc.data()!);
+          final exercise = ExerciseHelper.fromFirestore(doc.id, doc.data()!);
           await _cacheExercise(exercise);
           AppLogger.info('Fetched and cached exercise $id from Firestore');
           return exercise;
@@ -254,10 +254,10 @@ class FirebaseExerciseRepository implements ExerciseRepository {
         .snapshots()
         .map((snapshot) {
           return snapshot.docs
-              .map((doc) => Exercise.fromFirestore(doc.id, doc.data()))
+              .map((doc) => ExerciseHelper.fromFirestore(doc.id, doc.data()))
               .toList();
         })
-        .handleError((error, stackTrace) {
+        .handleError((Object error, StackTrace stackTrace) {
           AppLogger.error('Error watching all exercises', error, stackTrace);
           // Return cached exercises on error
           return Stream.value(_getCachedExercises());
@@ -272,10 +272,10 @@ class FirebaseExerciseRepository implements ExerciseRepository {
         .snapshots()
         .map((snapshot) {
           return snapshot.docs
-              .map((doc) => Exercise.fromFirestore(doc.id, doc.data()))
+              .map((doc) => ExerciseHelper.fromFirestore(doc.id, doc.data()))
               .toList();
         })
-        .handleError((error, stackTrace) {
+        .handleError((Object error, StackTrace stackTrace) {
           AppLogger.error(
             'Error watching exercises by category',
             error,
@@ -351,7 +351,7 @@ class FirebaseExerciseRepository implements ExerciseRepository {
         await _firestore.collection(FirebaseConstants.exercises).get();
 
     return snapshot.docs
-        .map((doc) => Exercise.fromFirestore(doc.id, doc.data()))
+        .map((doc) => ExerciseHelper.fromFirestore(doc.id, doc.data()))
         .toList();
   }
 
