@@ -85,6 +85,10 @@ class N8NProvider extends BaseAIProvider {
           return await _executeWorkflow(request, 'avatar-creation');
         case AIRequestType.analyzeProgress:
           return await _executeWorkflow(request, 'progress-analysis');
+        case AIRequestType.evaluateCommitment:
+          return await _executeWorkflow(request, 'commitment-evaluation');
+        case AIRequestType.generateAdvice:
+          return await _executeWorkflow(request, 'advice-generation');
         case AIRequestType.customWorkflow:
           return await _executeCustomWorkflow(request);
       }
@@ -319,7 +323,7 @@ class N8NProvider extends BaseAIProvider {
         ),
       );
 
-      return response.data as Map<String, dynamic>;
+      return response.data!;
     } catch (e) {
       _logger.w('Failed to get workflow execution status: $e');
       return null;

@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitness_training_app/features/auth/presentation/providers/auth_providers.dart';
 import 'package:fitness_training_app/features/profile/presentation/providers/profile_providers.dart';
 import 'package:fitness_training_app/shared/domain/entities/ai_provider_config.dart';
 import 'package:fitness_training_app/shared/presentation/widgets/custom_button.dart';
 import 'package:fitness_training_app/shared/presentation/widgets/custom_text_field.dart';
 import 'package:fitness_training_app/shared/presentation/widgets/loading_overlay.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// AI provider settings screen
 class AIProviderSettingsScreen extends ConsumerStatefulWidget {
@@ -44,32 +44,32 @@ class _AIProviderSettingsScreenState
   }
 
   void _loadAIProviderSettings() {
-    final userProfile = ref.read(currentUserProfileProvider);
-    userProfile.whenData((profile) {
-      if (profile?.aiProviderConfig != null) {
-        final config = profile!.aiProviderConfig!;
-        setState(() {
-          _primaryProvider = AIProviderType.values.firstWhere(
-            (type) => type.toString() == config['primaryProvider'],
-            orElse: () => AIProviderType.chatgpt,
-          );
+    final userProfile = ref.read(currentUserProfileProvider)
+      ..whenData((profile) {
+        if (profile?.aiProviderConfig != null) {
+          final config = profile!.aiProviderConfig!;
+          setState(() {
+            _primaryProvider = AIProviderType.values.firstWhere(
+              (type) => type.toString() == config['primaryProvider'],
+              orElse: () => AIProviderType.chatgpt,
+            );
 
-          _enableChatGPT = (config['enableChatGPT'] as bool?) ?? true;
-          _enableN8N = (config['enableN8N'] as bool?) ?? false;
-          _enableFallback = (config['enableFallback'] as bool?) ?? true;
+            _enableChatGPT = (config['enableChatGPT'] as bool?) ?? true;
+            _enableN8N = (config['enableN8N'] as bool?) ?? false;
+            _enableFallback = (config['enableFallback'] as bool?) ?? true;
 
-          if (config['chatgptApiKey'] != null) {
-            _chatgptApiKeyController.text = config['chatgptApiKey'] as String;
-          }
-          if (config['n8nWebhookUrl'] != null) {
-            _n8nWebhookUrlController.text = config['n8nWebhookUrl'] as String;
-          }
-          if (config['n8nApiKey'] != null) {
-            _n8nApiKeyController.text = config['n8nApiKey'] as String;
-          }
-        });
-      }
-    });
+            if (config['chatgptApiKey'] != null) {
+              _chatgptApiKeyController.text = config['chatgptApiKey'] as String;
+            }
+            if (config['n8nWebhookUrl'] != null) {
+              _n8nWebhookUrlController.text = config['n8nWebhookUrl'] as String;
+            }
+            if (config['n8nApiKey'] != null) {
+              _n8nApiKeyController.text = config['n8nApiKey'] as String;
+            }
+          });
+        }
+      });
   }
 
   @override

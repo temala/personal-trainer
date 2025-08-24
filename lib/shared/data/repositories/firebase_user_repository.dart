@@ -2,16 +2,21 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:hive/hive.dart';
-
 import 'package:fitness_training_app/core/constants/firebase_constants.dart';
 import 'package:fitness_training_app/core/utils/logger.dart';
 import 'package:fitness_training_app/shared/data/models/offline/offline_models.dart';
 import 'package:fitness_training_app/shared/domain/entities/user_profile.dart';
 import 'package:fitness_training_app/shared/domain/repositories/user_repository.dart';
+import 'package:hive/hive.dart';
 
 /// Firebase implementation of UserRepository with offline caching
 class FirebaseUserRepository implements UserRepository {
+  FirebaseUserRepository({
+    FirebaseFirestore? firestore,
+    Connectivity? connectivity,
+  }) : _firestore = firestore ?? FirebaseFirestore.instance,
+       _connectivity = connectivity ?? Connectivity();
+
   final FirebaseFirestore _firestore;
   final Connectivity _connectivity;
 
@@ -21,17 +26,10 @@ class FirebaseUserRepository implements UserRepository {
   static const String _userCacheBoxName = 'user_profiles';
   static const String _syncQueueBoxName = 'sync_queue';
 
-  FirebaseUserRepository({
-    FirebaseFirestore? firestore,
-    Connectivity? connectivity,
-  }) : _firestore = firestore ?? FirebaseFirestore.instance,
-       _connectivity = connectivity ?? Connectivity();
-
   /// Safely get user cache box
   Box<UserProfile>? get _safeUserCache {
     try {
-      _userCache ??= Hive.box<UserProfile>(_userCacheBoxName);
-      return _userCache;
+      return _userCache ??= Hive.box<UserProfile>(_userCacheBoxName);
     } catch (e) {
       AppLogger.warning('User cache box not available: $e');
       return null;
@@ -41,8 +39,7 @@ class FirebaseUserRepository implements UserRepository {
   /// Safely get sync queue box
   Box<SyncQueueItem>? get _safeSyncQueue {
     try {
-      _syncQueue ??= Hive.box<SyncQueueItem>(_syncQueueBoxName);
-      return _syncQueue;
+      return _syncQueue ??= Hive.box<SyncQueueItem>(_syncQueueBoxName);
     } catch (e) {
       AppLogger.warning('Sync queue box not available: $e');
       return null;
@@ -107,12 +104,9 @@ class FirebaseUserRepository implements UserRepository {
   @override
   Future<UserProfile> createUserProfile(UserProfile profile) async {
     try {
-      // Validate profile data
-      final validationErrors = profile.validate();
-      if (validationErrors.isNotEmpty) {
-        throw ArgumentError(
-          'Invalid user profile: ${validationErrors.join(', ')}',
-        );
+      // Basic validation - check required fields
+      if (profile.id.isEmpty || profile.email.isEmpty) {
+        throw ArgumentError('User profile must have valid id and email');
       }
 
       final isOnline = await _isOnline();
@@ -160,12 +154,9 @@ class FirebaseUserRepository implements UserRepository {
   @override
   Future<UserProfile> updateUserProfile(UserProfile profile) async {
     try {
-      // Validate profile data
-      final validationErrors = profile.validate();
-      if (validationErrors.isNotEmpty) {
-        throw ArgumentError(
-          'Invalid user profile: ${validationErrors.join(', ')}',
-        );
+      // Basic validation - check required fields
+      if (profile.id.isEmpty || profile.email.isEmpty) {
+        throw ArgumentError('User profile must have valid id and email');
       }
 
       final isOnline = await _isOnline();
@@ -184,7 +175,6 @@ class FirebaseUserRepository implements UserRepository {
         if (syncQueue != null) {
           final syncItem = SyncQueueItem.forUserProfile(
             profile,
-            operation: SyncOperation.update,
             priority: 1, // High priority
           );
           await syncQueue.put(syncItem.id, syncItem);
@@ -234,7 +224,6 @@ class FirebaseUserRepository implements UserRepository {
             entityId: userId,
             data: {},
             createdAt: DateTime.now(),
-            priority: 0, // High priority
             metadata: {'userId': userId},
           );
           await syncQueue.put(syncItem.id, syncItem);
@@ -301,7 +290,7 @@ class FirebaseUserRepository implements UserRepository {
       if (cachedProfile != null) {
         final updatedProfile = cachedProfile.copyWith(
           preferences: preferences,
-          updatedAt: DateTime.now(),
+          lastUpdated: DateTime.now(),
         );
         await _cacheUserProfile(updatedProfile);
       }
@@ -368,9 +357,8 @@ class FirebaseUserRepository implements UserRepository {
       if (cachedProfile != null) {
         final updatedProfile = cachedProfile.copyWith(
           weight: weight ?? cachedProfile.weight,
-          targetWeight: targetWeight ?? cachedProfile.targetWeight,
           height: height ?? cachedProfile.height,
-          updatedAt: DateTime.now(),
+          lastUpdated: DateTime.now(),
         );
         await _cacheUserProfile(updatedProfile);
       }
@@ -418,7 +406,6 @@ class FirebaseUserRepository implements UserRepository {
             entityId: userId,
             data: updateData,
             createdAt: DateTime.now(),
-            priority: 0, // High priority
             metadata: {'userId': userId, 'updateType': 'premiumStatus'},
           );
           await syncQueue.put(syncItem.id, syncItem);
@@ -435,9 +422,12 @@ class FirebaseUserRepository implements UserRepository {
       final cachedProfile = userCache?.get(userId);
       if (cachedProfile != null) {
         final updatedProfile = cachedProfile.copyWith(
-          isPremium: isPremium,
-          premiumExpiresAt: expiresAt,
-          updatedAt: DateTime.now(),
+          lastUpdated: DateTime.now(),
+          metadata: {
+            ...(cachedProfile.metadata ?? {}),
+            'isPremium': isPremium,
+            'premiumExpiresAt': expiresAt?.toIso8601String(),
+          },
         );
         await _cacheUserProfile(updatedProfile);
       }
@@ -497,8 +487,8 @@ class FirebaseUserRepository implements UserRepository {
       final cachedProfile = userCache?.get(userId);
       if (cachedProfile != null) {
         final updatedProfile = cachedProfile.copyWith(
-          fcmToken: fcmToken,
-          updatedAt: DateTime.now(),
+          lastUpdated: DateTime.now(),
+          metadata: {...(cachedProfile.metadata ?? {}), 'fcmToken': fcmToken},
         );
         await _cacheUserProfile(updatedProfile);
       }
@@ -559,8 +549,11 @@ class FirebaseUserRepository implements UserRepository {
       final cachedProfile = userCache?.get(userId);
       if (cachedProfile != null) {
         final updatedProfile = cachedProfile.copyWith(
-          aiProviderConfig: config,
-          updatedAt: DateTime.now(),
+          lastUpdated: DateTime.now(),
+          metadata: {
+            ...(cachedProfile.metadata ?? {}),
+            'aiProviderConfig': config,
+          },
         );
         await _cacheUserProfile(updatedProfile);
       }
@@ -610,7 +603,7 @@ class FirebaseUserRepository implements UserRepository {
     try {
       // Check cache first
       final userCache = _safeUserCache;
-      if (userCache?.containsKey(userId) == true) {
+      if (userCache?.containsKey(userId) ?? false) {
         return true;
       }
 
@@ -640,11 +633,9 @@ class FirebaseUserRepository implements UserRepository {
       }
 
       return {
-        'preferredExerciseTypes': profile.preferredExerciseTypes,
-        'dislikedExercises': profile.dislikedExercises,
-        'fitnessGoal': profile.fitnessGoal.name,
-        'activityLevel': profile.activityLevel.name,
-        'preferences': profile.preferences,
+        'fitnessGoals': profile.fitnessGoals ?? [],
+        'fitnessLevel': profile.fitnessLevel,
+        'preferences': profile.preferences ?? {},
       };
     } catch (e, stackTrace) {
       AppLogger.error(
@@ -668,14 +659,13 @@ class FirebaseUserRepository implements UserRepository {
       }
 
       final updatedProfile = profile.copyWith(
-        preferredExerciseTypes:
-            (preferences['preferredExerciseTypes'] as List<String>?) ??
-            profile.preferredExerciseTypes,
-        dislikedExercises:
-            (preferences['dislikedExercises'] as List<String>?) ??
-            profile.dislikedExercises,
-        preferences: {...profile.preferences, ...preferences},
-        updatedAt: DateTime.now(),
+        fitnessGoals:
+            (preferences['fitnessGoals'] as List<String>?) ??
+            profile.fitnessGoals,
+        fitnessLevel:
+            preferences['fitnessLevel'] as String? ?? profile.fitnessLevel,
+        preferences: {...(profile.preferences ?? {}), ...preferences},
+        lastUpdated: DateTime.now(),
       );
 
       await updateUserProfile(updatedProfile);
@@ -735,7 +725,7 @@ class FirebaseUserRepository implements UserRepository {
 
     return {
       'hasCachedProfile': hasCachedProfile,
-      'lastUpdated': cachedProfile?.updatedAt.toIso8601String(),
+      'lastUpdated': cachedProfile?.lastUpdated.toIso8601String(),
       'isOnline': await _isOnline(),
       'pendingSyncItems':
           syncQueue?.values

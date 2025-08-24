@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:fitness_training_app/features/profile/presentation/providers/profile_providers.dart';
+import 'package:fitness_training_app/shared/domain/entities/fitness_enums.dart';
 import 'package:fitness_training_app/shared/domain/entities/user_profile.dart';
 import 'package:fitness_training_app/shared/presentation/widgets/custom_button.dart';
 import 'package:fitness_training_app/shared/presentation/widgets/custom_text_field.dart';
@@ -25,7 +27,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   final _weightController = TextEditingController();
   final _targetWeightController = TextEditingController();
 
-  FitnessGoal _selectedGoal = FitnessGoal.generalHealth;
+  FitnessGoal _selectedGoal = FitnessGoal.weightLoss;
   ActivityLevel _selectedActivityLevel = ActivityLevel.moderatelyActive;
   final List<String> _selectedExerciseTypes = [];
   int _currentStep = 0;
@@ -664,31 +666,31 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
 
   IconData _getGoalIcon(FitnessGoal goal) {
     switch (goal) {
-      case FitnessGoal.loseWeight:
+      case FitnessGoal.weightLoss:
         return Icons.trending_down;
-      case FitnessGoal.gainMuscle:
+      case FitnessGoal.muscleGain:
         return Icons.fitness_center;
-      case FitnessGoal.maintainFitness:
-        return Icons.balance;
-      case FitnessGoal.improveEndurance:
+      case FitnessGoal.endurance:
         return Icons.directions_run;
-      case FitnessGoal.generalHealth:
-        return Icons.favorite;
+      case FitnessGoal.strength:
+        return Icons.fitness_center;
+      case FitnessGoal.flexibility:
+        return Icons.self_improvement;
     }
   }
 
   String _getGoalDisplayName(FitnessGoal goal) {
     switch (goal) {
-      case FitnessGoal.loseWeight:
-        return 'Lose Weight';
-      case FitnessGoal.gainMuscle:
-        return 'Gain Muscle';
-      case FitnessGoal.maintainFitness:
-        return 'Maintain Fitness';
-      case FitnessGoal.improveEndurance:
-        return 'Improve Endurance';
-      case FitnessGoal.generalHealth:
-        return 'General Health';
+      case FitnessGoal.weightLoss:
+        return 'Weight Loss';
+      case FitnessGoal.muscleGain:
+        return 'Muscle Gain';
+      case FitnessGoal.endurance:
+        return 'Endurance';
+      case FitnessGoal.strength:
+        return 'Strength';
+      case FitnessGoal.flexibility:
+        return 'Flexibility';
     }
   }
 

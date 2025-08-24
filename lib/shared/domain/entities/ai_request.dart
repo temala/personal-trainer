@@ -26,6 +26,8 @@ enum AIRequestType {
   createAvatar,
   analyzeProgress,
   customWorkflow,
+  evaluateCommitment,
+  generateAdvice,
 }
 
 @freezed

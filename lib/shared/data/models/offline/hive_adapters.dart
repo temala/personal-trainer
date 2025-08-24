@@ -1,10 +1,13 @@
 import 'package:hive/hive.dart';
-import 'package:fitness_training_app/shared/domain/entities/entities.dart';
-import 'package:fitness_training_app/shared/data/models/offline/offline_adapters.dart';
-import 'package:fitness_training_app/shared/data/services/exercise_animation_service.dart';
 
-/// Hive type adapters for all data models
-/// This file registers all type adapters needed for offline storage
+import 'package:fitness_training_app/shared/data/models/offline/offline_adapters.dart';
+import 'package:fitness_training_app/shared/domain/entities/exercise.dart';
+import 'package:fitness_training_app/shared/domain/entities/user_profile.dart';
+import 'package:fitness_training_app/shared/domain/entities/workout_plan.dart';
+import 'package:fitness_training_app/shared/domain/entities/workout_session.dart';
+
+/// Hive type adapters for core data models
+/// This file registers type adapters needed for offline storage
 
 class HiveAdapters {
   /// Register all type adapters
@@ -20,48 +23,10 @@ class HiveAdapters {
       Hive.registerAdapter(WorkoutPlanAdapter());
     }
     if (!Hive.isAdapterRegistered(3)) {
-      Hive.registerAdapter(WorkoutSessionAdapter());
-    }
-    if (!Hive.isAdapterRegistered(4)) {
       Hive.registerAdapter(WorkoutExerciseAdapter());
     }
-    if (!Hive.isAdapterRegistered(5)) {
-      Hive.registerAdapter(ExerciseExecutionAdapter());
-    }
-    if (!Hive.isAdapterRegistered(6)) {
-      Hive.registerAdapter(SetExecutionAdapter());
-    }
 
-    // Enum adapters
-    if (!Hive.isAdapterRegistered(10)) {
-      Hive.registerAdapter(FitnessGoalAdapter());
-    }
-    if (!Hive.isAdapterRegistered(11)) {
-      Hive.registerAdapter(ActivityLevelAdapter());
-    }
-    if (!Hive.isAdapterRegistered(12)) {
-      Hive.registerAdapter(ExerciseCategoryAdapter());
-    }
-    if (!Hive.isAdapterRegistered(13)) {
-      Hive.registerAdapter(DifficultyLevelAdapter());
-    }
-    if (!Hive.isAdapterRegistered(14)) {
-      Hive.registerAdapter(MuscleGroupAdapter());
-    }
-    if (!Hive.isAdapterRegistered(15)) {
-      Hive.registerAdapter(WorkoutTypeAdapter());
-    }
-    if (!Hive.isAdapterRegistered(16)) {
-      Hive.registerAdapter(SessionStatusAdapter());
-    }
-    if (!Hive.isAdapterRegistered(17)) {
-      Hive.registerAdapter(ExecutionStatusAdapter());
-    }
-    if (!Hive.isAdapterRegistered(18)) {
-      Hive.registerAdapter(SetStatusAdapter());
-    }
-
-    // Offline-specific adapters
+    // Offline model adapters
     if (!Hive.isAdapterRegistered(20)) {
       Hive.registerAdapter(CachedWorkoutPlanAdapter());
     }
@@ -86,10 +51,46 @@ class HiveAdapters {
     if (!Hive.isAdapterRegistered(27)) {
       Hive.registerAdapter(ExerciseAnimationDataAdapter());
     }
-    if (!Hive.isAdapterRegistered(28)) {
+
+    // Enum adapters
+    if (!Hive.isAdapterRegistered(12)) {
+      Hive.registerAdapter(ExerciseCategoryAdapter());
+    }
+    if (!Hive.isAdapterRegistered(13)) {
+      Hive.registerAdapter(DifficultyLevelAdapter());
+    }
+    if (!Hive.isAdapterRegistered(14)) {
+      Hive.registerAdapter(MuscleGroupAdapter());
+    }
+    if (!Hive.isAdapterRegistered(15)) {
+      Hive.registerAdapter(WorkoutTypeAdapter());
+    }
+
+    // Workout session adapters
+    if (!Hive.isAdapterRegistered(30)) {
+      Hive.registerAdapter(WorkoutSessionAdapter());
+    }
+    if (!Hive.isAdapterRegistered(31)) {
+      Hive.registerAdapter(ExerciseExecutionAdapter());
+    }
+    if (!Hive.isAdapterRegistered(32)) {
+      Hive.registerAdapter(SetExecutionAdapter());
+    }
+    if (!Hive.isAdapterRegistered(33)) {
+      Hive.registerAdapter(SessionStatusAdapter());
+    }
+    if (!Hive.isAdapterRegistered(34)) {
+      Hive.registerAdapter(ExecutionStatusAdapter());
+    }
+    if (!Hive.isAdapterRegistered(35)) {
+      Hive.registerAdapter(SetStatusAdapter());
+    }
+
+    // Animation enum adapters
+    if (!Hive.isAdapterRegistered(40)) {
       Hive.registerAdapter(AnimationTypeAdapter());
     }
-    if (!Hive.isAdapterRegistered(29)) {
+    if (!Hive.isAdapterRegistered(41)) {
       Hive.registerAdapter(AnimationSourceAdapter());
     }
   }
@@ -109,25 +110,27 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
     return UserProfile(
       id: fields[0] as String,
       email: fields[1] as String,
-      name: fields[2] as String,
-      age: fields[3] as int,
-      height: fields[4] as double,
-      weight: fields[5] as double,
-      targetWeight: fields[6] as double,
-      fitnessGoal: fields[7] as FitnessGoal,
-      activityLevel: fields[8] as ActivityLevel,
-      preferredExerciseTypes: (fields[9] as List).cast<String>(),
-      dislikedExercises: (fields[10] as List).cast<String>(),
-      preferences: Map<String, dynamic>.from(fields[11] as Map),
-      createdAt: fields[12] as DateTime,
-      updatedAt: fields[13] as DateTime,
-      avatarUrl: fields[14] as String?,
-      isPremium: fields[15] as bool?,
-      premiumExpiresAt: fields[16] as DateTime?,
-      fcmToken: fields[17] as String?,
-      aiProviderConfig:
-          fields[18] != null
-              ? Map<String, dynamic>.from(fields[18] as Map)
+      createdAt: fields[2] as DateTime,
+      lastUpdated: fields[3] as DateTime,
+      displayName: fields[4] as String?,
+      photoUrl: fields[5] as String?,
+      phoneNumber: fields[6] as String?,
+      dateOfBirth: fields[7] as DateTime?,
+      gender: fields[8] as String?,
+      height: fields[9] as double?,
+      weight: fields[10] as double?,
+      fitnessLevel: fields[11] as String?,
+      fitnessGoals:
+          fields[12] != null ? (fields[12] as List).cast<String>() : null,
+      preferences:
+          fields[13] != null
+              ? Map<String, dynamic>.from(fields[13] as Map)
+              : null,
+      isEmailVerified: fields[14] as bool?,
+      isActive: fields[15] as bool?,
+      metadata:
+          fields[16] != null
+              ? Map<String, dynamic>.from(fields[16] as Map)
               : null,
     );
   }
@@ -135,45 +138,41 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
   @override
   void write(BinaryWriter writer, UserProfile obj) {
     writer
-      ..writeByte(19)
+      ..writeByte(17)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
       ..write(obj.email)
       ..writeByte(2)
-      ..write(obj.name)
-      ..writeByte(3)
-      ..write(obj.age)
-      ..writeByte(4)
-      ..write(obj.height)
-      ..writeByte(5)
-      ..write(obj.weight)
-      ..writeByte(6)
-      ..write(obj.targetWeight)
-      ..writeByte(7)
-      ..write(obj.fitnessGoal)
-      ..writeByte(8)
-      ..write(obj.activityLevel)
-      ..writeByte(9)
-      ..write(obj.preferredExerciseTypes)
-      ..writeByte(10)
-      ..write(obj.dislikedExercises)
-      ..writeByte(11)
-      ..write(obj.preferences)
-      ..writeByte(12)
       ..write(obj.createdAt)
+      ..writeByte(3)
+      ..write(obj.lastUpdated)
+      ..writeByte(4)
+      ..write(obj.displayName)
+      ..writeByte(5)
+      ..write(obj.photoUrl)
+      ..writeByte(6)
+      ..write(obj.phoneNumber)
+      ..writeByte(7)
+      ..write(obj.dateOfBirth)
+      ..writeByte(8)
+      ..write(obj.gender)
+      ..writeByte(9)
+      ..write(obj.height)
+      ..writeByte(10)
+      ..write(obj.weight)
+      ..writeByte(11)
+      ..write(obj.fitnessLevel)
+      ..writeByte(12)
+      ..write(obj.fitnessGoals)
       ..writeByte(13)
-      ..write(obj.updatedAt)
+      ..write(obj.preferences)
       ..writeByte(14)
-      ..write(obj.avatarUrl)
+      ..write(obj.isEmailVerified)
       ..writeByte(15)
-      ..write(obj.isPremium)
+      ..write(obj.isActive)
       ..writeByte(16)
-      ..write(obj.premiumExpiresAt)
-      ..writeByte(17)
-      ..write(obj.fcmToken)
-      ..writeByte(18)
-      ..write(obj.aiProviderConfig);
+      ..write(obj.metadata);
   }
 
   @override
@@ -360,10 +359,305 @@ class WorkoutPlanAdapter extends TypeAdapter<WorkoutPlan> {
           typeId == other.typeId;
 }
 
+/// WorkoutExercise Hive adapter
+class WorkoutExerciseAdapter extends TypeAdapter<WorkoutExercise> {
+  @override
+  final int typeId = 3;
+
+  @override
+  WorkoutExercise read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return WorkoutExercise(
+      exerciseId: fields[0] as String,
+      order: fields[1] as int,
+      sets: fields[2] as int,
+      repsPerSet: fields[3] as int,
+      restBetweenSetsSeconds: fields[4] as int,
+      exerciseName: fields[5] as String?,
+      exerciseDescription: fields[6] as String?,
+      exerciseMetadata:
+          fields[7] != null
+              ? Map<String, dynamic>.from(fields[7] as Map)
+              : null,
+      customInstructions:
+          fields[8] != null
+              ? Map<String, dynamic>.from(fields[8] as Map)
+              : null,
+      alternativeExerciseIds:
+          fields[9] != null ? (fields[9] as List).cast<String>() : null,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, WorkoutExercise obj) {
+    writer
+      ..writeByte(10)
+      ..writeByte(0)
+      ..write(obj.exerciseId)
+      ..writeByte(1)
+      ..write(obj.order)
+      ..writeByte(2)
+      ..write(obj.sets)
+      ..writeByte(3)
+      ..write(obj.repsPerSet)
+      ..writeByte(4)
+      ..write(obj.restBetweenSetsSeconds)
+      ..writeByte(5)
+      ..write(obj.exerciseName)
+      ..writeByte(6)
+      ..write(obj.exerciseDescription)
+      ..writeByte(7)
+      ..write(obj.exerciseMetadata)
+      ..writeByte(8)
+      ..write(obj.customInstructions)
+      ..writeByte(9)
+      ..write(obj.alternativeExerciseIds);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WorkoutExerciseAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+// Enum Adapters
+
+/// ExerciseCategory Hive adapter
+class ExerciseCategoryAdapter extends TypeAdapter<ExerciseCategory> {
+  @override
+  final int typeId = 12;
+
+  @override
+  ExerciseCategory read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return ExerciseCategory.cardio;
+      case 1:
+        return ExerciseCategory.strength;
+      case 2:
+        return ExerciseCategory.flexibility;
+      case 3:
+        return ExerciseCategory.balance;
+      case 4:
+        return ExerciseCategory.sports;
+      case 5:
+        return ExerciseCategory.rehabilitation;
+      default:
+        return ExerciseCategory.strength;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, ExerciseCategory obj) {
+    switch (obj) {
+      case ExerciseCategory.cardio:
+        writer.writeByte(0);
+      case ExerciseCategory.strength:
+        writer.writeByte(1);
+      case ExerciseCategory.flexibility:
+        writer.writeByte(2);
+      case ExerciseCategory.balance:
+        writer.writeByte(3);
+      case ExerciseCategory.sports:
+        writer.writeByte(4);
+      case ExerciseCategory.rehabilitation:
+        writer.writeByte(5);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ExerciseCategoryAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+/// DifficultyLevel Hive adapter
+class DifficultyLevelAdapter extends TypeAdapter<DifficultyLevel> {
+  @override
+  final int typeId = 13;
+
+  @override
+  DifficultyLevel read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return DifficultyLevel.beginner;
+      case 1:
+        return DifficultyLevel.intermediate;
+      case 2:
+        return DifficultyLevel.advanced;
+      case 3:
+        return DifficultyLevel.expert;
+      default:
+        return DifficultyLevel.beginner;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, DifficultyLevel obj) {
+    switch (obj) {
+      case DifficultyLevel.beginner:
+        writer.writeByte(0);
+      case DifficultyLevel.intermediate:
+        writer.writeByte(1);
+      case DifficultyLevel.advanced:
+        writer.writeByte(2);
+      case DifficultyLevel.expert:
+        writer.writeByte(3);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DifficultyLevelAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+/// MuscleGroup Hive adapter
+class MuscleGroupAdapter extends TypeAdapter<MuscleGroup> {
+  @override
+  final int typeId = 14;
+
+  @override
+  MuscleGroup read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return MuscleGroup.chest;
+      case 1:
+        return MuscleGroup.back;
+      case 2:
+        return MuscleGroup.shoulders;
+      case 3:
+        return MuscleGroup.arms;
+      case 4:
+        return MuscleGroup.core;
+      case 5:
+        return MuscleGroup.legs;
+      case 6:
+        return MuscleGroup.glutes;
+      case 7:
+        return MuscleGroup.fullBody;
+      default:
+        return MuscleGroup.fullBody;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, MuscleGroup obj) {
+    switch (obj) {
+      case MuscleGroup.chest:
+        writer.writeByte(0);
+      case MuscleGroup.back:
+        writer.writeByte(1);
+      case MuscleGroup.shoulders:
+        writer.writeByte(2);
+      case MuscleGroup.arms:
+        writer.writeByte(3);
+      case MuscleGroup.core:
+        writer.writeByte(4);
+      case MuscleGroup.legs:
+        writer.writeByte(5);
+      case MuscleGroup.glutes:
+        writer.writeByte(6);
+      case MuscleGroup.fullBody:
+        writer.writeByte(7);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MuscleGroupAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+/// WorkoutType Hive adapter
+class WorkoutTypeAdapter extends TypeAdapter<WorkoutType> {
+  @override
+  final int typeId = 15;
+
+  @override
+  WorkoutType read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return WorkoutType.strengthTraining;
+      case 1:
+        return WorkoutType.cardio;
+      case 2:
+        return WorkoutType.hiit;
+      case 3:
+        return WorkoutType.yoga;
+      case 4:
+        return WorkoutType.pilates;
+      case 5:
+        return WorkoutType.stretching;
+      case 6:
+        return WorkoutType.mixed;
+      case 7:
+        return WorkoutType.custom;
+      default:
+        return WorkoutType.mixed;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, WorkoutType obj) {
+    switch (obj) {
+      case WorkoutType.strengthTraining:
+        writer.writeByte(0);
+      case WorkoutType.cardio:
+        writer.writeByte(1);
+      case WorkoutType.hiit:
+        writer.writeByte(2);
+      case WorkoutType.yoga:
+        writer.writeByte(3);
+      case WorkoutType.pilates:
+        writer.writeByte(4);
+      case WorkoutType.stretching:
+        writer.writeByte(5);
+      case WorkoutType.mixed:
+        writer.writeByte(6);
+      case WorkoutType.custom:
+        writer.writeByte(7);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WorkoutTypeAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
 /// WorkoutSession Hive adapter
 class WorkoutSessionAdapter extends TypeAdapter<WorkoutSession> {
   @override
-  final int typeId = 3;
+  final int typeId = 30;
 
   @override
   WorkoutSession read(BinaryReader reader) {
@@ -450,79 +744,10 @@ class WorkoutSessionAdapter extends TypeAdapter<WorkoutSession> {
           typeId == other.typeId;
 }
 
-/// WorkoutExercise Hive adapter
-class WorkoutExerciseAdapter extends TypeAdapter<WorkoutExercise> {
-  @override
-  final int typeId = 4;
-
-  @override
-  WorkoutExercise read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return WorkoutExercise(
-      exerciseId: fields[0] as String,
-      order: fields[1] as int,
-      sets: fields[2] as int,
-      repsPerSet: fields[3] as int,
-      restBetweenSetsSeconds: fields[4] as int,
-      exerciseName: fields[5] as String?,
-      exerciseDescription: fields[6] as String?,
-      exerciseMetadata:
-          fields[7] != null
-              ? Map<String, dynamic>.from(fields[7] as Map)
-              : null,
-      customInstructions:
-          fields[8] != null
-              ? Map<String, dynamic>.from(fields[8] as Map)
-              : null,
-      alternativeExerciseIds:
-          fields[9] != null ? (fields[9] as List).cast<String>() : null,
-    );
-  }
-
-  @override
-  void write(BinaryWriter writer, WorkoutExercise obj) {
-    writer
-      ..writeByte(10)
-      ..writeByte(0)
-      ..write(obj.exerciseId)
-      ..writeByte(1)
-      ..write(obj.order)
-      ..writeByte(2)
-      ..write(obj.sets)
-      ..writeByte(3)
-      ..write(obj.repsPerSet)
-      ..writeByte(4)
-      ..write(obj.restBetweenSetsSeconds)
-      ..writeByte(5)
-      ..write(obj.exerciseName)
-      ..writeByte(6)
-      ..write(obj.exerciseDescription)
-      ..writeByte(7)
-      ..write(obj.exerciseMetadata)
-      ..writeByte(8)
-      ..write(obj.customInstructions)
-      ..writeByte(9)
-      ..write(obj.alternativeExerciseIds);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is WorkoutExerciseAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
 /// ExerciseExecution Hive adapter
 class ExerciseExecutionAdapter extends TypeAdapter<ExerciseExecution> {
   @override
-  final int typeId = 5;
+  final int typeId = 31;
 
   @override
   ExerciseExecution read(BinaryReader reader) {
@@ -593,7 +818,7 @@ class ExerciseExecutionAdapter extends TypeAdapter<ExerciseExecution> {
 /// SetExecution Hive adapter
 class SetExecutionAdapter extends TypeAdapter<SetExecution> {
   @override
-  final int typeId = 6;
+  final int typeId = 32;
 
   @override
   SetExecution read(BinaryReader reader) {
@@ -651,372 +876,11 @@ class SetExecutionAdapter extends TypeAdapter<SetExecution> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
-// Enum Adapters
-
-/// FitnessGoal Hive adapter
-class FitnessGoalAdapter extends TypeAdapter<FitnessGoal> {
-  @override
-  final int typeId = 10;
-
-  @override
-  FitnessGoal read(BinaryReader reader) {
-    switch (reader.readByte()) {
-      case 0:
-        return FitnessGoal.loseWeight;
-      case 1:
-        return FitnessGoal.gainMuscle;
-      case 2:
-        return FitnessGoal.maintainFitness;
-      case 3:
-        return FitnessGoal.improveEndurance;
-      case 4:
-        return FitnessGoal.generalHealth;
-      default:
-        return FitnessGoal.generalHealth;
-    }
-  }
-
-  @override
-  void write(BinaryWriter writer, FitnessGoal obj) {
-    switch (obj) {
-      case FitnessGoal.loseWeight:
-        writer.writeByte(0);
-        break;
-      case FitnessGoal.gainMuscle:
-        writer.writeByte(1);
-        break;
-      case FitnessGoal.maintainFitness:
-        writer.writeByte(2);
-        break;
-      case FitnessGoal.improveEndurance:
-        writer.writeByte(3);
-        break;
-      case FitnessGoal.generalHealth:
-        writer.writeByte(4);
-        break;
-    }
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FitnessGoalAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-/// ActivityLevel Hive adapter
-class ActivityLevelAdapter extends TypeAdapter<ActivityLevel> {
-  @override
-  final int typeId = 11;
-
-  @override
-  ActivityLevel read(BinaryReader reader) {
-    switch (reader.readByte()) {
-      case 0:
-        return ActivityLevel.sedentary;
-      case 1:
-        return ActivityLevel.lightlyActive;
-      case 2:
-        return ActivityLevel.moderatelyActive;
-      case 3:
-        return ActivityLevel.veryActive;
-      case 4:
-        return ActivityLevel.extremelyActive;
-      default:
-        return ActivityLevel.sedentary;
-    }
-  }
-
-  @override
-  void write(BinaryWriter writer, ActivityLevel obj) {
-    switch (obj) {
-      case ActivityLevel.sedentary:
-        writer.writeByte(0);
-        break;
-      case ActivityLevel.lightlyActive:
-        writer.writeByte(1);
-        break;
-      case ActivityLevel.moderatelyActive:
-        writer.writeByte(2);
-        break;
-      case ActivityLevel.veryActive:
-        writer.writeByte(3);
-        break;
-      case ActivityLevel.extremelyActive:
-        writer.writeByte(4);
-        break;
-    }
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ActivityLevelAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-/// ExerciseCategory Hive adapter
-class ExerciseCategoryAdapter extends TypeAdapter<ExerciseCategory> {
-  @override
-  final int typeId = 12;
-
-  @override
-  ExerciseCategory read(BinaryReader reader) {
-    switch (reader.readByte()) {
-      case 0:
-        return ExerciseCategory.cardio;
-      case 1:
-        return ExerciseCategory.strength;
-      case 2:
-        return ExerciseCategory.flexibility;
-      case 3:
-        return ExerciseCategory.balance;
-      case 4:
-        return ExerciseCategory.sports;
-      case 5:
-        return ExerciseCategory.rehabilitation;
-      default:
-        return ExerciseCategory.strength;
-    }
-  }
-
-  @override
-  void write(BinaryWriter writer, ExerciseCategory obj) {
-    switch (obj) {
-      case ExerciseCategory.cardio:
-        writer.writeByte(0);
-        break;
-      case ExerciseCategory.strength:
-        writer.writeByte(1);
-        break;
-      case ExerciseCategory.flexibility:
-        writer.writeByte(2);
-        break;
-      case ExerciseCategory.balance:
-        writer.writeByte(3);
-        break;
-      case ExerciseCategory.sports:
-        writer.writeByte(4);
-        break;
-      case ExerciseCategory.rehabilitation:
-        writer.writeByte(5);
-        break;
-    }
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ExerciseCategoryAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-/// DifficultyLevel Hive adapter
-class DifficultyLevelAdapter extends TypeAdapter<DifficultyLevel> {
-  @override
-  final int typeId = 13;
-
-  @override
-  DifficultyLevel read(BinaryReader reader) {
-    switch (reader.readByte()) {
-      case 0:
-        return DifficultyLevel.beginner;
-      case 1:
-        return DifficultyLevel.intermediate;
-      case 2:
-        return DifficultyLevel.advanced;
-      case 3:
-        return DifficultyLevel.expert;
-      default:
-        return DifficultyLevel.beginner;
-    }
-  }
-
-  @override
-  void write(BinaryWriter writer, DifficultyLevel obj) {
-    switch (obj) {
-      case DifficultyLevel.beginner:
-        writer.writeByte(0);
-        break;
-      case DifficultyLevel.intermediate:
-        writer.writeByte(1);
-        break;
-      case DifficultyLevel.advanced:
-        writer.writeByte(2);
-        break;
-      case DifficultyLevel.expert:
-        writer.writeByte(3);
-        break;
-    }
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is DifficultyLevelAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-/// MuscleGroup Hive adapter
-class MuscleGroupAdapter extends TypeAdapter<MuscleGroup> {
-  @override
-  final int typeId = 14;
-
-  @override
-  MuscleGroup read(BinaryReader reader) {
-    switch (reader.readByte()) {
-      case 0:
-        return MuscleGroup.chest;
-      case 1:
-        return MuscleGroup.back;
-      case 2:
-        return MuscleGroup.shoulders;
-      case 3:
-        return MuscleGroup.arms;
-      case 4:
-        return MuscleGroup.core;
-      case 5:
-        return MuscleGroup.legs;
-      case 6:
-        return MuscleGroup.glutes;
-      case 7:
-        return MuscleGroup.fullBody;
-      default:
-        return MuscleGroup.fullBody;
-    }
-  }
-
-  @override
-  void write(BinaryWriter writer, MuscleGroup obj) {
-    switch (obj) {
-      case MuscleGroup.chest:
-        writer.writeByte(0);
-        break;
-      case MuscleGroup.back:
-        writer.writeByte(1);
-        break;
-      case MuscleGroup.shoulders:
-        writer.writeByte(2);
-        break;
-      case MuscleGroup.arms:
-        writer.writeByte(3);
-        break;
-      case MuscleGroup.core:
-        writer.writeByte(4);
-        break;
-      case MuscleGroup.legs:
-        writer.writeByte(5);
-        break;
-      case MuscleGroup.glutes:
-        writer.writeByte(6);
-        break;
-      case MuscleGroup.fullBody:
-        writer.writeByte(7);
-        break;
-    }
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MuscleGroupAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-/// WorkoutType Hive adapter
-class WorkoutTypeAdapter extends TypeAdapter<WorkoutType> {
-  @override
-  final int typeId = 15;
-
-  @override
-  WorkoutType read(BinaryReader reader) {
-    switch (reader.readByte()) {
-      case 0:
-        return WorkoutType.strengthTraining;
-      case 1:
-        return WorkoutType.cardio;
-      case 2:
-        return WorkoutType.hiit;
-      case 3:
-        return WorkoutType.yoga;
-      case 4:
-        return WorkoutType.pilates;
-      case 5:
-        return WorkoutType.stretching;
-      case 6:
-        return WorkoutType.mixed;
-      case 7:
-        return WorkoutType.custom;
-      default:
-        return WorkoutType.mixed;
-    }
-  }
-
-  @override
-  void write(BinaryWriter writer, WorkoutType obj) {
-    switch (obj) {
-      case WorkoutType.strengthTraining:
-        writer.writeByte(0);
-        break;
-      case WorkoutType.cardio:
-        writer.writeByte(1);
-        break;
-      case WorkoutType.hiit:
-        writer.writeByte(2);
-        break;
-      case WorkoutType.yoga:
-        writer.writeByte(3);
-        break;
-      case WorkoutType.pilates:
-        writer.writeByte(4);
-        break;
-      case WorkoutType.stretching:
-        writer.writeByte(5);
-        break;
-      case WorkoutType.mixed:
-        writer.writeByte(6);
-        break;
-      case WorkoutType.custom:
-        writer.writeByte(7);
-        break;
-    }
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is WorkoutTypeAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
 
 /// SessionStatus Hive adapter
 class SessionStatusAdapter extends TypeAdapter<SessionStatus> {
   @override
-  final int typeId = 16;
+  final int typeId = 33;
 
   @override
   SessionStatus read(BinaryReader reader) {
@@ -1043,22 +907,16 @@ class SessionStatusAdapter extends TypeAdapter<SessionStatus> {
     switch (obj) {
       case SessionStatus.notStarted:
         writer.writeByte(0);
-        break;
       case SessionStatus.inProgress:
         writer.writeByte(1);
-        break;
       case SessionStatus.paused:
         writer.writeByte(2);
-        break;
       case SessionStatus.completed:
         writer.writeByte(3);
-        break;
       case SessionStatus.abandoned:
         writer.writeByte(4);
-        break;
       case SessionStatus.cancelled:
         writer.writeByte(5);
-        break;
     }
   }
 
@@ -1076,7 +934,7 @@ class SessionStatusAdapter extends TypeAdapter<SessionStatus> {
 /// ExecutionStatus Hive adapter
 class ExecutionStatusAdapter extends TypeAdapter<ExecutionStatus> {
   @override
-  final int typeId = 17;
+  final int typeId = 34;
 
   @override
   ExecutionStatus read(BinaryReader reader) {
@@ -1101,19 +959,14 @@ class ExecutionStatusAdapter extends TypeAdapter<ExecutionStatus> {
     switch (obj) {
       case ExecutionStatus.notStarted:
         writer.writeByte(0);
-        break;
       case ExecutionStatus.inProgress:
         writer.writeByte(1);
-        break;
       case ExecutionStatus.completed:
         writer.writeByte(2);
-        break;
       case ExecutionStatus.skipped:
         writer.writeByte(3);
-        break;
       case ExecutionStatus.alternativeUsed:
         writer.writeByte(4);
-        break;
     }
   }
 
@@ -1131,7 +984,7 @@ class ExecutionStatusAdapter extends TypeAdapter<ExecutionStatus> {
 /// SetStatus Hive adapter
 class SetStatusAdapter extends TypeAdapter<SetStatus> {
   @override
-  final int typeId = 18;
+  final int typeId = 35;
 
   @override
   SetStatus read(BinaryReader reader) {
@@ -1154,16 +1007,12 @@ class SetStatusAdapter extends TypeAdapter<SetStatus> {
     switch (obj) {
       case SetStatus.notStarted:
         writer.writeByte(0);
-        break;
       case SetStatus.inProgress:
         writer.writeByte(1);
-        break;
       case SetStatus.completed:
         writer.writeByte(2);
-        break;
       case SetStatus.skipped:
         writer.writeByte(3);
-        break;
     }
   }
 
@@ -1174,209 +1023,6 @@ class SetStatusAdapter extends TypeAdapter<SetStatus> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is SetStatusAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-/// CachedAnimation Hive adapter
-class CachedAnimationAdapter extends TypeAdapter<CachedAnimation> {
-  @override
-  final int typeId = 26;
-
-  @override
-  CachedAnimation read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return CachedAnimation(
-      id: fields[0] as String,
-      animationData: fields[1] as ExerciseAnimationData,
-      cachedAt: fields[2] as DateTime,
-      sizeBytes: fields[3] as int,
-      accessCount: fields[4] as int,
-      lastAccessed: fields[5] as DateTime,
-    );
-  }
-
-  @override
-  void write(BinaryWriter writer, CachedAnimation obj) {
-    writer
-      ..writeByte(6)
-      ..writeByte(0)
-      ..write(obj.id)
-      ..writeByte(1)
-      ..write(obj.animationData)
-      ..writeByte(2)
-      ..write(obj.cachedAt)
-      ..writeByte(3)
-      ..write(obj.sizeBytes)
-      ..writeByte(4)
-      ..write(obj.accessCount)
-      ..writeByte(5)
-      ..write(obj.lastAccessed);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is CachedAnimationAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-/// ExerciseAnimationData Hive adapter
-class ExerciseAnimationDataAdapter extends TypeAdapter<ExerciseAnimationData> {
-  @override
-  final int typeId = 27;
-
-  @override
-  ExerciseAnimationData read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return ExerciseAnimationData(
-      id: fields[0] as String,
-      type: fields[1] as AnimationType,
-      data: fields[2] as String,
-      source: fields[3] as AnimationSource,
-      duration: fields[4] as int,
-      isLooping: fields[5] as bool,
-      metadata: Map<String, dynamic>.from(fields[6] as Map),
-    );
-  }
-
-  @override
-  void write(BinaryWriter writer, ExerciseAnimationData obj) {
-    writer
-      ..writeByte(7)
-      ..writeByte(0)
-      ..write(obj.id)
-      ..writeByte(1)
-      ..write(obj.type)
-      ..writeByte(2)
-      ..write(obj.data)
-      ..writeByte(3)
-      ..write(obj.source)
-      ..writeByte(4)
-      ..write(obj.duration)
-      ..writeByte(5)
-      ..write(obj.isLooping)
-      ..writeByte(6)
-      ..write(obj.metadata);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ExerciseAnimationDataAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-/// AnimationType Hive adapter
-class AnimationTypeAdapter extends TypeAdapter<AnimationType> {
-  @override
-  final int typeId = 28;
-
-  @override
-  AnimationType read(BinaryReader reader) {
-    switch (reader.readByte()) {
-      case 0:
-        return AnimationType.lottie;
-      case 1:
-        return AnimationType.rive;
-      case 2:
-        return AnimationType.gif;
-      case 3:
-        return AnimationType.video;
-      default:
-        return AnimationType.lottie;
-    }
-  }
-
-  @override
-  void write(BinaryWriter writer, AnimationType obj) {
-    switch (obj) {
-      case AnimationType.lottie:
-        writer.writeByte(0);
-        break;
-      case AnimationType.rive:
-        writer.writeByte(1);
-        break;
-      case AnimationType.gif:
-        writer.writeByte(2);
-        break;
-      case AnimationType.video:
-        writer.writeByte(3);
-        break;
-    }
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is AnimationTypeAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-/// AnimationSource Hive adapter
-class AnimationSourceAdapter extends TypeAdapter<AnimationSource> {
-  @override
-  final int typeId = 29;
-
-  @override
-  AnimationSource read(BinaryReader reader) {
-    switch (reader.readByte()) {
-      case 0:
-        return AnimationSource.assets;
-      case 1:
-        return AnimationSource.storage;
-      case 2:
-        return AnimationSource.cache;
-      case 3:
-        return AnimationSource.generated;
-      default:
-        return AnimationSource.assets;
-    }
-  }
-
-  @override
-  void write(BinaryWriter writer, AnimationSource obj) {
-    switch (obj) {
-      case AnimationSource.assets:
-        writer.writeByte(0);
-        break;
-      case AnimationSource.storage:
-        writer.writeByte(1);
-        break;
-      case AnimationSource.cache:
-        writer.writeByte(2);
-        break;
-      case AnimationSource.generated:
-        writer.writeByte(3);
-        break;
-    }
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is AnimationSourceAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

@@ -31,7 +31,7 @@ class _PrivacySettingsScreenState extends ConsumerState<PrivacySettingsScreen> {
     final userProfile = ref.read(currentUserProfileProvider);
     userProfile.whenData((profile) {
       if (profile != null) {
-        final preferences = profile.preferences;
+        final preferences = profile.preferences ?? {};
         setState(() {
           _shareDataForImprovement =
               (preferences['shareDataForImprovement'] as bool?) ?? true;

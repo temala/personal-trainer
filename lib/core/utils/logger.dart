@@ -1,10 +1,12 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
 
 /// Application logger configuration
 class AppLogger {
+  AppLogger._internal();
+
   static final AppLogger _instance = AppLogger._internal();
   factory AppLogger() => _instance;
-  AppLogger._internal();
 
   final Logger _logger = Logger(
     printer: PrettyPrinter(
@@ -36,4 +38,30 @@ class AppLogger {
   static void fatal(String message, [dynamic error, StackTrace? stackTrace]) {
     _instance._logger.f(message, error: error, stackTrace: stackTrace);
   }
+
+  // Instance methods for dependency injection
+  void logDebug(String message, [dynamic error, StackTrace? stackTrace]) {
+    _logger.d(message, error: error, stackTrace: stackTrace);
+  }
+
+  void logInfo(String message, [dynamic error, StackTrace? stackTrace]) {
+    _logger.i(message, error: error, stackTrace: stackTrace);
+  }
+
+  void logWarning(String message, [dynamic error, StackTrace? stackTrace]) {
+    _logger.w(message, error: error, stackTrace: stackTrace);
+  }
+
+  void logError(String message, [dynamic error, StackTrace? stackTrace]) {
+    _logger.e(message, error: error, stackTrace: stackTrace);
+  }
+
+  void logFatal(String message, [dynamic error, StackTrace? stackTrace]) {
+    _logger.f(message, error: error, stackTrace: stackTrace);
+  }
 }
+
+/// Provider for AppLogger (for dependency injection)
+final loggerProvider = Provider<AppLogger>((ref) {
+  return AppLogger();
+});

@@ -75,6 +75,108 @@ class OfflineManager {
     }
   }
 
+  /// Check if device is online
+  Future<bool> checkOnlineStatus() async {
+    return _isOnline;
+  }
+
+  /// Cache user score for offline access
+  Future<void> cacheUserScore(Map<String, dynamic> userScore) async {
+    try {
+      final userScoreBox = Hive.box<Map<String, dynamic>>('user_scores_cache');
+      final userId = userScore['userId'] as String;
+      await userScoreBox.put(userId, userScore);
+      AppLogger.info('Cached user score for user: $userId');
+    } catch (e, stackTrace) {
+      AppLogger.error('Error caching user score', e, stackTrace);
+    }
+  }
+
+  /// Get cached user score
+  Future<Map<String, dynamic>?> getCachedUserScore(String userId) async {
+    try {
+      final userScoreBox = Hive.box<Map<String, dynamic>>('user_scores_cache');
+      return userScoreBox.get(userId);
+    } catch (e, stackTrace) {
+      AppLogger.error('Error getting cached user score', e, stackTrace);
+      return null;
+    }
+  }
+
+  /// Update cached user score
+  Future<void> updateCachedUserScore(
+    String userId,
+    Map<String, dynamic> updates,
+  ) async {
+    try {
+      final userScoreBox = Hive.box<Map<String, dynamic>>('user_scores_cache');
+      final existing = userScoreBox.get(userId);
+      if (existing != null) {
+        existing.addAll(updates);
+        await userScoreBox.put(userId, existing);
+        AppLogger.info('Updated cached user score for user: $userId');
+      }
+    } catch (e, stackTrace) {
+      AppLogger.error('Error updating cached user score', e, stackTrace);
+    }
+  }
+
+  /// Remove cached user score
+  Future<void> removeCachedUserScore(String userId) async {
+    try {
+      final userScoreBox = Hive.box<Map<String, dynamic>>('user_scores_cache');
+      await userScoreBox.delete(userId);
+      AppLogger.info('Removed cached user score for user: $userId');
+    } catch (e, stackTrace) {
+      AppLogger.error('Error removing cached user score', e, stackTrace);
+    }
+  }
+
+  /// Queue user score update for sync
+  Future<void> queueUserScoreUpdate(
+    String userId,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final syncBox = Hive.box<SyncQueueItem>('sync_queue');
+      final syncItem = SyncQueueItem(
+        id: 'user_score_$userId',
+        operation: SyncOperation.update,
+        entityType: 'user_score',
+        entityId: userId,
+        data: data,
+        createdAt: DateTime.now(),
+        priority: 1, // High priority
+        metadata: {'userId': userId},
+      );
+      await syncBox.put(syncItem.id, syncItem);
+      AppLogger.info('Queued user score update for sync: $userId');
+    } catch (e, stackTrace) {
+      AppLogger.error('Error queuing user score update', e, stackTrace);
+    }
+  }
+
+  /// Queue user score deletion for sync
+  Future<void> queueUserScoreDeletion(String userId) async {
+    try {
+      final syncBox = Hive.box<SyncQueueItem>('sync_queue');
+      final syncItem = SyncQueueItem(
+        id: 'user_score_delete_$userId',
+        operation: SyncOperation.delete,
+        entityType: 'user_score',
+        entityId: userId,
+        data: {'userId': userId},
+        createdAt: DateTime.now(),
+        priority: 1, // High priority
+        metadata: {'userId': userId},
+      );
+      await syncBox.put(syncItem.id, syncItem);
+      AppLogger.info('Queued user score deletion for sync: $userId');
+    } catch (e, stackTrace) {
+      AppLogger.error('Error queuing user score deletion', e, stackTrace);
+    }
+  }
+
   /// Check if specific data is available offline
   Future<bool> isDataAvailableOffline({
     required String dataType,
@@ -88,7 +190,7 @@ class OfflineManager {
 
         case 'user_profile':
           if (userId == null) return false;
-          final userBox = Hive.box('user_cache');
+          final userBox = Hive.box<Map<String, dynamic>>('user_cache');
           return userBox.containsKey(userId);
 
         case 'workout_plans':
@@ -132,7 +234,7 @@ class OfflineManager {
 
       // User cache stats
       if (Hive.isBoxOpen('user_cache')) {
-        final userBox = Hive.box('user_cache');
+        final userBox = Hive.box<Map<String, dynamic>>('user_cache');
         stats['users'] = {
           'count': userBox.length,
           'sizeBytes': _estimateBoxSize(userBox),
@@ -169,7 +271,9 @@ class OfflineManager {
       }
 
       stats['totalSizeBytes'] = stats.values
-          .map((stat) => stat['sizeBytes'] as int? ?? 0)
+          .map(
+            (stat) => (stat as Map<String, dynamic>)['sizeBytes'] as int? ?? 0,
+          )
           .fold<int>(0, (sum, size) => sum + size);
 
       return stats;
@@ -194,11 +298,10 @@ class OfflineManager {
 
         case 'user_profile':
           if (userId != null) {
-            final userBox = Hive.box('user_cache');
+            final userBox = Hive.box<Map<String, dynamic>>('user_cache');
             await userBox.delete(userId);
             AppLogger.info('Cleared user profile cache for $userId');
           }
-          break;
 
         case 'workout_plans':
           if (userId != null) {
@@ -213,7 +316,6 @@ class OfflineManager {
             }
             AppLogger.info('Cleared workout plans cache for $userId');
           }
-          break;
 
         case 'workout_sessions':
           if (userId != null) {
@@ -230,12 +332,10 @@ class OfflineManager {
             }
             AppLogger.info('Cleared workout sessions cache for $userId');
           }
-          break;
 
         case 'all':
           await _clearAllCaches();
           AppLogger.info('Cleared all offline caches');
-          break;
       }
     } catch (e, stackTrace) {
       AppLogger.error(
@@ -250,7 +350,7 @@ class OfflineManager {
   /// Optimize offline storage by removing stale data
   Future<void> optimizeOfflineStorage() async {
     try {
-      int removedItems = 0;
+      var removedItems = 0;
 
       // Clean up stale exercise cache
       if (Hive.isBoxOpen('exercises_cache')) {
@@ -399,6 +499,7 @@ class OfflineManager {
     final boxNames = [
       'exercises_cache',
       'user_cache',
+      'user_scores_cache',
       'workout_plans_cache',
       'workout_sessions_cache',
       'sync_queue',
@@ -406,12 +507,12 @@ class OfflineManager {
 
     for (final boxName in boxNames) {
       if (!Hive.isBoxOpen(boxName)) {
-        await Hive.openBox(boxName);
+        await Hive.openBox<dynamic>(boxName);
       }
     }
   }
 
-  int _estimateBoxSize(Box box) {
+  int _estimateBoxSize(Box<dynamic> box) {
     // Simple estimation based on number of items
     // In a real app, you might want more accurate size calculation
     return box.length * 1024; // Assume 1KB per item on average
@@ -427,7 +528,7 @@ class OfflineManager {
 
     for (final boxName in boxNames) {
       if (Hive.isBoxOpen(boxName)) {
-        final box = Hive.box(boxName);
+        final box = Hive.box<dynamic>(boxName);
         await box.clear();
       }
     }

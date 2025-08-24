@@ -41,7 +41,7 @@ Map<String, dynamic> _$$AIProviderConfigImplToJson(
 
 const _$AIProviderTypeEnumMap = {
   AIProviderType.chatgpt: 'chatgpt',
-  AIProviderType.n8nWorkflow: 'n8nWorkflow',
+  AIProviderType.n8nWorkflow: 'n8n_workflow',
   AIProviderType.claude: 'claude',
   AIProviderType.gemini: 'gemini',
   AIProviderType.custom: 'custom',

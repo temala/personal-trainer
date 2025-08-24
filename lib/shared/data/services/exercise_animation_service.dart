@@ -7,6 +7,7 @@ import 'package:hive/hive.dart';
 import 'package:fitness_training_app/core/constants/firebase_constants.dart';
 import 'package:fitness_training_app/core/utils/logger.dart';
 import 'package:fitness_training_app/shared/data/models/offline/local_database.dart';
+import 'package:fitness_training_app/shared/data/models/offline/offline_models.dart';
 import 'package:fitness_training_app/shared/domain/entities/exercise.dart';
 
 /// Service for managing exercise animations and demonstrations
@@ -406,27 +407,6 @@ class ExerciseAnimationService {
   }
 }
 
-/// Exercise animation data
-class ExerciseAnimationData {
-  const ExerciseAnimationData({
-    required this.id,
-    required this.type,
-    required this.data,
-    required this.source,
-    required this.duration,
-    required this.isLooping,
-    required this.metadata,
-  });
-
-  final String id;
-  final AnimationType type;
-  final String data;
-  final AnimationSource source;
-  final int duration; // in milliseconds
-  final bool isLooping;
-  final Map<String, dynamic> metadata;
-}
-
 /// Avatar data for custom animations
 class AvatarData {
   const AvatarData({
@@ -443,55 +423,6 @@ class AvatarData {
   final DateTime createdAt;
   final List<String> availableAnimations;
 }
-
-/// Cached animation with metadata
-@HiveType(typeId: 25)
-class CachedAnimation extends HiveObject {
-  CachedAnimation({
-    required this.id,
-    required this.animationData,
-    required this.cachedAt,
-    required this.sizeBytes,
-    required this.accessCount,
-    required this.lastAccessed,
-  });
-
-  @HiveField(0)
-  String id;
-
-  @HiveField(1)
-  ExerciseAnimationData animationData;
-
-  @HiveField(2)
-  DateTime cachedAt;
-
-  @HiveField(3)
-  int sizeBytes;
-
-  @HiveField(4)
-  int accessCount;
-
-  @HiveField(5)
-  DateTime lastAccessed;
-
-  /// Check if cache is stale
-  bool get isStale {
-    return DateTime.now().difference(cachedAt) > const Duration(days: 30);
-  }
-
-  /// Mark as accessed
-  void markAccessed() {
-    lastAccessed = DateTime.now();
-    accessCount++;
-    if (isInBox) save();
-  }
-}
-
-/// Animation types
-enum AnimationType { lottie, rive, gif, video }
-
-/// Animation sources
-enum AnimationSource { assets, storage, cache, generated }
 
 /// Celebration types
 enum CelebrationType {

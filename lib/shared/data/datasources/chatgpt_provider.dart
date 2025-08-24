@@ -1,12 +1,11 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:logger/logger.dart';
-
+import 'package:fitness_training_app/shared/domain/entities/ai_provider_config.dart';
 import 'package:fitness_training_app/shared/domain/entities/ai_request.dart';
 import 'package:fitness_training_app/shared/domain/entities/ai_response.dart';
-import 'package:fitness_training_app/shared/domain/entities/ai_provider_config.dart';
 import 'package:fitness_training_app/shared/domain/repositories/ai_provider_repository.dart';
+import 'package:logger/logger.dart';
 
 /// ChatGPT API provider implementation
 class ChatGPTProvider extends BaseAIProvider {
@@ -72,6 +71,8 @@ class ChatGPTProvider extends BaseAIProvider {
           return await _analyzeProgress(request);
         case AIRequestType.createAvatar:
         case AIRequestType.customWorkflow:
+        case AIRequestType.evaluateCommitment:
+        case AIRequestType.generateAdvice:
           return createErrorResponse(
             request.requestId,
             'Unsupported request type: ${request.type}',
@@ -82,7 +83,7 @@ class ChatGPTProvider extends BaseAIProvider {
       _logger.e('ChatGPT API error: $e');
       return createErrorResponse(
         request.requestId,
-        'ChatGPT API error: ${e}',
+        'ChatGPT API error: $e',
         errorCode: 'API_ERROR',
       );
     }
@@ -182,7 +183,7 @@ class ChatGPTProvider extends BaseAIProvider {
 
   Future<AIResponse> _callChatGPT(String prompt, String requestId) async {
     try {
-      final response = await _dio.post(
+      final response = await _dio.post<Map<String, dynamic>>(
         '/chat/completions',
         data: {
           'model': config.additionalConfig['model'] ?? 'gpt-4',
@@ -199,8 +200,10 @@ class ChatGPTProvider extends BaseAIProvider {
         },
       );
 
-      final content =
-          response.data['choices'][0]['message']['content'] as String;
+      final responseData = response.data!;
+      final choices = responseData['choices'] as List;
+      final message = choices[0] as Map<String, dynamic>;
+      final content = message['content'] as String;
       return createSuccessResponse(requestId, {'content': content});
     } on DioException catch (e) {
       var errorMessage = 'ChatGPT API request failed';

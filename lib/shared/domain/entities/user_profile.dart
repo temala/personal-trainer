@@ -1,121 +1,104 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'fitness_enums.dart';
+
 part 'user_profile.freezed.dart';
 part 'user_profile.g.dart';
 
-/// User profile entity containing all user information
+/// User profile entity
 @freezed
 class UserProfile with _$UserProfile {
   const factory UserProfile({
     required String id,
     required String email,
-    required String name,
-    required int age,
-    required double height, // in cm
-    required double weight, // in kg
-    required double targetWeight, // in kg
-    required FitnessGoal fitnessGoal,
-    required ActivityLevel activityLevel,
-    required List<String> preferredExerciseTypes,
-    required List<String> dislikedExercises,
-    required Map<String, dynamic> preferences,
     required DateTime createdAt,
-    required DateTime updatedAt,
-    String? avatarUrl,
-    bool? isPremium,
-    DateTime? premiumExpiresAt,
-    String? fcmToken,
+    required DateTime lastUpdated,
+    String? displayName,
+    String? name,
+    String? photoUrl,
+    String? phoneNumber,
+    DateTime? dateOfBirth,
+    int? age,
+    String? gender,
+    double? height,
+    double? weight,
+    double? targetWeight,
+    String? fitnessLevel,
+    FitnessGoal? fitnessGoal,
+    ActivityLevel? activityLevel,
+    List<String>? fitnessGoals,
+    List<String>? preferredExerciseTypes,
+    List<String>? dislikedExercises,
+    Map<String, dynamic>? preferences,
     Map<String, dynamic>? aiProviderConfig,
+    bool? isEmailVerified,
+    bool? isActive,
+    bool? isActivePremium,
+    DateTime? updatedAt,
+    Map<String, dynamic>? metadata,
   }) = _UserProfile;
 
   factory UserProfile.fromJson(Map<String, dynamic> json) =>
       _$UserProfileFromJson(json);
 }
 
-/// User fitness goals
-enum FitnessGoal {
-  @JsonValue('lose_weight')
-  loseWeight,
-  @JsonValue('gain_muscle')
-  gainMuscle,
-  @JsonValue('maintain_fitness')
-  maintainFitness,
-  @JsonValue('improve_endurance')
-  improveEndurance,
-  @JsonValue('general_health')
-  generalHealth,
-}
-
-/// User activity levels
-enum ActivityLevel {
-  @JsonValue('sedentary')
-  sedentary,
-  @JsonValue('lightly_active')
-  lightlyActive,
-  @JsonValue('moderately_active')
-  moderatelyActive,
-  @JsonValue('very_active')
-  veryActive,
-  @JsonValue('extremely_active')
-  extremelyActive,
-}
-
 /// Extension methods for UserProfile
 extension UserProfileExtension on UserProfile {
-  /// Calculate BMI (Body Mass Index)
-  double get bmi => weight / ((height / 100) * (height / 100));
+  /// Get display name or fallback to email
+  String get displayNameOrEmail => displayName ?? name ?? email;
+
+  /// Check if profile is complete
+  bool get isProfileComplete {
+    return displayName != null &&
+        dateOfBirth != null &&
+        gender != null &&
+        fitnessLevel != null &&
+        (fitnessGoals?.isNotEmpty ?? false);
+  }
+
+  /// Calculate weight difference from target
+  double? get weightDifference {
+    if (weight == null || targetWeight == null) return null;
+    return weight! - targetWeight!;
+  }
+
+  /// Validate profile data
+  bool validate() {
+    return email.isNotEmpty &&
+        id.isNotEmpty &&
+        (age == null || age! > 0) &&
+        (weight == null || weight! > 0) &&
+        (height == null || height! > 0);
+  }
+
+  /// Get age from date of birth
+  int? get age {
+    if (dateOfBirth == null) return null;
+    final now = DateTime.now();
+    final ageYears = now.year - dateOfBirth!.year;
+    if (now.month < dateOfBirth!.month ||
+        (now.month == dateOfBirth!.month && now.day < dateOfBirth!.day)) {
+      return ageYears - 1;
+    }
+    return ageYears;
+  }
+
+  /// Get BMI if height and weight are available
+  double? get bmi {
+    if (height == null || weight == null || height! <= 0) return null;
+    final heightInMeters = height! / 100; // Convert cm to meters
+    return weight! / (heightInMeters * heightInMeters);
+  }
 
   /// Get BMI category
-  String get bmiCategory {
+  String? get bmiCategory {
     final bmiValue = bmi;
+    if (bmiValue == null) return null;
+
     if (bmiValue < 18.5) return 'Underweight';
     if (bmiValue < 25) return 'Normal weight';
     if (bmiValue < 30) return 'Overweight';
     return 'Obese';
-  }
-
-  /// Check if user is premium
-  bool get isActivePremium {
-    if (isPremium != true) return false;
-    if (premiumExpiresAt == null) return true;
-    return DateTime.now().isBefore(premiumExpiresAt!);
-  }
-
-  /// Get weight difference from target
-  double get weightDifference => weight - targetWeight;
-
-  /// Check if user has reached target weight
-  bool get hasReachedTarget => (weight - targetWeight).abs() <= 1.0;
-
-  /// Validate user profile data
-  List<String> validate() {
-    final errors = <String>[];
-
-    if (name.trim().isEmpty) {
-      errors.add('Name cannot be empty');
-    }
-
-    if (age < 13 || age > 120) {
-      errors.add('Age must be between 13 and 120');
-    }
-
-    if (height < 100 || height > 250) {
-      errors.add('Height must be between 100 and 250 cm');
-    }
-
-    if (weight < 20 || weight > 500) {
-      errors.add('Weight must be between 20 and 500 kg');
-    }
-
-    if (targetWeight < 20 || targetWeight > 500) {
-      errors.add('Target weight must be between 20 and 500 kg');
-    }
-
-    if ((weight - targetWeight).abs() > 100) {
-      errors.add('Target weight seems unrealistic');
-    }
-
-    return errors;
   }
 
   /// Convert to Firestore document
@@ -129,5 +112,24 @@ class UserProfileHelper {
   /// Create UserProfile from Firestore document
   static UserProfile fromFirestore(String id, Map<String, dynamic> data) {
     return UserProfile.fromJson({'id': id, ...data});
+  }
+
+  /// Create initial user profile
+  static UserProfile createInitial({
+    required String id,
+    required String email,
+    String? displayName,
+  }) {
+    return UserProfile(
+      id: id,
+      email: email,
+      displayName: displayName,
+      createdAt: DateTime.now(),
+      lastUpdated: DateTime.now(),
+      isEmailVerified: false,
+      isActive: true,
+      preferences: {},
+      metadata: {},
+    );
   }
 }

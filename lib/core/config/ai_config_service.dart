@@ -2,8 +2,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
 
 import 'package:fitness_training_app/core/config/env_config.dart';
-import 'package:fitness_training_app/shared/data/models/ai_provider_config.dart';
-import 'package:fitness_training_app/shared/domain/repositories/ai_service_repository.dart';
+import 'package:fitness_training_app/shared/domain/entities/ai_provider_config.dart';
 
 /// Service for managing AI configuration from various sources
 class AIConfigService {
@@ -34,22 +33,13 @@ class AIConfigService {
         return null;
       }
 
-      final providers = <AIProviderType, AIProviderConfig>{
-        AIProviderType.chatgpt: AIProviderConfig(
-          type: AIProviderType.chatgpt,
-          apiKey: chatgptApiKey,
-          baseUrl: 'https://api.openai.com/v1',
-          model: 'gpt-4',
-          additionalConfig: {'max_tokens': 2000, 'temperature': 0.7},
-        ),
+      final providers = <AIProviderType, ProviderConfig>{
+        AIProviderType.chatgpt: ProviderConfig.chatgpt(apiKey: chatgptApiKey),
       };
 
       if (n8nWebhookUrl != null && n8nWebhookUrl.isNotEmpty) {
-        providers[AIProviderType.n8nWorkflow] = AIProviderConfig(
-          type: AIProviderType.n8nWorkflow,
-          apiKey: '',
+        providers[AIProviderType.n8nWorkflow] = ProviderConfig.n8nWorkflow(
           webhookUrl: n8nWebhookUrl,
-          additionalConfig: {'webhook_url': n8nWebhookUrl},
         );
       }
 
