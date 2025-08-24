@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fitness_training_app/shared/data/models/ai_provider_config.dart';
-import 'package:fitness_training_app/shared/data/services/ai_provider_manager.dart';
-import 'package:fitness_training_app/shared/domain/repositories/ai_service_repository.dart';
-import 'package:fitness_training_app/core/utils/logger.dart';
 import 'package:logger/logger.dart';
+
+import 'package:fitness_training_app/shared/data/repositories/ai_provider_manager.dart';
+import 'package:fitness_training_app/shared/domain/entities/ai_provider_config.dart'
+    as entities;
 
 void main() {
   group('AI Provider System Tests', () {
@@ -14,55 +14,44 @@ void main() {
       logger = Logger();
 
       // Create test configuration
-      final testConfig = AIConfiguration(
+      final testConfig = entities.AIConfiguration(
         providers: {
-          AIProviderType.chatgpt: AIProviderConfig(
-            type: AIProviderType.chatgpt,
+          entities.AIProviderType.chatgpt: entities.ProviderConfig.chatgpt(
             apiKey: 'test-key',
-            baseUrl: 'https://api.openai.com/v1',
-            model: 'gpt-4',
-            isEnabled: true,
           ),
         },
-        primaryProvider: AIProviderType.chatgpt,
-        fallbackProviders: [],
-        enableFallback: true,
+        primaryProvider: entities.AIProviderType.chatgpt,
+        fallbackProviders: const [],
       );
 
-      providerManager = AIProviderManager(
-        configuration: testConfig,
-        logger: logger,
-      );
+      providerManager = AIProviderManager(testConfig, logger: logger);
     });
 
     test('should initialize with configuration', () {
       expect(providerManager, isNotNull);
-      expect(providerManager.primaryProvider, isNotNull);
-      expect(providerManager.primaryProvider?.providerName, equals('ChatGPT'));
+      expect(providerManager.availableProviders, isNotEmpty);
+      expect(
+        providerManager.availableProviders,
+        contains(entities.AIProviderType.chatgpt),
+      );
     });
 
-    test('should get provider status', () {
-      final status = providerManager.getProviderStatus();
+    test('should get provider status', () async {
+      final status = await providerManager.getAllProviderStatuses();
       expect(status, isNotEmpty);
-      expect(status[AIProviderType.chatgpt], isTrue);
+      expect(status[entities.AIProviderType.chatgpt], isNotNull);
     });
 
     test('should handle provider configuration', () async {
-      final newConfig = AIProviderConfig(
-        type: AIProviderType.chatgpt,
-        apiKey: 'new-test-key',
-        baseUrl: 'https://api.openai.com/v1',
-        model: 'gpt-4',
-        isEnabled: true,
-      );
+      final newConfig = entities.ProviderConfig.chatgpt(apiKey: 'new-test-key');
 
       await providerManager.configureProvider(
-        AIProviderType.chatgpt,
+        entities.AIProviderType.chatgpt,
         newConfig,
       );
 
-      final status = providerManager.getProviderStatus();
-      expect(status[AIProviderType.chatgpt], isTrue);
+      final status = await providerManager.getAllProviderStatuses();
+      expect(status[entities.AIProviderType.chatgpt], isNotNull);
     });
 
     test('should handle fallback when primary provider fails', () async {
@@ -72,59 +61,59 @@ void main() {
     });
 
     test('should validate provider configuration', () {
-      final validConfig = AIProviderConfig(
-        type: AIProviderType.chatgpt,
-        apiKey: 'test-key',
-        isEnabled: true,
-      );
+      final validConfig = entities.ProviderConfig.chatgpt(apiKey: 'test-key');
 
-      expect(validConfig.type, equals(AIProviderType.chatgpt));
+      expect(validConfig.type, equals(entities.AIProviderType.chatgpt));
       expect(validConfig.apiKey, equals('test-key'));
       expect(validConfig.isEnabled, isTrue);
     });
 
     test('should handle multiple provider types', () {
-      final configs = <AIProviderType, AIProviderConfig>{
-        AIProviderType.chatgpt: AIProviderConfig(
-          type: AIProviderType.chatgpt,
+      final configs = <entities.AIProviderType, entities.ProviderConfig>{
+        entities.AIProviderType.chatgpt: entities.ProviderConfig.chatgpt(
           apiKey: 'chatgpt-key',
-          isEnabled: true,
         ),
-        AIProviderType.claude: AIProviderConfig(
-          type: AIProviderType.claude,
+        entities.AIProviderType.claude: entities.ProviderConfig.claude(
           apiKey: 'claude-key',
           isEnabled: false,
         ),
       };
 
-      final multiConfig = AIConfiguration(
+      final multiConfig = entities.AIConfiguration(
         providers: configs,
-        primaryProvider: AIProviderType.chatgpt,
-        fallbackProviders: [AIProviderType.claude],
-        enableFallback: true,
+        primaryProvider: entities.AIProviderType.chatgpt,
+        fallbackProviders: const [entities.AIProviderType.claude],
       );
 
       expect(multiConfig.providers.length, equals(2));
-      expect(multiConfig.primaryProvider, equals(AIProviderType.chatgpt));
-      expect(multiConfig.fallbackProviders, contains(AIProviderType.claude));
+      expect(
+        multiConfig.primaryProvider,
+        equals(entities.AIProviderType.chatgpt),
+      );
+      expect(
+        multiConfig.fallbackProviders,
+        contains(entities.AIProviderType.claude),
+      );
     });
 
     test('should provide default configurations', () {
-      final defaultChatGPT = AIProviderDefaults.getDefaultConfig(
-        AIProviderType.chatgpt,
+      final defaultChatGPT = entities.ProviderConfig.chatgpt(
+        apiKey: 'test-key',
       );
 
-      expect(defaultChatGPT.type, equals(AIProviderType.chatgpt));
+      expect(defaultChatGPT.type, equals(entities.AIProviderType.chatgpt));
       expect(defaultChatGPT.baseUrl, equals('https://api.openai.com/v1'));
-      expect(defaultChatGPT.model, equals('gpt-4'));
+      expect(defaultChatGPT.additionalConfig['model'], equals('gpt-4'));
     });
 
     test('should validate required fields', () {
-      final requiredFields =
-          AIProviderDefaults.requiredFields[AIProviderType.chatgpt];
+      const requiredFields = entities.AIConfiguration.requiredFields;
 
       expect(requiredFields, isNotNull);
-      expect(requiredFields, contains('apiKey'));
+      expect(
+        requiredFields[entities.AIProviderType.chatgpt],
+        contains('apiKey'),
+      );
     });
   });
 }

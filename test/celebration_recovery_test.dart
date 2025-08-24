@@ -1,8 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:fitness_training_app/shared/data/services/celebration_service.dart';
 import 'package:fitness_training_app/shared/data/services/exercise_animation_service.dart';
 import 'package:fitness_training_app/shared/data/services/recovery_timer_service.dart';
 import 'package:fitness_training_app/shared/domain/entities/exercise.dart';
+import 'package:fitness_training_app/shared/domain/entities/fitness_enums.dart';
 import 'package:fitness_training_app/shared/domain/entities/user_profile.dart';
 import 'package:fitness_training_app/shared/domain/entities/workout_session.dart';
 
@@ -38,11 +40,12 @@ void main() {
         id: 'test-user-1',
         name: 'Test User',
         email: 'test@example.com',
+        lastUpdated: DateTime.now(),
         age: 30,
         height: 175.0,
         weight: 70.0,
         targetWeight: 65.0,
-        fitnessGoal: FitnessGoal.loseWeight,
+        fitnessGoal: FitnessGoal.weightLoss,
         activityLevel: ActivityLevel.moderatelyActive,
         preferredExerciseTypes: ['strength'],
         dislikedExercises: [],

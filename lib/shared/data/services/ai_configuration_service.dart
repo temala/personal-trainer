@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:fitness_training_app/shared/data/models/ai_provider_config.dart';
+import 'package:fitness_training_app/shared/domain/entities/ai_provider_config.dart';
 import 'package:fitness_training_app/shared/domain/repositories/ai_service_repository.dart';
 import 'package:logger/logger.dart';
 
@@ -30,7 +30,7 @@ class AIConfigurationService {
       final configData = json.decode(configJson) as Map<String, dynamic>;
 
       // Load API keys from secure storage
-      final providers = <AIProviderType, AIProviderConfig>{};
+      final providers = <AIProviderType, ProviderConfig>{};
       for (final entry
           in (configData['providers'] as Map<String, dynamic>).entries) {
         final type = AIProviderType.values.firstWhere(
@@ -42,7 +42,7 @@ class AIConfigurationService {
         final apiKey =
             await _secureStorage.read(key: '$_apiKeysPrefix${type.name}') ?? '';
 
-        providers[type] = AIProviderConfig.fromJson({
+        providers[type] = ProviderConfig.fromJson({
           ...providerData,
           'apiKey': apiKey,
         });
@@ -65,8 +65,7 @@ class AIConfigurationService {
                 .toList() ??
             [],
         enableFallback: configData['enableFallback'] as bool? ?? true,
-        requestTimeoutSeconds:
-            configData['requestTimeoutSeconds'] as int? ?? 30,
+        maxRetries: configData['maxRetries'] as int? ?? 3,
       );
     } catch (e) {
       _logger.e('Failed to load AI configuration', error: e);
@@ -100,7 +99,7 @@ class AIConfigurationService {
         'fallbackProviders':
             configuration.fallbackProviders.map((t) => t.name).toList(),
         'enableFallback': configuration.enableFallback,
-        'requestTimeoutSeconds': configuration.requestTimeoutSeconds,
+        'maxRetries': configuration.maxRetries,
       };
 
       await _prefs.setString(_configKey, json.encode(configData));
@@ -123,16 +122,20 @@ class AIConfigurationService {
     try {
       final currentConfig = await loadConfiguration();
 
-      final providerConfig = AIProviderConfig(
+      final config = Map<String, dynamic>.from(additionalConfig ?? {});
+      if (model != null) {
+        config['model'] = model;
+      }
+
+      final providerConfig = ProviderConfig(
         type: type,
         apiKey: apiKey,
-        additionalConfig: additionalConfig ?? {},
+        additionalConfig: config,
         baseUrl: baseUrl,
-        model: model,
         isEnabled: isEnabled ?? true,
       );
 
-      final updatedProviders = Map<AIProviderType, AIProviderConfig>.from(
+      final updatedProviders = Map<AIProviderType, ProviderConfig>.from(
         currentConfig.providers,
       );
       updatedProviders[type] = providerConfig;
@@ -152,7 +155,7 @@ class AIConfigurationService {
     try {
       final currentConfig = await loadConfiguration();
 
-      final updatedProviders = Map<AIProviderType, AIProviderConfig>.from(
+      final updatedProviders = Map<AIProviderType, ProviderConfig>.from(
         currentConfig.providers,
       );
       updatedProviders.remove(type);
@@ -257,15 +260,11 @@ class AIConfigurationService {
   /// Get default configuration
   AIConfiguration _getDefaultConfiguration() {
     return AIConfiguration(
-      providers: {
-        AIProviderType.chatgpt: AIProviderDefaults.getDefaultConfig(
-          AIProviderType.chatgpt,
-        ),
-      },
+      providers: {AIProviderType.chatgpt: ProviderConfig.chatgpt(apiKey: '')},
       primaryProvider: AIProviderType.chatgpt,
       fallbackProviders: [],
       enableFallback: true,
-      requestTimeoutSeconds: 30,
+      maxRetries: 3,
     );
   }
 
@@ -299,7 +298,7 @@ class AIConfigurationService {
         'fallbackProviders':
             config.fallbackProviders.map((t) => t.name).toList(),
         'enableFallback': config.enableFallback,
-        'requestTimeoutSeconds': config.requestTimeoutSeconds,
+        'maxRetries': config.maxRetries,
         'exportedAt': DateTime.now().toIso8601String(),
       };
     } catch (e) {
@@ -311,7 +310,7 @@ class AIConfigurationService {
   /// Import configuration (API keys must be set separately)
   Future<void> importConfiguration(Map<String, dynamic> configData) async {
     try {
-      final providers = <AIProviderType, AIProviderConfig>{};
+      final providers = <AIProviderType, ProviderConfig>{};
 
       for (final entry
           in (configData['providers'] as Map<String, dynamic>).entries) {
@@ -320,7 +319,7 @@ class AIConfigurationService {
           orElse: () => AIProviderType.custom,
         );
 
-        providers[type] = AIProviderConfig.fromJson(
+        providers[type] = ProviderConfig.fromJson(
           entry.value as Map<String, dynamic>,
         );
       }
@@ -342,8 +341,7 @@ class AIConfigurationService {
                 .toList() ??
             [],
         enableFallback: configData['enableFallback'] as bool? ?? true,
-        requestTimeoutSeconds:
-            configData['requestTimeoutSeconds'] as int? ?? 30,
+        maxRetries: configData['maxRetries'] as int? ?? 3,
       );
 
       await saveConfiguration(configuration);

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:fitness_training_app/shared/data/models/offline/offline_models.dart';
 import 'package:fitness_training_app/shared/data/repositories/firebase_exercise_repository.dart';
 import 'package:fitness_training_app/shared/data/services/exercise_animation_service.dart';
 import 'package:fitness_training_app/shared/data/services/exercise_alternative_service.dart';

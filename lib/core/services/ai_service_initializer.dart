@@ -2,7 +2,7 @@ import 'package:logger/logger.dart';
 
 import 'package:fitness_training_app/core/config/ai_config_service.dart';
 import 'package:fitness_training_app/shared/data/repositories/ai_service_repository_impl.dart';
-import 'package:fitness_training_app/shared/data/services/ai_provider_manager.dart';
+import 'package:fitness_training_app/shared/data/repositories/ai_provider_manager.dart';
 import 'package:fitness_training_app/shared/domain/repositories/ai_service_repository.dart';
 
 /// Service to initialize AI providers for the app
@@ -25,10 +25,7 @@ class AIServiceInitializer {
       }
 
       // Initialize provider manager
-      _providerManager = AIProviderManager(
-        configuration: config,
-        logger: _logger,
-      );
+      _providerManager = AIProviderManager(config, logger: _logger);
 
       // Test connections
       final connectionResults = await _providerManager!.testAllConnections();
@@ -74,7 +71,7 @@ class AIServiceInitializer {
 
     try {
       final connectionResults = await _providerManager!.testAllConnections();
-      final providerStatuses = _providerManager!.getProviderStatus();
+      final providerStatuses = await _providerManager!.getAllProviderStatuses();
 
       return {
         'initialized': true,
@@ -82,7 +79,7 @@ class AIServiceInitializer {
         'providers': connectionResults.map<String, Map<String, dynamic>>(
           (type, isConnected) => MapEntry(type.toString(), {
             'available': isConnected,
-            'configured': providerStatuses[type] ?? false,
+            'configured': providerStatuses[type]?.isAvailable ?? false,
             'lastChecked': DateTime.now().toIso8601String(),
           }),
         ),

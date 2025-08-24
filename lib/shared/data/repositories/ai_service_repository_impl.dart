@@ -1,11 +1,12 @@
-import 'package:logger/logger.dart';
-
-import 'package:fitness_training_app/shared/data/services/ai_provider_manager.dart';
+import 'package:fitness_training_app/shared/data/repositories/ai_provider_manager.dart';
+import 'package:fitness_training_app/shared/domain/entities/ai_provider_config.dart';
 import 'package:fitness_training_app/shared/domain/entities/ai_request.dart';
+import 'package:fitness_training_app/shared/domain/entities/ai_response.dart';
 import 'package:fitness_training_app/shared/domain/entities/exercise.dart';
 import 'package:fitness_training_app/shared/domain/entities/user_profile.dart';
 import 'package:fitness_training_app/shared/domain/entities/workout_plan.dart';
 import 'package:fitness_training_app/shared/domain/repositories/ai_service_repository.dart';
+import 'package:logger/logger.dart';
 
 /// Simplified implementation of AIServiceRepository using AIProviderManager
 class AIServiceRepositoryImpl implements AIServiceRepository {
@@ -22,14 +23,24 @@ class AIServiceRepositoryImpl implements AIServiceRepository {
     Map<String, dynamic>? constraints,
   }) async {
     try {
-      final workoutPlan = await _providerManager.generateWeeklyPlan(
-        profile,
-        availableExercises,
+      final response = await _providerManager.generateWorkoutPlan(
+        userId: profile.id,
+        userProfile: profile.toJson(),
+        availableExercises: availableExercises.map((e) => e.toJson()).toList(),
         preferences: preferences,
-        constraints: constraints,
+        excludedExercises: constraints?['excludedExercises'] as List<String>?,
       );
 
-      return workoutPlan;
+      if (response.success && response.data.containsKey('weeklyPlan')) {
+        // Parse the AI response and convert to WorkoutPlan
+        final planData = response.data['weeklyPlan'] as Map<String, dynamic>;
+        return WorkoutPlan.fromJson(planData);
+      } else {
+        _logger.w(
+          'AI response unsuccessful or missing data: ${response.error}',
+        );
+        return _createSimpleWorkoutPlan(profile.id);
+      }
     } catch (e) {
       _logger.e('Error generating workout plan: $e');
       return _createSimpleWorkoutPlan(profile.id);
@@ -45,8 +56,37 @@ class AIServiceRepositoryImpl implements AIServiceRepository {
     Map<String, dynamic>? userContext,
     List<String>? excludeExerciseIds,
   }) async {
-    // Return first available exercise as a simple fallback
-    return availableExercises.isNotEmpty ? availableExercises.first : null;
+    try {
+      if (userId == null) {
+        // Return first available exercise as a simple fallback
+        return availableExercises.isNotEmpty ? availableExercises.first : null;
+      }
+
+      final response = await _providerManager.getAlternativeExercise(
+        userId: userId,
+        currentExerciseId: currentExerciseId,
+        alternativeType: type,
+        availableExercises: availableExercises.map((e) => e.toJson()).toList(),
+        userContext: userContext,
+      );
+
+      if (response.success &&
+          response.data.containsKey('alternativeExercise')) {
+        final exerciseData =
+            response.data['alternativeExercise'] as Map<String, dynamic>;
+        return Exercise.fromJson(exerciseData);
+      } else {
+        _logger.w(
+          'AI response unsuccessful for alternative exercise: ${response.error}',
+        );
+        // Return first available exercise as fallback
+        return availableExercises.isNotEmpty ? availableExercises.first : null;
+      }
+    } catch (e) {
+      _logger.e('Error getting alternative exercise: $e');
+      // Return first available exercise as fallback
+      return availableExercises.isNotEmpty ? availableExercises.first : null;
+    }
   }
 
   @override
@@ -54,11 +94,20 @@ class AIServiceRepositoryImpl implements AIServiceRepository {
     Map<String, dynamic> userContext,
   ) async {
     try {
-      final message = await _providerManager.generateNotificationMessage(
-        userContext,
+      final userId = userContext['userId'] as String? ?? 'anonymous';
+      final response = await _providerManager.generateNotification(
+        userId: userId,
+        userContext: userContext,
       );
 
-      return message;
+      if (response.success && response.data.containsKey('message')) {
+        return response.data['message'] as String;
+      } else {
+        _logger.w(
+          'AI response unsuccessful for notification: ${response.error}',
+        );
+        return "Time for your workout! Let's get moving! 💪";
+      }
     } catch (e) {
       _logger.e('Error generating notification: $e');
       return "Time for your workout! Let's get moving! 💪";
@@ -102,14 +151,34 @@ class AIServiceRepositoryImpl implements AIServiceRepository {
   }
 
   @override
-  bool get isConfigured =>
-      _providerManager.getProviderStatus().values.any((status) => status);
+  bool get isConfigured {
+    try {
+      return _providerManager.configuredProviders.isNotEmpty;
+    } catch (e) {
+      return false;
+    }
+  }
 
   @override
   String get providerName => 'AIServiceRepository';
 
   @override
   AIProviderType get providerType => AIProviderType.custom;
+
+  @override
+  Future<AIResponse> processRequest(AIRequest request) async {
+    try {
+      return await _providerManager.processRequest(request);
+    } catch (e) {
+      _logger.e('Error processing AI request: $e');
+      return AIResponse.error(
+        requestId: request.requestId,
+        error: e.toString(),
+        providerId: providerName,
+        errorCode: 'PROCESSING_ERROR',
+      );
+    }
+  }
 
   WorkoutPlan _createSimpleWorkoutPlan(String userId) {
     // Create a minimal workout plan that satisfies the interface

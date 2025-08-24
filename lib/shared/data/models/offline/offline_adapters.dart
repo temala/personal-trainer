@@ -315,16 +315,12 @@ class SyncOperationAdapter extends TypeAdapter<SyncOperation> {
     switch (obj) {
       case SyncOperation.create:
         writer.writeByte(0);
-        break;
       case SyncOperation.update:
         writer.writeByte(1);
-        break;
       case SyncOperation.delete:
         writer.writeByte(2);
-        break;
       case SyncOperation.sync:
         writer.writeByte(3);
-        break;
     }
   }
 
@@ -335,6 +331,201 @@ class SyncOperationAdapter extends TypeAdapter<SyncOperation> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is SyncOperationAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+/// CachedAnimation Hive adapter
+class CachedAnimationAdapter extends TypeAdapter<CachedAnimation> {
+  @override
+  final int typeId = 26;
+
+  @override
+  CachedAnimation read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return CachedAnimation(
+      id: fields[0] as String,
+      animationData: fields[1] as ExerciseAnimationData,
+      cachedAt: fields[2] as DateTime,
+      sizeBytes: fields[3] as int,
+      accessCount: fields[4] as int,
+      lastAccessed: fields[5] as DateTime,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, CachedAnimation obj) {
+    writer
+      ..writeByte(6)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.animationData)
+      ..writeByte(2)
+      ..write(obj.cachedAt)
+      ..writeByte(3)
+      ..write(obj.sizeBytes)
+      ..writeByte(4)
+      ..write(obj.accessCount)
+      ..writeByte(5)
+      ..write(obj.lastAccessed);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CachedAnimationAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+/// ExerciseAnimationData Hive adapter
+class ExerciseAnimationDataAdapter extends TypeAdapter<ExerciseAnimationData> {
+  @override
+  final int typeId = 27;
+
+  @override
+  ExerciseAnimationData read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return ExerciseAnimationData(
+      id: fields[0] as String,
+      type: fields[1] as AnimationType,
+      data: fields[2] as String,
+      source: fields[3] as AnimationSource,
+      duration: fields[4] as int,
+      isLooping: fields[5] as bool,
+      metadata: Map<String, dynamic>.from(fields[6] as Map),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, ExerciseAnimationData obj) {
+    writer
+      ..writeByte(7)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.type)
+      ..writeByte(2)
+      ..write(obj.data)
+      ..writeByte(3)
+      ..write(obj.source)
+      ..writeByte(4)
+      ..write(obj.duration)
+      ..writeByte(5)
+      ..write(obj.isLooping)
+      ..writeByte(6)
+      ..write(obj.metadata);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ExerciseAnimationDataAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+/// AnimationType Hive adapter
+class AnimationTypeAdapter extends TypeAdapter<AnimationType> {
+  @override
+  final int typeId = 40;
+
+  @override
+  AnimationType read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return AnimationType.lottie;
+      case 1:
+        return AnimationType.rive;
+      case 2:
+        return AnimationType.gif;
+      case 3:
+        return AnimationType.video;
+      default:
+        return AnimationType.lottie;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, AnimationType obj) {
+    switch (obj) {
+      case AnimationType.lottie:
+        writer.writeByte(0);
+      case AnimationType.rive:
+        writer.writeByte(1);
+      case AnimationType.gif:
+        writer.writeByte(2);
+      case AnimationType.video:
+        writer.writeByte(3);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AnimationTypeAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+/// AnimationSource Hive adapter
+class AnimationSourceAdapter extends TypeAdapter<AnimationSource> {
+  @override
+  final int typeId = 41;
+
+  @override
+  AnimationSource read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return AnimationSource.assets;
+      case 1:
+        return AnimationSource.storage;
+      case 2:
+        return AnimationSource.cache;
+      case 3:
+        return AnimationSource.generated;
+      default:
+        return AnimationSource.storage;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, AnimationSource obj) {
+    switch (obj) {
+      case AnimationSource.assets:
+        writer.writeByte(0);
+      case AnimationSource.storage:
+        writer.writeByte(1);
+      case AnimationSource.cache:
+        writer.writeByte(2);
+      case AnimationSource.generated:
+        writer.writeByte(3);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AnimationSourceAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

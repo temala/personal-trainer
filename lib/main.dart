@@ -8,6 +8,7 @@ import 'package:fitness_training_app/core/routing/app_router.dart';
 import 'package:fitness_training_app/core/utils/logger.dart';
 import 'package:fitness_training_app/features/auth/presentation/widgets/auth_wrapper.dart';
 import 'package:fitness_training_app/shared/data/models/offline/local_database.dart';
+import 'package:fitness_training_app/shared/data/services/database_migration_service.dart';
 import 'package:fitness_training_app/shared/presentation/providers/app_providers.dart';
 import 'package:fitness_training_app/shared/presentation/themes/app_theme.dart';
 
@@ -32,6 +33,9 @@ void main() async {
   }
 
   try {
+    // Handle database migration first
+    await DatabaseMigrationService.handleMigration();
+
     // Initialize Hive database (critical for offline functionality)
     await LocalDatabase.initialize();
     hiveInitialized = true;

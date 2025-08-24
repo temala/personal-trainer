@@ -33,10 +33,11 @@ class _NotificationSettingsScreenState
   }
 
   void _loadNotificationSettings() {
-    final userProfile = ref.read(currentUserProfileProvider);
-    userProfile.whenData((profile) {
+    final userProfile = ref.read(currentUserProfileProvider)..whenData((
+      profile,
+    ) {
       if (profile != null) {
-        final preferences = profile.preferences;
+        final preferences = profile.preferences ?? {};
         setState(() {
           _workoutReminders =
               (preferences['workoutReminders'] as bool?) ?? true;

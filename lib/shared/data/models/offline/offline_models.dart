@@ -381,5 +381,161 @@ class SyncQueueItem extends HiveObject {
   }
 }
 
+/// Cached animation data for exercises
+@HiveType(typeId: 26)
+class CachedAnimation extends HiveObject {
+  @HiveField(0)
+  String id;
+
+  @HiveField(1)
+  ExerciseAnimationData animationData;
+
+  @HiveField(2)
+  DateTime cachedAt;
+
+  @HiveField(3)
+  int sizeBytes;
+
+  @HiveField(4)
+  int accessCount;
+
+  @HiveField(5)
+  DateTime lastAccessed;
+
+  CachedAnimation({
+    required this.id,
+    required this.animationData,
+    required this.cachedAt,
+    required this.sizeBytes,
+    required this.accessCount,
+    required this.lastAccessed,
+  });
+
+  /// Create from animation data
+  factory CachedAnimation.fromAnimationData(
+    String id,
+    ExerciseAnimationData animationData, {
+    int sizeBytes = 0,
+  }) {
+    return CachedAnimation(
+      id: id,
+      animationData: animationData,
+      cachedAt: DateTime.now(),
+      lastAccessed: DateTime.now(),
+      sizeBytes: sizeBytes,
+      accessCount: 0,
+    );
+  }
+
+  /// Mark as accessed
+  void markAccessed() {
+    lastAccessed = DateTime.now();
+    accessCount++;
+    if (isInBox) save();
+  }
+
+  /// Check if cache is stale
+  bool get isStale {
+    final staleThreshold = Duration(days: 30); // Animations are cached longer
+    return DateTime.now().difference(cachedAt) > staleThreshold;
+  }
+}
+
+/// Exercise animation data structure
+@HiveType(typeId: 27)
+class ExerciseAnimationData extends HiveObject {
+  @HiveField(0)
+  String id;
+
+  @HiveField(1)
+  AnimationType type;
+
+  @HiveField(2)
+  String data;
+
+  @HiveField(3)
+  AnimationSource source;
+
+  @HiveField(4)
+  int duration; // in milliseconds
+
+  @HiveField(5)
+  bool isLooping;
+
+  @HiveField(6)
+  Map<String, dynamic> metadata;
+
+  ExerciseAnimationData({
+    required this.id,
+    required this.type,
+    required this.data,
+    required this.source,
+    required this.duration,
+    this.isLooping = true,
+    required this.metadata,
+  });
+
+  /// Create from JSON
+  factory ExerciseAnimationData.fromJson(Map<String, dynamic> json) {
+    return ExerciseAnimationData(
+      id: json['id'] as String,
+      type: AnimationType.values.firstWhere(
+        (e) => e.name == json['type'],
+        orElse: () => AnimationType.lottie,
+      ),
+      data: json['data'] as String,
+      source: AnimationSource.values.firstWhere(
+        (e) => e.name == json['source'],
+        orElse: () => AnimationSource.storage,
+      ),
+      duration: json['duration'] as int,
+      isLooping: json['isLooping'] as bool? ?? true,
+      metadata:
+          json['metadata'] != null
+              ? Map<String, dynamic>.from(json['metadata'] as Map)
+              : {},
+    );
+  }
+
+  /// Convert to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'type': type.name,
+      'data': data,
+      'source': source.name,
+      'duration': duration,
+      'isLooping': isLooping,
+      'metadata': metadata,
+    };
+  }
+}
+
+/// Animation types
+@HiveType(typeId: 40)
+enum AnimationType {
+  @HiveField(0)
+  lottie,
+  @HiveField(1)
+  rive,
+  @HiveField(2)
+  gif,
+  @HiveField(3)
+  video,
+}
+
+/// Animation sources
+@HiveType(typeId: 41)
+enum AnimationSource {
+  @HiveField(0)
+  assets,
+  @HiveField(1)
+  storage,
+  @HiveField(2)
+  cache,
+  @HiveField(3)
+  generated,
+}
+
 /// Sync operations
 enum SyncOperation { create, update, delete, sync }

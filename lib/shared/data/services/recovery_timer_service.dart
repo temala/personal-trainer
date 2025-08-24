@@ -68,7 +68,7 @@ class RecoveryTimerService {
 
   /// Get intensity multiplier based on exercise characteristics
   double _getIntensityMultiplier(Exercise exercise) {
-    double multiplier = 1.0;
+    var multiplier = 1.0;
 
     // Adjust based on estimated duration
     if (exercise.estimatedDurationSeconds > 300) {
@@ -91,22 +91,16 @@ class RecoveryTimerService {
     switch (exercise.category) {
       case ExerciseCategory.strength:
         multiplier += 0.3;
-        break;
       case ExerciseCategory.cardio:
         multiplier += 0.2;
-        break;
       case ExerciseCategory.sports:
         multiplier += 0.4;
-        break;
       case ExerciseCategory.flexibility:
         multiplier -= 0.3;
-        break;
       case ExerciseCategory.balance:
         multiplier -= 0.1;
-        break;
       case ExerciseCategory.rehabilitation:
         multiplier -= 0.2;
-        break;
     }
 
     return math.max(0.3, multiplier); // Minimum 30% of base time
@@ -128,7 +122,7 @@ class RecoveryTimerService {
 
   /// Get user fitness level multiplier
   double _getUserFitnessMultiplier(UserProfile? userProfile) {
-    if (userProfile == null) return 1.0;
+    if (userProfile == null) return 1;
 
     // Calculate fitness level based on user data
     final fitnessLevel = _calculateUserFitnessLevel(userProfile);
@@ -137,7 +131,7 @@ class RecoveryTimerService {
       case UserFitnessLevel.beginner:
         return 1.4; // Longer recovery for beginners
       case UserFitnessLevel.intermediate:
-        return 1.0;
+        return 1;
       case UserFitnessLevel.advanced:
         return 0.8;
       case UserFitnessLevel.expert:
@@ -147,9 +141,9 @@ class RecoveryTimerService {
 
   /// Get session-based multiplier
   double _getSessionMultiplier(Map<String, dynamic>? sessionData) {
-    if (sessionData == null) return 1.0;
+    if (sessionData == null) return 1;
 
-    double multiplier = 1.0;
+    var multiplier = 1.0;
 
     // Adjust based on exercises completed in session
     final exercisesCompleted = sessionData['exercisesCompleted'] as int? ?? 0;
@@ -170,8 +164,7 @@ class RecoveryTimerService {
     }
 
     // Adjust based on user's recent performance
-    final recentPerformance =
-        sessionData['recentPerformance'] as double? ?? 1.0;
+    final recentPerformance = sessionData['recentPerformance'] as double? ?? 1;
     if (recentPerformance < 0.7) {
       multiplier += 0.3; // Longer recovery if struggling
     } else if (recentPerformance > 1.2) {
@@ -187,40 +180,58 @@ class RecoveryTimerService {
     // In a real app, this would consider workout history, performance metrics, etc.
 
     final age = userProfile.age;
-    final bmi = _calculateBMI(userProfile.height, userProfile.weight);
+    final height = userProfile.height;
+    final weight = userProfile.weight;
+
+    // Check if we have required data
+    if (age == null || height == null || weight == null) {
+      return UserFitnessLevel.intermediate; // Default level
+    }
+
+    final bmi = _calculateBMI(height, weight);
 
     // Simple scoring system
     var score = 0;
 
     // Age factor
-    if (age < 25)
+    if (age < 25) {
       score += 2;
-    else if (age < 35)
+    } else if (age < 35) {
       score += 1;
-    else if (age > 50)
+    } else if (age > 50) {
       score -= 1;
+    }
 
     // BMI factor
-    if (bmi >= 18.5 && bmi <= 24.9)
+    if (bmi >= 18.5 && bmi <= 24.9) {
       score += 2;
-    else if (bmi >= 25 && bmi <= 29.9)
+    } else if (bmi >= 25 && bmi <= 29.9) {
       score += 1;
-    else
+    } else {
       score -= 1;
+    }
 
-    // Goal factor (assuming weight loss indicates lower fitness)
-    if (userProfile.targetWeight < userProfile.weight) {
-      final weightDifference = userProfile.weight - userProfile.targetWeight;
-      if (weightDifference > 20)
-        score -= 2;
-      else if (weightDifference > 10)
-        score -= 1;
+    // Fitness level factor based on user's self-reported fitness level
+    final fitnessLevel = userProfile.fitnessLevel;
+    if (fitnessLevel != null) {
+      switch (fitnessLevel.toLowerCase()) {
+        case 'expert':
+          score += 3;
+        case 'advanced':
+          score += 2;
+        case 'intermediate':
+          score += 1;
+        case 'beginner':
+        default:
+          // No additional score for beginner
+          break;
+      }
     }
 
     // Convert score to fitness level
-    if (score >= 3) return UserFitnessLevel.expert;
-    if (score >= 1) return UserFitnessLevel.advanced;
-    if (score >= -1) return UserFitnessLevel.intermediate;
+    if (score >= 4) return UserFitnessLevel.expert;
+    if (score >= 2) return UserFitnessLevel.advanced;
+    if (score >= 0) return UserFitnessLevel.intermediate;
     return UserFitnessLevel.beginner;
   }
 
@@ -242,7 +253,6 @@ class RecoveryTimerService {
           'Hydrate with small sips of water',
           'Stretch your legs gently',
         ]);
-        break;
 
       case ExerciseCategory.strength:
         activities.addAll([
@@ -251,7 +261,6 @@ class RecoveryTimerService {
           'Take deep breaths',
           'Prepare for the next exercise mentally',
         ]);
-        break;
 
       case ExerciseCategory.flexibility:
         activities.addAll([
@@ -260,7 +269,6 @@ class RecoveryTimerService {
           'Relax your mind and body',
           'Prepare for the next movement',
         ]);
-        break;
 
       case ExerciseCategory.balance:
         activities.addAll([
@@ -269,7 +277,6 @@ class RecoveryTimerService {
           'Focus on your posture',
           'Prepare your balance for the next exercise',
         ]);
-        break;
 
       case ExerciseCategory.sports:
         activities.addAll([
@@ -278,7 +285,6 @@ class RecoveryTimerService {
           'Stay hydrated',
           'Monitor how you feel',
         ]);
-        break;
 
       case ExerciseCategory.rehabilitation:
         activities.addAll([
@@ -287,7 +293,6 @@ class RecoveryTimerService {
           'Listen to your body',
           'Take your time to recover',
         ]);
-        break;
     }
 
     return activities;
@@ -298,10 +303,10 @@ class RecoveryTimerService {
     switch (difficulty) {
       case DifficultyLevel.beginner:
         return [
-          'Don\'t rush - take the full recovery time',
+          "Don't rush - take the full recovery time",
           'Listen to your body and rest as needed',
           'Focus on breathing deeply',
-          'It\'s okay to take longer if you need it',
+          "It's okay to take longer if you need it",
         ];
 
       case DifficultyLevel.intermediate:

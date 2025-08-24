@@ -23,24 +23,33 @@ UserProfile _$UserProfileFromJson(Map<String, dynamic> json) {
 mixin _$UserProfile {
   String get id => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError;
-  String get name => throw _privateConstructorUsedError;
-  int get age => throw _privateConstructorUsedError;
-  double get height => throw _privateConstructorUsedError; // in cm
-  double get weight => throw _privateConstructorUsedError; // in kg
-  double get targetWeight => throw _privateConstructorUsedError; // in kg
-  FitnessGoal get fitnessGoal => throw _privateConstructorUsedError;
-  ActivityLevel get activityLevel => throw _privateConstructorUsedError;
-  List<String> get preferredExerciseTypes => throw _privateConstructorUsedError;
-  List<String> get dislikedExercises => throw _privateConstructorUsedError;
-  Map<String, dynamic> get preferences => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
-  DateTime get updatedAt => throw _privateConstructorUsedError;
-  String? get avatarUrl => throw _privateConstructorUsedError;
-  bool? get isPremium => throw _privateConstructorUsedError;
-  DateTime? get premiumExpiresAt => throw _privateConstructorUsedError;
-  String? get fcmToken => throw _privateConstructorUsedError;
+  DateTime get lastUpdated => throw _privateConstructorUsedError;
+  String? get displayName => throw _privateConstructorUsedError;
+  String? get name => throw _privateConstructorUsedError;
+  String? get photoUrl => throw _privateConstructorUsedError;
+  String? get phoneNumber => throw _privateConstructorUsedError;
+  DateTime? get dateOfBirth => throw _privateConstructorUsedError;
+  int? get age => throw _privateConstructorUsedError;
+  String? get gender => throw _privateConstructorUsedError;
+  double? get height => throw _privateConstructorUsedError;
+  double? get weight => throw _privateConstructorUsedError;
+  double? get targetWeight => throw _privateConstructorUsedError;
+  String? get fitnessLevel => throw _privateConstructorUsedError;
+  FitnessGoal? get fitnessGoal => throw _privateConstructorUsedError;
+  ActivityLevel? get activityLevel => throw _privateConstructorUsedError;
+  List<String>? get fitnessGoals => throw _privateConstructorUsedError;
+  List<String>? get preferredExerciseTypes =>
+      throw _privateConstructorUsedError;
+  List<String>? get dislikedExercises => throw _privateConstructorUsedError;
+  Map<String, dynamic>? get preferences => throw _privateConstructorUsedError;
   Map<String, dynamic>? get aiProviderConfig =>
       throw _privateConstructorUsedError;
+  bool? get isEmailVerified => throw _privateConstructorUsedError;
+  bool? get isActive => throw _privateConstructorUsedError;
+  bool? get isActivePremium => throw _privateConstructorUsedError;
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
+  Map<String, dynamic>? get metadata => throw _privateConstructorUsedError;
 
   /// Serializes this UserProfile to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -62,23 +71,31 @@ abstract class $UserProfileCopyWith<$Res> {
   $Res call({
     String id,
     String email,
-    String name,
-    int age,
-    double height,
-    double weight,
-    double targetWeight,
-    FitnessGoal fitnessGoal,
-    ActivityLevel activityLevel,
-    List<String> preferredExerciseTypes,
-    List<String> dislikedExercises,
-    Map<String, dynamic> preferences,
     DateTime createdAt,
-    DateTime updatedAt,
-    String? avatarUrl,
-    bool? isPremium,
-    DateTime? premiumExpiresAt,
-    String? fcmToken,
+    DateTime lastUpdated,
+    String? displayName,
+    String? name,
+    String? photoUrl,
+    String? phoneNumber,
+    DateTime? dateOfBirth,
+    int? age,
+    String? gender,
+    double? height,
+    double? weight,
+    double? targetWeight,
+    String? fitnessLevel,
+    FitnessGoal? fitnessGoal,
+    ActivityLevel? activityLevel,
+    List<String>? fitnessGoals,
+    List<String>? preferredExerciseTypes,
+    List<String>? dislikedExercises,
+    Map<String, dynamic>? preferences,
     Map<String, dynamic>? aiProviderConfig,
+    bool? isEmailVerified,
+    bool? isActive,
+    bool? isActivePremium,
+    DateTime? updatedAt,
+    Map<String, dynamic>? metadata,
   });
 }
 
@@ -99,23 +116,31 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
   $Res call({
     Object? id = null,
     Object? email = null,
-    Object? name = null,
-    Object? age = null,
-    Object? height = null,
-    Object? weight = null,
-    Object? targetWeight = null,
-    Object? fitnessGoal = null,
-    Object? activityLevel = null,
-    Object? preferredExerciseTypes = null,
-    Object? dislikedExercises = null,
-    Object? preferences = null,
     Object? createdAt = null,
-    Object? updatedAt = null,
-    Object? avatarUrl = freezed,
-    Object? isPremium = freezed,
-    Object? premiumExpiresAt = freezed,
-    Object? fcmToken = freezed,
+    Object? lastUpdated = null,
+    Object? displayName = freezed,
+    Object? name = freezed,
+    Object? photoUrl = freezed,
+    Object? phoneNumber = freezed,
+    Object? dateOfBirth = freezed,
+    Object? age = freezed,
+    Object? gender = freezed,
+    Object? height = freezed,
+    Object? weight = freezed,
+    Object? targetWeight = freezed,
+    Object? fitnessLevel = freezed,
+    Object? fitnessGoal = freezed,
+    Object? activityLevel = freezed,
+    Object? fitnessGoals = freezed,
+    Object? preferredExerciseTypes = freezed,
+    Object? dislikedExercises = freezed,
+    Object? preferences = freezed,
     Object? aiProviderConfig = freezed,
+    Object? isEmailVerified = freezed,
+    Object? isActive = freezed,
+    Object? isActivePremium = freezed,
+    Object? updatedAt = freezed,
+    Object? metadata = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -129,90 +154,130 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
                     ? _value.email
                     : email // ignore: cast_nullable_to_non_nullable
                         as String,
-            name:
-                null == name
-                    ? _value.name
-                    : name // ignore: cast_nullable_to_non_nullable
-                        as String,
-            age:
-                null == age
-                    ? _value.age
-                    : age // ignore: cast_nullable_to_non_nullable
-                        as int,
-            height:
-                null == height
-                    ? _value.height
-                    : height // ignore: cast_nullable_to_non_nullable
-                        as double,
-            weight:
-                null == weight
-                    ? _value.weight
-                    : weight // ignore: cast_nullable_to_non_nullable
-                        as double,
-            targetWeight:
-                null == targetWeight
-                    ? _value.targetWeight
-                    : targetWeight // ignore: cast_nullable_to_non_nullable
-                        as double,
-            fitnessGoal:
-                null == fitnessGoal
-                    ? _value.fitnessGoal
-                    : fitnessGoal // ignore: cast_nullable_to_non_nullable
-                        as FitnessGoal,
-            activityLevel:
-                null == activityLevel
-                    ? _value.activityLevel
-                    : activityLevel // ignore: cast_nullable_to_non_nullable
-                        as ActivityLevel,
-            preferredExerciseTypes:
-                null == preferredExerciseTypes
-                    ? _value.preferredExerciseTypes
-                    : preferredExerciseTypes // ignore: cast_nullable_to_non_nullable
-                        as List<String>,
-            dislikedExercises:
-                null == dislikedExercises
-                    ? _value.dislikedExercises
-                    : dislikedExercises // ignore: cast_nullable_to_non_nullable
-                        as List<String>,
-            preferences:
-                null == preferences
-                    ? _value.preferences
-                    : preferences // ignore: cast_nullable_to_non_nullable
-                        as Map<String, dynamic>,
             createdAt:
                 null == createdAt
                     ? _value.createdAt
                     : createdAt // ignore: cast_nullable_to_non_nullable
                         as DateTime,
-            updatedAt:
-                null == updatedAt
-                    ? _value.updatedAt
-                    : updatedAt // ignore: cast_nullable_to_non_nullable
+            lastUpdated:
+                null == lastUpdated
+                    ? _value.lastUpdated
+                    : lastUpdated // ignore: cast_nullable_to_non_nullable
                         as DateTime,
-            avatarUrl:
-                freezed == avatarUrl
-                    ? _value.avatarUrl
-                    : avatarUrl // ignore: cast_nullable_to_non_nullable
+            displayName:
+                freezed == displayName
+                    ? _value.displayName
+                    : displayName // ignore: cast_nullable_to_non_nullable
                         as String?,
-            isPremium:
-                freezed == isPremium
-                    ? _value.isPremium
-                    : isPremium // ignore: cast_nullable_to_non_nullable
-                        as bool?,
-            premiumExpiresAt:
-                freezed == premiumExpiresAt
-                    ? _value.premiumExpiresAt
-                    : premiumExpiresAt // ignore: cast_nullable_to_non_nullable
+            name:
+                freezed == name
+                    ? _value.name
+                    : name // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            photoUrl:
+                freezed == photoUrl
+                    ? _value.photoUrl
+                    : photoUrl // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            phoneNumber:
+                freezed == phoneNumber
+                    ? _value.phoneNumber
+                    : phoneNumber // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            dateOfBirth:
+                freezed == dateOfBirth
+                    ? _value.dateOfBirth
+                    : dateOfBirth // ignore: cast_nullable_to_non_nullable
                         as DateTime?,
-            fcmToken:
-                freezed == fcmToken
-                    ? _value.fcmToken
-                    : fcmToken // ignore: cast_nullable_to_non_nullable
+            age:
+                freezed == age
+                    ? _value.age
+                    : age // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            gender:
+                freezed == gender
+                    ? _value.gender
+                    : gender // ignore: cast_nullable_to_non_nullable
                         as String?,
+            height:
+                freezed == height
+                    ? _value.height
+                    : height // ignore: cast_nullable_to_non_nullable
+                        as double?,
+            weight:
+                freezed == weight
+                    ? _value.weight
+                    : weight // ignore: cast_nullable_to_non_nullable
+                        as double?,
+            targetWeight:
+                freezed == targetWeight
+                    ? _value.targetWeight
+                    : targetWeight // ignore: cast_nullable_to_non_nullable
+                        as double?,
+            fitnessLevel:
+                freezed == fitnessLevel
+                    ? _value.fitnessLevel
+                    : fitnessLevel // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            fitnessGoal:
+                freezed == fitnessGoal
+                    ? _value.fitnessGoal
+                    : fitnessGoal // ignore: cast_nullable_to_non_nullable
+                        as FitnessGoal?,
+            activityLevel:
+                freezed == activityLevel
+                    ? _value.activityLevel
+                    : activityLevel // ignore: cast_nullable_to_non_nullable
+                        as ActivityLevel?,
+            fitnessGoals:
+                freezed == fitnessGoals
+                    ? _value.fitnessGoals
+                    : fitnessGoals // ignore: cast_nullable_to_non_nullable
+                        as List<String>?,
+            preferredExerciseTypes:
+                freezed == preferredExerciseTypes
+                    ? _value.preferredExerciseTypes
+                    : preferredExerciseTypes // ignore: cast_nullable_to_non_nullable
+                        as List<String>?,
+            dislikedExercises:
+                freezed == dislikedExercises
+                    ? _value.dislikedExercises
+                    : dislikedExercises // ignore: cast_nullable_to_non_nullable
+                        as List<String>?,
+            preferences:
+                freezed == preferences
+                    ? _value.preferences
+                    : preferences // ignore: cast_nullable_to_non_nullable
+                        as Map<String, dynamic>?,
             aiProviderConfig:
                 freezed == aiProviderConfig
                     ? _value.aiProviderConfig
                     : aiProviderConfig // ignore: cast_nullable_to_non_nullable
+                        as Map<String, dynamic>?,
+            isEmailVerified:
+                freezed == isEmailVerified
+                    ? _value.isEmailVerified
+                    : isEmailVerified // ignore: cast_nullable_to_non_nullable
+                        as bool?,
+            isActive:
+                freezed == isActive
+                    ? _value.isActive
+                    : isActive // ignore: cast_nullable_to_non_nullable
+                        as bool?,
+            isActivePremium:
+                freezed == isActivePremium
+                    ? _value.isActivePremium
+                    : isActivePremium // ignore: cast_nullable_to_non_nullable
+                        as bool?,
+            updatedAt:
+                freezed == updatedAt
+                    ? _value.updatedAt
+                    : updatedAt // ignore: cast_nullable_to_non_nullable
+                        as DateTime?,
+            metadata:
+                freezed == metadata
+                    ? _value.metadata
+                    : metadata // ignore: cast_nullable_to_non_nullable
                         as Map<String, dynamic>?,
           )
           as $Val,
@@ -232,23 +297,31 @@ abstract class _$$UserProfileImplCopyWith<$Res>
   $Res call({
     String id,
     String email,
-    String name,
-    int age,
-    double height,
-    double weight,
-    double targetWeight,
-    FitnessGoal fitnessGoal,
-    ActivityLevel activityLevel,
-    List<String> preferredExerciseTypes,
-    List<String> dislikedExercises,
-    Map<String, dynamic> preferences,
     DateTime createdAt,
-    DateTime updatedAt,
-    String? avatarUrl,
-    bool? isPremium,
-    DateTime? premiumExpiresAt,
-    String? fcmToken,
+    DateTime lastUpdated,
+    String? displayName,
+    String? name,
+    String? photoUrl,
+    String? phoneNumber,
+    DateTime? dateOfBirth,
+    int? age,
+    String? gender,
+    double? height,
+    double? weight,
+    double? targetWeight,
+    String? fitnessLevel,
+    FitnessGoal? fitnessGoal,
+    ActivityLevel? activityLevel,
+    List<String>? fitnessGoals,
+    List<String>? preferredExerciseTypes,
+    List<String>? dislikedExercises,
+    Map<String, dynamic>? preferences,
     Map<String, dynamic>? aiProviderConfig,
+    bool? isEmailVerified,
+    bool? isActive,
+    bool? isActivePremium,
+    DateTime? updatedAt,
+    Map<String, dynamic>? metadata,
   });
 }
 
@@ -268,23 +341,31 @@ class __$$UserProfileImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? email = null,
-    Object? name = null,
-    Object? age = null,
-    Object? height = null,
-    Object? weight = null,
-    Object? targetWeight = null,
-    Object? fitnessGoal = null,
-    Object? activityLevel = null,
-    Object? preferredExerciseTypes = null,
-    Object? dislikedExercises = null,
-    Object? preferences = null,
     Object? createdAt = null,
-    Object? updatedAt = null,
-    Object? avatarUrl = freezed,
-    Object? isPremium = freezed,
-    Object? premiumExpiresAt = freezed,
-    Object? fcmToken = freezed,
+    Object? lastUpdated = null,
+    Object? displayName = freezed,
+    Object? name = freezed,
+    Object? photoUrl = freezed,
+    Object? phoneNumber = freezed,
+    Object? dateOfBirth = freezed,
+    Object? age = freezed,
+    Object? gender = freezed,
+    Object? height = freezed,
+    Object? weight = freezed,
+    Object? targetWeight = freezed,
+    Object? fitnessLevel = freezed,
+    Object? fitnessGoal = freezed,
+    Object? activityLevel = freezed,
+    Object? fitnessGoals = freezed,
+    Object? preferredExerciseTypes = freezed,
+    Object? dislikedExercises = freezed,
+    Object? preferences = freezed,
     Object? aiProviderConfig = freezed,
+    Object? isEmailVerified = freezed,
+    Object? isActive = freezed,
+    Object? isActivePremium = freezed,
+    Object? updatedAt = freezed,
+    Object? metadata = freezed,
   }) {
     return _then(
       _$UserProfileImpl(
@@ -298,90 +379,130 @@ class __$$UserProfileImplCopyWithImpl<$Res>
                 ? _value.email
                 : email // ignore: cast_nullable_to_non_nullable
                     as String,
-        name:
-            null == name
-                ? _value.name
-                : name // ignore: cast_nullable_to_non_nullable
-                    as String,
-        age:
-            null == age
-                ? _value.age
-                : age // ignore: cast_nullable_to_non_nullable
-                    as int,
-        height:
-            null == height
-                ? _value.height
-                : height // ignore: cast_nullable_to_non_nullable
-                    as double,
-        weight:
-            null == weight
-                ? _value.weight
-                : weight // ignore: cast_nullable_to_non_nullable
-                    as double,
-        targetWeight:
-            null == targetWeight
-                ? _value.targetWeight
-                : targetWeight // ignore: cast_nullable_to_non_nullable
-                    as double,
-        fitnessGoal:
-            null == fitnessGoal
-                ? _value.fitnessGoal
-                : fitnessGoal // ignore: cast_nullable_to_non_nullable
-                    as FitnessGoal,
-        activityLevel:
-            null == activityLevel
-                ? _value.activityLevel
-                : activityLevel // ignore: cast_nullable_to_non_nullable
-                    as ActivityLevel,
-        preferredExerciseTypes:
-            null == preferredExerciseTypes
-                ? _value._preferredExerciseTypes
-                : preferredExerciseTypes // ignore: cast_nullable_to_non_nullable
-                    as List<String>,
-        dislikedExercises:
-            null == dislikedExercises
-                ? _value._dislikedExercises
-                : dislikedExercises // ignore: cast_nullable_to_non_nullable
-                    as List<String>,
-        preferences:
-            null == preferences
-                ? _value._preferences
-                : preferences // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>,
         createdAt:
             null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
                     as DateTime,
-        updatedAt:
-            null == updatedAt
-                ? _value.updatedAt
-                : updatedAt // ignore: cast_nullable_to_non_nullable
+        lastUpdated:
+            null == lastUpdated
+                ? _value.lastUpdated
+                : lastUpdated // ignore: cast_nullable_to_non_nullable
                     as DateTime,
-        avatarUrl:
-            freezed == avatarUrl
-                ? _value.avatarUrl
-                : avatarUrl // ignore: cast_nullable_to_non_nullable
+        displayName:
+            freezed == displayName
+                ? _value.displayName
+                : displayName // ignore: cast_nullable_to_non_nullable
                     as String?,
-        isPremium:
-            freezed == isPremium
-                ? _value.isPremium
-                : isPremium // ignore: cast_nullable_to_non_nullable
-                    as bool?,
-        premiumExpiresAt:
-            freezed == premiumExpiresAt
-                ? _value.premiumExpiresAt
-                : premiumExpiresAt // ignore: cast_nullable_to_non_nullable
+        name:
+            freezed == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        photoUrl:
+            freezed == photoUrl
+                ? _value.photoUrl
+                : photoUrl // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        phoneNumber:
+            freezed == phoneNumber
+                ? _value.phoneNumber
+                : phoneNumber // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        dateOfBirth:
+            freezed == dateOfBirth
+                ? _value.dateOfBirth
+                : dateOfBirth // ignore: cast_nullable_to_non_nullable
                     as DateTime?,
-        fcmToken:
-            freezed == fcmToken
-                ? _value.fcmToken
-                : fcmToken // ignore: cast_nullable_to_non_nullable
+        age:
+            freezed == age
+                ? _value.age
+                : age // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        gender:
+            freezed == gender
+                ? _value.gender
+                : gender // ignore: cast_nullable_to_non_nullable
                     as String?,
+        height:
+            freezed == height
+                ? _value.height
+                : height // ignore: cast_nullable_to_non_nullable
+                    as double?,
+        weight:
+            freezed == weight
+                ? _value.weight
+                : weight // ignore: cast_nullable_to_non_nullable
+                    as double?,
+        targetWeight:
+            freezed == targetWeight
+                ? _value.targetWeight
+                : targetWeight // ignore: cast_nullable_to_non_nullable
+                    as double?,
+        fitnessLevel:
+            freezed == fitnessLevel
+                ? _value.fitnessLevel
+                : fitnessLevel // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        fitnessGoal:
+            freezed == fitnessGoal
+                ? _value.fitnessGoal
+                : fitnessGoal // ignore: cast_nullable_to_non_nullable
+                    as FitnessGoal?,
+        activityLevel:
+            freezed == activityLevel
+                ? _value.activityLevel
+                : activityLevel // ignore: cast_nullable_to_non_nullable
+                    as ActivityLevel?,
+        fitnessGoals:
+            freezed == fitnessGoals
+                ? _value._fitnessGoals
+                : fitnessGoals // ignore: cast_nullable_to_non_nullable
+                    as List<String>?,
+        preferredExerciseTypes:
+            freezed == preferredExerciseTypes
+                ? _value._preferredExerciseTypes
+                : preferredExerciseTypes // ignore: cast_nullable_to_non_nullable
+                    as List<String>?,
+        dislikedExercises:
+            freezed == dislikedExercises
+                ? _value._dislikedExercises
+                : dislikedExercises // ignore: cast_nullable_to_non_nullable
+                    as List<String>?,
+        preferences:
+            freezed == preferences
+                ? _value._preferences
+                : preferences // ignore: cast_nullable_to_non_nullable
+                    as Map<String, dynamic>?,
         aiProviderConfig:
             freezed == aiProviderConfig
                 ? _value._aiProviderConfig
                 : aiProviderConfig // ignore: cast_nullable_to_non_nullable
+                    as Map<String, dynamic>?,
+        isEmailVerified:
+            freezed == isEmailVerified
+                ? _value.isEmailVerified
+                : isEmailVerified // ignore: cast_nullable_to_non_nullable
+                    as bool?,
+        isActive:
+            freezed == isActive
+                ? _value.isActive
+                : isActive // ignore: cast_nullable_to_non_nullable
+                    as bool?,
+        isActivePremium:
+            freezed == isActivePremium
+                ? _value.isActivePremium
+                : isActivePremium // ignore: cast_nullable_to_non_nullable
+                    as bool?,
+        updatedAt:
+            freezed == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
+                    as DateTime?,
+        metadata:
+            freezed == metadata
+                ? _value._metadata
+                : metadata // ignore: cast_nullable_to_non_nullable
                     as Map<String, dynamic>?,
       ),
     );
@@ -394,27 +515,37 @@ class _$UserProfileImpl implements _UserProfile {
   const _$UserProfileImpl({
     required this.id,
     required this.email,
-    required this.name,
-    required this.age,
-    required this.height,
-    required this.weight,
-    required this.targetWeight,
-    required this.fitnessGoal,
-    required this.activityLevel,
-    required final List<String> preferredExerciseTypes,
-    required final List<String> dislikedExercises,
-    required final Map<String, dynamic> preferences,
     required this.createdAt,
-    required this.updatedAt,
-    this.avatarUrl,
-    this.isPremium,
-    this.premiumExpiresAt,
-    this.fcmToken,
+    required this.lastUpdated,
+    this.displayName,
+    this.name,
+    this.photoUrl,
+    this.phoneNumber,
+    this.dateOfBirth,
+    this.age,
+    this.gender,
+    this.height,
+    this.weight,
+    this.targetWeight,
+    this.fitnessLevel,
+    this.fitnessGoal,
+    this.activityLevel,
+    final List<String>? fitnessGoals,
+    final List<String>? preferredExerciseTypes,
+    final List<String>? dislikedExercises,
+    final Map<String, dynamic>? preferences,
     final Map<String, dynamic>? aiProviderConfig,
-  }) : _preferredExerciseTypes = preferredExerciseTypes,
+    this.isEmailVerified,
+    this.isActive,
+    this.isActivePremium,
+    this.updatedAt,
+    final Map<String, dynamic>? metadata,
+  }) : _fitnessGoals = fitnessGoals,
+       _preferredExerciseTypes = preferredExerciseTypes,
        _dislikedExercises = dislikedExercises,
        _preferences = preferences,
-       _aiProviderConfig = aiProviderConfig;
+       _aiProviderConfig = aiProviderConfig,
+       _metadata = metadata;
 
   factory _$UserProfileImpl.fromJson(Map<String, dynamic> json) =>
       _$$UserProfileImplFromJson(json);
@@ -424,60 +555,77 @@ class _$UserProfileImpl implements _UserProfile {
   @override
   final String email;
   @override
-  final String name;
+  final DateTime createdAt;
   @override
-  final int age;
+  final DateTime lastUpdated;
   @override
-  final double height;
-  // in cm
+  final String? displayName;
   @override
-  final double weight;
-  // in kg
+  final String? name;
   @override
-  final double targetWeight;
-  // in kg
+  final String? photoUrl;
   @override
-  final FitnessGoal fitnessGoal;
+  final String? phoneNumber;
   @override
-  final ActivityLevel activityLevel;
-  final List<String> _preferredExerciseTypes;
+  final DateTime? dateOfBirth;
   @override
-  List<String> get preferredExerciseTypes {
+  final int? age;
+  @override
+  final String? gender;
+  @override
+  final double? height;
+  @override
+  final double? weight;
+  @override
+  final double? targetWeight;
+  @override
+  final String? fitnessLevel;
+  @override
+  final FitnessGoal? fitnessGoal;
+  @override
+  final ActivityLevel? activityLevel;
+  final List<String>? _fitnessGoals;
+  @override
+  List<String>? get fitnessGoals {
+    final value = _fitnessGoals;
+    if (value == null) return null;
+    if (_fitnessGoals is EqualUnmodifiableListView) return _fitnessGoals;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  final List<String>? _preferredExerciseTypes;
+  @override
+  List<String>? get preferredExerciseTypes {
+    final value = _preferredExerciseTypes;
+    if (value == null) return null;
     if (_preferredExerciseTypes is EqualUnmodifiableListView)
       return _preferredExerciseTypes;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_preferredExerciseTypes);
+    return EqualUnmodifiableListView(value);
   }
 
-  final List<String> _dislikedExercises;
+  final List<String>? _dislikedExercises;
   @override
-  List<String> get dislikedExercises {
+  List<String>? get dislikedExercises {
+    final value = _dislikedExercises;
+    if (value == null) return null;
     if (_dislikedExercises is EqualUnmodifiableListView)
       return _dislikedExercises;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_dislikedExercises);
+    return EqualUnmodifiableListView(value);
   }
 
-  final Map<String, dynamic> _preferences;
+  final Map<String, dynamic>? _preferences;
   @override
-  Map<String, dynamic> get preferences {
+  Map<String, dynamic>? get preferences {
+    final value = _preferences;
+    if (value == null) return null;
     if (_preferences is EqualUnmodifiableMapView) return _preferences;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(_preferences);
+    return EqualUnmodifiableMapView(value);
   }
 
-  @override
-  final DateTime createdAt;
-  @override
-  final DateTime updatedAt;
-  @override
-  final String? avatarUrl;
-  @override
-  final bool? isPremium;
-  @override
-  final DateTime? premiumExpiresAt;
-  @override
-  final String? fcmToken;
   final Map<String, dynamic>? _aiProviderConfig;
   @override
   Map<String, dynamic>? get aiProviderConfig {
@@ -489,8 +637,26 @@ class _$UserProfileImpl implements _UserProfile {
   }
 
   @override
+  final bool? isEmailVerified;
+  @override
+  final bool? isActive;
+  @override
+  final bool? isActivePremium;
+  @override
+  final DateTime? updatedAt;
+  final Map<String, dynamic>? _metadata;
+  @override
+  Map<String, dynamic>? get metadata {
+    final value = _metadata;
+    if (value == null) return null;
+    if (_metadata is EqualUnmodifiableMapView) return _metadata;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
+
+  @override
   String toString() {
-    return 'UserProfile(id: $id, email: $email, name: $name, age: $age, height: $height, weight: $weight, targetWeight: $targetWeight, fitnessGoal: $fitnessGoal, activityLevel: $activityLevel, preferredExerciseTypes: $preferredExerciseTypes, dislikedExercises: $dislikedExercises, preferences: $preferences, createdAt: $createdAt, updatedAt: $updatedAt, avatarUrl: $avatarUrl, isPremium: $isPremium, premiumExpiresAt: $premiumExpiresAt, fcmToken: $fcmToken, aiProviderConfig: $aiProviderConfig)';
+    return 'UserProfile(id: $id, email: $email, createdAt: $createdAt, lastUpdated: $lastUpdated, displayName: $displayName, name: $name, photoUrl: $photoUrl, phoneNumber: $phoneNumber, dateOfBirth: $dateOfBirth, age: $age, gender: $gender, height: $height, weight: $weight, targetWeight: $targetWeight, fitnessLevel: $fitnessLevel, fitnessGoal: $fitnessGoal, activityLevel: $activityLevel, fitnessGoals: $fitnessGoals, preferredExerciseTypes: $preferredExerciseTypes, dislikedExercises: $dislikedExercises, preferences: $preferences, aiProviderConfig: $aiProviderConfig, isEmailVerified: $isEmailVerified, isActive: $isActive, isActivePremium: $isActivePremium, updatedAt: $updatedAt, metadata: $metadata)';
   }
 
   @override
@@ -500,16 +666,35 @@ class _$UserProfileImpl implements _UserProfile {
             other is _$UserProfileImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.email, email) || other.email == email) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.lastUpdated, lastUpdated) ||
+                other.lastUpdated == lastUpdated) &&
+            (identical(other.displayName, displayName) ||
+                other.displayName == displayName) &&
             (identical(other.name, name) || other.name == name) &&
+            (identical(other.photoUrl, photoUrl) ||
+                other.photoUrl == photoUrl) &&
+            (identical(other.phoneNumber, phoneNumber) ||
+                other.phoneNumber == phoneNumber) &&
+            (identical(other.dateOfBirth, dateOfBirth) ||
+                other.dateOfBirth == dateOfBirth) &&
             (identical(other.age, age) || other.age == age) &&
+            (identical(other.gender, gender) || other.gender == gender) &&
             (identical(other.height, height) || other.height == height) &&
             (identical(other.weight, weight) || other.weight == weight) &&
             (identical(other.targetWeight, targetWeight) ||
                 other.targetWeight == targetWeight) &&
+            (identical(other.fitnessLevel, fitnessLevel) ||
+                other.fitnessLevel == fitnessLevel) &&
             (identical(other.fitnessGoal, fitnessGoal) ||
                 other.fitnessGoal == fitnessGoal) &&
             (identical(other.activityLevel, activityLevel) ||
                 other.activityLevel == activityLevel) &&
+            const DeepCollectionEquality().equals(
+              other._fitnessGoals,
+              _fitnessGoals,
+            ) &&
             const DeepCollectionEquality().equals(
               other._preferredExerciseTypes,
               _preferredExerciseTypes,
@@ -522,22 +707,19 @@ class _$UserProfileImpl implements _UserProfile {
               other._preferences,
               _preferences,
             ) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
-            (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt) &&
-            (identical(other.avatarUrl, avatarUrl) ||
-                other.avatarUrl == avatarUrl) &&
-            (identical(other.isPremium, isPremium) ||
-                other.isPremium == isPremium) &&
-            (identical(other.premiumExpiresAt, premiumExpiresAt) ||
-                other.premiumExpiresAt == premiumExpiresAt) &&
-            (identical(other.fcmToken, fcmToken) ||
-                other.fcmToken == fcmToken) &&
             const DeepCollectionEquality().equals(
               other._aiProviderConfig,
               _aiProviderConfig,
-            ));
+            ) &&
+            (identical(other.isEmailVerified, isEmailVerified) ||
+                other.isEmailVerified == isEmailVerified) &&
+            (identical(other.isActive, isActive) ||
+                other.isActive == isActive) &&
+            (identical(other.isActivePremium, isActivePremium) ||
+                other.isActivePremium == isActivePremium) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
+            const DeepCollectionEquality().equals(other._metadata, _metadata));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -546,23 +728,31 @@ class _$UserProfileImpl implements _UserProfile {
     runtimeType,
     id,
     email,
+    createdAt,
+    lastUpdated,
+    displayName,
     name,
+    photoUrl,
+    phoneNumber,
+    dateOfBirth,
     age,
+    gender,
     height,
     weight,
     targetWeight,
+    fitnessLevel,
     fitnessGoal,
     activityLevel,
+    const DeepCollectionEquality().hash(_fitnessGoals),
     const DeepCollectionEquality().hash(_preferredExerciseTypes),
     const DeepCollectionEquality().hash(_dislikedExercises),
     const DeepCollectionEquality().hash(_preferences),
-    createdAt,
-    updatedAt,
-    avatarUrl,
-    isPremium,
-    premiumExpiresAt,
-    fcmToken,
     const DeepCollectionEquality().hash(_aiProviderConfig),
+    isEmailVerified,
+    isActive,
+    isActivePremium,
+    updatedAt,
+    const DeepCollectionEquality().hash(_metadata),
   ]);
 
   /// Create a copy of UserProfile
@@ -583,23 +773,31 @@ abstract class _UserProfile implements UserProfile {
   const factory _UserProfile({
     required final String id,
     required final String email,
-    required final String name,
-    required final int age,
-    required final double height,
-    required final double weight,
-    required final double targetWeight,
-    required final FitnessGoal fitnessGoal,
-    required final ActivityLevel activityLevel,
-    required final List<String> preferredExerciseTypes,
-    required final List<String> dislikedExercises,
-    required final Map<String, dynamic> preferences,
     required final DateTime createdAt,
-    required final DateTime updatedAt,
-    final String? avatarUrl,
-    final bool? isPremium,
-    final DateTime? premiumExpiresAt,
-    final String? fcmToken,
+    required final DateTime lastUpdated,
+    final String? displayName,
+    final String? name,
+    final String? photoUrl,
+    final String? phoneNumber,
+    final DateTime? dateOfBirth,
+    final int? age,
+    final String? gender,
+    final double? height,
+    final double? weight,
+    final double? targetWeight,
+    final String? fitnessLevel,
+    final FitnessGoal? fitnessGoal,
+    final ActivityLevel? activityLevel,
+    final List<String>? fitnessGoals,
+    final List<String>? preferredExerciseTypes,
+    final List<String>? dislikedExercises,
+    final Map<String, dynamic>? preferences,
     final Map<String, dynamic>? aiProviderConfig,
+    final bool? isEmailVerified,
+    final bool? isActive,
+    final bool? isActivePremium,
+    final DateTime? updatedAt,
+    final Map<String, dynamic>? metadata,
   }) = _$UserProfileImpl;
 
   factory _UserProfile.fromJson(Map<String, dynamic> json) =
@@ -610,39 +808,55 @@ abstract class _UserProfile implements UserProfile {
   @override
   String get email;
   @override
-  String get name;
-  @override
-  int get age;
-  @override
-  double get height; // in cm
-  @override
-  double get weight; // in kg
-  @override
-  double get targetWeight; // in kg
-  @override
-  FitnessGoal get fitnessGoal;
-  @override
-  ActivityLevel get activityLevel;
-  @override
-  List<String> get preferredExerciseTypes;
-  @override
-  List<String> get dislikedExercises;
-  @override
-  Map<String, dynamic> get preferences;
-  @override
   DateTime get createdAt;
   @override
-  DateTime get updatedAt;
+  DateTime get lastUpdated;
   @override
-  String? get avatarUrl;
+  String? get displayName;
   @override
-  bool? get isPremium;
+  String? get name;
   @override
-  DateTime? get premiumExpiresAt;
+  String? get photoUrl;
   @override
-  String? get fcmToken;
+  String? get phoneNumber;
+  @override
+  DateTime? get dateOfBirth;
+  @override
+  int? get age;
+  @override
+  String? get gender;
+  @override
+  double? get height;
+  @override
+  double? get weight;
+  @override
+  double? get targetWeight;
+  @override
+  String? get fitnessLevel;
+  @override
+  FitnessGoal? get fitnessGoal;
+  @override
+  ActivityLevel? get activityLevel;
+  @override
+  List<String>? get fitnessGoals;
+  @override
+  List<String>? get preferredExerciseTypes;
+  @override
+  List<String>? get dislikedExercises;
+  @override
+  Map<String, dynamic>? get preferences;
   @override
   Map<String, dynamic>? get aiProviderConfig;
+  @override
+  bool? get isEmailVerified;
+  @override
+  bool? get isActive;
+  @override
+  bool? get isActivePremium;
+  @override
+  DateTime? get updatedAt;
+  @override
+  Map<String, dynamic>? get metadata;
 
   /// Create a copy of UserProfile
   /// with the given fields replaced by the non-null parameter values.

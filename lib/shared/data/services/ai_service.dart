@@ -1,14 +1,12 @@
 import 'package:logger/logger.dart';
 
 import 'package:fitness_training_app/core/errors/ai_service_error.dart';
-import 'package:fitness_training_app/shared/data/models/ai_provider_config.dart';
-import 'package:fitness_training_app/shared/data/services/ai_provider_manager.dart';
+import 'package:fitness_training_app/shared/data/repositories/ai_provider_manager.dart';
+import 'package:fitness_training_app/shared/domain/entities/ai_provider_config.dart';
 import 'package:fitness_training_app/shared/domain/entities/ai_request.dart';
 import 'package:fitness_training_app/shared/domain/entities/exercise.dart';
 import 'package:fitness_training_app/shared/domain/entities/user_profile.dart';
 import 'package:fitness_training_app/shared/domain/entities/workout_plan.dart';
-import 'package:fitness_training_app/shared/domain/repositories/ai_service_repository.dart'
-    show AIProviderType;
 
 class AIService {
   AIService({required AIProviderManager providerManager, Logger? logger})
@@ -35,30 +33,34 @@ class AIService {
         );
       }
 
-      // Add user-specific constraints
-      final enhancedConstraints = <String, dynamic>{
-        ...?constraints,
-        'userAge': userProfile.age,
-        'fitnessGoal': userProfile.fitnessGoal.name,
-        'activityLevel': userProfile.activityLevel.name,
-        'availableTime':
-            preferences?['availableTime'] ?? 30, // minutes per session
-        'workoutDaysPerWeek': preferences?['workoutDaysPerWeek'] ?? 3,
-      };
-
-      final plan = await _providerManager.generateWeeklyPlan(
-        userProfile,
-        availableExercises,
+      final response = await _providerManager.generateWorkoutPlan(
+        userId: userProfile.id,
+        userProfile: userProfile.toJson(),
+        availableExercises: availableExercises.map((e) => e.toJson()).toList(),
         preferences: preferences,
-        constraints: enhancedConstraints,
+        excludedExercises: constraints?['excludedExercises'] as List<String>?,
       );
+
+      if (!response.success) {
+        throw AIServiceError(
+          response.error ?? 'Failed to generate workout plan',
+        );
+      }
+
+      // Parse the response data into a WorkoutPlan
+      final planData = response.data['workoutPlan'] as Map<String, dynamic>?;
+      if (planData == null) {
+        throw AIServiceError('Invalid workout plan response format');
+      }
+
+      final plan = WorkoutPlan.fromJson(planData);
 
       _logger.i(
         'Successfully generated workout plan with ${plan.exercises.length} exercises',
       );
       return plan;
     } catch (e) {
-      _logger.i('Failed to generate workout plan: $e');
+      _logger.e('Failed to generate workout plan: $e');
       rethrow;
     }
   }
@@ -83,21 +85,28 @@ class AIService {
         ...?previouslyRejectedExercises,
       ];
 
-      final alternative = await _providerManager.getAlternativeExercise(
-        currentExerciseId,
-        alternativeType,
-        availableExercises,
-        userId: userId,
-        userContext: userContext,
-        excludeExerciseIds: excludeList,
+      final response = await _providerManager.getAlternativeExercise(
+        userId: userId ?? 'anonymous',
+        currentExerciseId: currentExerciseId,
+        alternativeType: alternativeType,
+        availableExercises: availableExercises.map((e) => e.toJson()).toList(),
+        userContext: {...?userContext, 'excludeExerciseIds': excludeList},
       );
 
-      if (alternative != null) {
-        _logger.i('Found alternative exercise: ${alternative.name}');
-      } else {
-        _logger.w('No alternative exercise found');
+      if (!response.success) {
+        _logger.w('Alternative exercise request failed: ${response.error}');
+        return null;
       }
 
+      final exerciseData =
+          response.data['alternativeExercise'] as Map<String, dynamic>?;
+      if (exerciseData == null) {
+        _logger.w('No alternative exercise found');
+        return null;
+      }
+
+      final alternative = Exercise.fromJson(exerciseData);
+      _logger.i('Found alternative exercise: ${alternative.name}');
       return alternative;
     } catch (e) {
       _logger.e('Failed to get alternative exercise: $e');
@@ -120,10 +129,19 @@ class AIService {
         'userId': userId,
       };
 
-      final message = await _providerManager.generateNotificationMessage(
-        enhancedContext,
+      final response = await _providerManager.generateNotification(
+        userId: userId,
+        userContext: enhancedContext,
       );
 
+      if (!response.success) {
+        throw AIServiceError(
+          response.error ?? 'Failed to generate notification',
+        );
+      }
+
+      final message =
+          response.data['message'] as String? ?? 'Keep up the great work!';
       _logger.i('Generated notification message');
       return message;
     } catch (e) {
@@ -140,12 +158,22 @@ class AIService {
     try {
       _logger.i('Analyzing progress for user $userId');
 
-      final analysis = await _providerManager.analyzeProgress(
-        userId,
-        progressData,
+      // Create a custom AI request for progress analysis
+      final request = AIRequest(
+        requestId: 'progress-analysis-${DateTime.now().millisecondsSinceEpoch}',
+        type: AIRequestType.analyzeProgress,
+        payload: {'userId': userId, 'progressData': progressData},
+        timestamp: DateTime.now(),
+        userId: userId,
       );
 
-      return ProgressAnalysis.fromJson(analysis);
+      final response = await _providerManager.processRequest(request);
+
+      if (!response.success) {
+        throw AIServiceError(response.error ?? 'Failed to analyze progress');
+      }
+
+      return ProgressAnalysis.fromJson(response.data);
     } catch (e) {
       _logger.e('Failed to analyze progress: $e');
       rethrow;
@@ -176,7 +204,7 @@ class AIService {
     try {
       _logger.i('Configuring AI provider: $type');
 
-      final config = AIProviderConfig(
+      final config = ProviderConfig(
         type: type,
         apiKey: apiKey,
         additionalConfig: additionalConfig ?? {},
@@ -192,31 +220,24 @@ class AIService {
   }
 
   /// Get provider status
-  Map<AIProviderType, bool> getProviderStatus() {
-    return _providerManager.getProviderStatus();
+  Future<Map<AIProviderType, ProviderStatus>> getProviderStatus() async {
+    return _providerManager.getAllProviderStatuses();
   }
 
   /// Check if any provider is configured and available
-  bool get hasAvailableProvider {
-    final status = getProviderStatus();
-    return status.values.any((isConfigured) => isConfigured);
+  Future<bool> get hasAvailableProvider async {
+    final status = await getProviderStatus();
+    return status.values.any((providerStatus) => providerStatus.isAvailable);
   }
 
-  /// Get primary provider name
-  String? get primaryProviderName {
-    return _providerManager.primaryProvider?.providerName;
+  /// Get available providers
+  List<AIProviderType> get availableProviders {
+    return _providerManager.availableProviders;
   }
 }
 
 /// Progress analysis result model
 class ProgressAnalysis {
-  final int overallScore;
-  final String commitmentLevel;
-  final List<String> strengths;
-  final List<String> areasForImprovement;
-  final List<String> recommendations;
-  final String motivationalMessage;
-
   const ProgressAnalysis({
     required this.overallScore,
     required this.commitmentLevel,
@@ -238,6 +259,13 @@ class ProgressAnalysis {
           json['motivationalMessage'] as String? ?? 'Keep going!',
     );
   }
+
+  final int overallScore;
+  final String commitmentLevel;
+  final List<String> strengths;
+  final List<String> areasForImprovement;
+  final List<String> recommendations;
+  final String motivationalMessage;
 
   Map<String, dynamic> toJson() {
     return {

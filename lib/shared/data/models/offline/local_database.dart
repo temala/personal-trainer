@@ -138,11 +138,12 @@ class LocalDatabase {
 
     // Set up initial metadata
     final metadataBox = Hive.box(_metadataBox);
-    metadataBox.put('created_at', DateTime.now().toIso8601String());
-    metadataBox.put('app_version', '1.0.0');
+    metadataBox
+      ..put('created_at', DateTime.now().toIso8601String())
+      ..put('app_version', '1.0.0');
 
-    // Initialize sync queue if empty
-    final syncQueueBox = Hive.box(_syncQueueBox);
+    // Initialize sync queue if empty - use the typed box accessor
+    final syncQueueBox = Hive.box<SyncQueueItem>(_syncQueueBox);
     if (syncQueueBox.isEmpty) {
       AppLogger.debug('Initialized empty sync queue');
     }

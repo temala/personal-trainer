@@ -1,82 +1,78 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fitness_training_app/shared/data/services/ai_service.dart';
-import 'package:fitness_training_app/shared/data/services/ai_provider_manager.dart';
+import 'package:logger/logger.dart';
+
+import 'package:fitness_training_app/core/config/env_config.dart';
+import 'package:fitness_training_app/shared/data/repositories/ai_provider_manager.dart';
 import 'package:fitness_training_app/shared/data/services/ai_configuration_service.dart';
-import 'package:fitness_training_app/shared/data/models/ai_provider_config.dart';
-import 'package:fitness_training_app/shared/domain/repositories/ai_service_repository.dart';
-import 'package:fitness_training_app/shared/domain/entities/workout_plan.dart';
+import 'package:fitness_training_app/shared/data/services/ai_service.dart';
+import 'package:fitness_training_app/shared/domain/entities/ai_provider_config.dart';
+import 'package:fitness_training_app/shared/domain/entities/ai_request.dart';
 import 'package:fitness_training_app/shared/domain/entities/exercise.dart';
 import 'package:fitness_training_app/shared/domain/entities/user_profile.dart';
-import 'package:fitness_training_app/shared/domain/entities/ai_request.dart';
-import 'package:fitness_training_app/core/config/env_config.dart';
-import 'package:fitness_training_app/core/utils/logger.dart';
-import 'package:logger/logger.dart';
+import 'package:fitness_training_app/shared/domain/entities/workout_plan.dart';
 
 // AI Configuration Provider
 final aiConfigurationProvider = StateProvider<AIConfiguration>((ref) {
   // Default configuration - can be overridden by user settings
-  final chatGptConfig = AIProviderConfig(
+  final chatGptConfig = ProviderConfig(
     type: AIProviderType.chatgpt,
     apiKey: EnvConfig.primaryOpenAIKey ?? '',
-    model: 'gpt-4',
     baseUrl: 'https://api.openai.com/v1',
-    additionalConfig: {'maxTokens': 2000, 'temperature': 0.7},
+    additionalConfig: {'model': 'gpt-4', 'maxTokens': 2000, 'temperature': 0.7},
   );
 
   return AIConfiguration(
     providers: {AIProviderType.chatgpt: chatGptConfig},
     primaryProvider: AIProviderType.chatgpt,
     fallbackProviders: [],
-    enableFallback: true,
   );
 });
 
 // AI Provider Manager Provider
 final aiProviderManagerProvider = Provider<AIProviderManager>((ref) {
   final configuration = ref.watch(aiConfigurationProvider);
-  final logger = ref.watch(loggerProvider);
+  final logger = ref.watch(aiLoggerProvider);
 
-  return AIProviderManager(configuration: configuration, logger: logger);
+  return AIProviderManager(configuration, logger: logger);
 });
 
 // AI Service Provider
 final aiServiceProvider = Provider<AIService>((ref) {
   final providerManager = ref.watch(aiProviderManagerProvider);
-  final logger = ref.watch(loggerProvider);
+  final logger = ref.watch(aiLoggerProvider);
 
   return AIService(providerManager: providerManager, logger: logger);
 });
 
 // Provider Status Provider
-final aiProviderStatusProvider = FutureProvider<Map<AIProviderType, bool>>((
-  ref,
-) async {
-  final aiService = ref.watch(aiServiceProvider);
-  return aiService.getProviderStatus();
-});
+final aiProviderStatusProvider =
+    FutureProvider<Map<AIProviderType, ProviderStatus>>((ref) async {
+      final aiService = ref.watch(aiServiceProvider);
+      return aiService.getProviderStatus();
+    });
 
 // Connection Test Provider
 final aiConnectionTestProvider = FutureProvider<Map<AIProviderType, bool>>((
   ref,
 ) async {
   final aiService = ref.watch(aiServiceProvider);
-  return await aiService.testProviderConnections();
+  return aiService.testProviderConnections();
 });
 
 // Provider Configuration State
 class AIProviderConfigState {
-  final Map<AIProviderType, AIProviderConfig> providers;
-  final bool isLoading;
-  final String? error;
-
   const AIProviderConfigState({
     this.providers = const {},
     this.isLoading = false,
     this.error,
   });
 
+  final Map<AIProviderType, ProviderConfig> providers;
+  final bool isLoading;
+  final String? error;
+
   AIProviderConfigState copyWith({
-    Map<AIProviderType, AIProviderConfig>? providers,
+    Map<AIProviderType, ProviderConfig>? providers,
     bool? isLoading,
     String? error,
   }) {
@@ -90,13 +86,13 @@ class AIProviderConfigState {
 
 // Provider Configuration Notifier
 class AIProviderConfigNotifier extends StateNotifier<AIProviderConfigState> {
-  final AIService _aiService;
-  final Ref _ref;
-
   AIProviderConfigNotifier(this._aiService, this._ref)
     : super(const AIProviderConfigState()) {
     _loadCurrentConfiguration();
   }
+
+  final AIService _aiService;
+  final Ref _ref;
 
   void _loadCurrentConfiguration() {
     final configuration = _ref.read(aiConfigurationProvider);
@@ -110,15 +106,14 @@ class AIProviderConfigNotifier extends StateNotifier<AIProviderConfigState> {
     String? baseUrl,
     String? model,
   }) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
 
     try {
-      final config = AIProviderConfig(
+      final config = ProviderConfig(
         type: type,
         apiKey: apiKey,
         additionalConfig: additionalConfig ?? {},
         baseUrl: baseUrl,
-        model: model,
       );
 
       await _aiService.configureProvider(
@@ -128,7 +123,7 @@ class AIProviderConfigNotifier extends StateNotifier<AIProviderConfigState> {
       );
 
       // Update local state
-      final updatedProviders = Map<AIProviderType, AIProviderConfig>.from(
+      final updatedProviders = Map<AIProviderType, ProviderConfig>.from(
         state.providers,
       );
       updatedProviders[type] = config;
@@ -154,14 +149,13 @@ class AIProviderConfigNotifier extends StateNotifier<AIProviderConfigState> {
   }
 
   void clearError() {
-    state = state.copyWith(error: null);
+    state = state.copyWith();
   }
 
   void removeProvider(AIProviderType type) {
-    final updatedProviders = Map<AIProviderType, AIProviderConfig>.from(
+    final updatedProviders = Map<AIProviderType, ProviderConfig>.from(
       state.providers,
-    );
-    updatedProviders.remove(type);
+    )..remove(type);
 
     state = state.copyWith(providers: updatedProviders);
 
@@ -189,11 +183,11 @@ final workoutPlanGenerationProvider =
     ) async {
       final aiService = ref.watch(aiServiceProvider);
 
-      if (!aiService.hasAvailableProvider) {
+      if (!(await aiService.hasAvailableProvider)) {
         throw Exception('No AI provider configured');
       }
 
-      return await aiService.generateWeeklyWorkoutPlan(
+      return aiService.generateWeeklyWorkoutPlan(
         userProfile: params.userProfile,
         availableExercises: params.availableExercises,
         preferences: params.preferences,
@@ -209,7 +203,7 @@ final alternativeExerciseProvider =
     ) async {
       final aiService = ref.watch(aiServiceProvider);
 
-      return await aiService.getAlternativeExercise(
+      return aiService.getAlternativeExercise(
         currentExerciseId: params.currentExerciseId,
         alternativeType: params.alternativeType,
         availableExercises: params.availableExercises,
@@ -227,11 +221,11 @@ final progressAnalysisProvider =
     ) async {
       final aiService = ref.watch(aiServiceProvider);
 
-      if (!aiService.hasAvailableProvider) {
+      if (!(await aiService.hasAvailableProvider)) {
         return null;
       }
 
-      return await aiService.analyzeUserProgress(
+      return aiService.analyzeUserProgress(
         userId: params.userId,
         progressData: params.progressData,
       );
@@ -239,27 +233,20 @@ final progressAnalysisProvider =
 
 // Parameter classes for providers
 class WorkoutPlanGenerationParams {
-  final UserProfile userProfile;
-  final List<Exercise> availableExercises;
-  final Map<String, dynamic>? preferences;
-  final Map<String, dynamic>? constraints;
-
   const WorkoutPlanGenerationParams({
     required this.userProfile,
     required this.availableExercises,
     this.preferences,
     this.constraints,
   });
+
+  final UserProfile userProfile;
+  final List<Exercise> availableExercises;
+  final Map<String, dynamic>? preferences;
+  final Map<String, dynamic>? constraints;
 }
 
 class AlternativeExerciseParams {
-  final String currentExerciseId;
-  final AlternativeType alternativeType;
-  final List<Exercise> availableExercises;
-  final String? userId;
-  final Map<String, dynamic>? userContext;
-  final List<String>? previouslyRejectedExercises;
-
   const AlternativeExerciseParams({
     required this.currentExerciseId,
     required this.alternativeType,
@@ -268,16 +255,23 @@ class AlternativeExerciseParams {
     this.userContext,
     this.previouslyRejectedExercises,
   });
+
+  final String currentExerciseId;
+  final AlternativeType alternativeType;
+  final List<Exercise> availableExercises;
+  final String? userId;
+  final Map<String, dynamic>? userContext;
+  final List<String>? previouslyRejectedExercises;
 }
 
 class ProgressAnalysisParams {
-  final String userId;
-  final Map<String, dynamic> progressData;
-
   const ProgressAnalysisParams({
     required this.userId,
     required this.progressData,
   });
+
+  final String userId;
+  final Map<String, dynamic> progressData;
 }
 
 // Configuration Service Provider
@@ -287,5 +281,5 @@ final aiConfigurationServiceProvider = Provider<AIConfigurationService>((ref) {
   );
 });
 
-// Logger Provider
-final loggerProvider = Provider<Logger>((ref) => Logger());
+// AI Logger Provider (renamed to avoid conflicts)
+final aiLoggerProvider = Provider<Logger>((ref) => Logger());

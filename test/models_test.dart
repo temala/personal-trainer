@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:fitness_training_app/shared/domain/entities/entities.dart';
+import 'package:fitness_training_app/shared/domain/entities/fitness_enums.dart';
 
 void main() {
   group('Data Models Tests', () {
@@ -7,12 +9,13 @@ void main() {
       final userProfile = UserProfile(
         id: 'test-user-1',
         email: 'test@example.com',
+        lastUpdated: DateTime.now(),
         name: 'Test User',
         age: 25,
         height: 175,
         weight: 70,
         targetWeight: 65,
-        fitnessGoal: FitnessGoal.loseWeight,
+        fitnessGoal: FitnessGoal.weightLoss,
         activityLevel: ActivityLevel.moderatelyActive,
         preferredExerciseTypes: ['cardio', 'strength'],
         dislikedExercises: [],
@@ -112,12 +115,13 @@ void main() {
       final originalProfile = UserProfile(
         id: 'test-user-1',
         email: 'test@example.com',
+        lastUpdated: DateTime.now(),
         name: 'Test User',
         age: 25,
         height: 175,
         weight: 70,
         targetWeight: 65,
-        fitnessGoal: FitnessGoal.loseWeight,
+        fitnessGoal: FitnessGoal.weightLoss,
         activityLevel: ActivityLevel.moderatelyActive,
         preferredExerciseTypes: ['cardio'],
         dislikedExercises: [],
@@ -132,7 +136,7 @@ void main() {
       expect(deserializedProfile.id, originalProfile.id);
       expect(deserializedProfile.name, originalProfile.name);
       expect(deserializedProfile.fitnessGoal, originalProfile.fitnessGoal);
-      expect(deserializedProfile.preferences['theme'], 'dark');
+      expect(deserializedProfile.preferences?['theme'], 'dark');
     });
   });
 }

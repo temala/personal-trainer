@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:fitness_training_app/features/auth/presentation/providers/auth_providers.dart';
+import 'package:fitness_training_app/shared/domain/entities/fitness_enums.dart';
 import 'package:fitness_training_app/shared/domain/entities/user_profile.dart';
 import 'package:fitness_training_app/shared/domain/repositories/user_repository.dart';
 
@@ -45,6 +47,7 @@ class ProfileController {
       final profile = UserProfile(
         id: currentUser.uid,
         email: currentUser.email!,
+        lastUpdated: DateTime.now(),
         name: name,
         age: age,
         height: height,
@@ -75,7 +78,10 @@ class ProfileController {
       _ref.read(profileLoadingProvider.notifier).state = true;
       _ref.read(profileErrorProvider.notifier).state = null;
 
-      final updatedProfile = profile.copyWith(updatedAt: DateTime.now());
+      final updatedProfile = profile.copyWith(
+        updatedAt: DateTime.now(),
+        lastUpdated: DateTime.now(),
+      );
 
       await _userRepository.updateUserProfile(updatedProfile);
       return true;

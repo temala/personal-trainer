@@ -1,7 +1,9 @@
-import '../entities/ai_request.dart';
-import '../entities/workout_plan.dart';
-import '../entities/exercise.dart';
-import '../entities/user_profile.dart';
+import 'package:fitness_training_app/shared/domain/entities/ai_provider_config.dart';
+import 'package:fitness_training_app/shared/domain/entities/ai_request.dart';
+import 'package:fitness_training_app/shared/domain/entities/ai_response.dart';
+import 'package:fitness_training_app/shared/domain/entities/exercise.dart';
+import 'package:fitness_training_app/shared/domain/entities/user_profile.dart';
+import 'package:fitness_training_app/shared/domain/entities/workout_plan.dart';
 
 abstract class AIServiceRepository {
   /// Generate a weekly workout plan based on user profile and available exercises
@@ -48,6 +50,7 @@ abstract class AIServiceRepository {
 
   /// Get provider type
   AIProviderType get providerType;
-}
 
-enum AIProviderType { chatgpt, n8nWorkflow, claude, gemini, custom }
+  /// Process a generic AI request
+  Future<AIResponse> processRequest(AIRequest request);
+}

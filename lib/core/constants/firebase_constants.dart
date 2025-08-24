@@ -9,6 +9,7 @@ class FirebaseConstants {
   static const String subscriptions = 'subscriptions';
   static const String notifications = 'notifications';
   static const String aiProviderConfigs = 'ai_provider_configs';
+  static const String userScores = 'user_scores';
 
   // Storage Paths
   static const String userAvatarsPath = 'user_avatars';
@@ -32,4 +33,17 @@ class FirebaseConstants {
   static const String aiProviderConfig = 'ai_provider_config';
   static const String featureFlags = 'feature_flags';
   static const String appConfig = 'app_config';
+}
+
+/// Firestore collection names
+class FirebaseCollections {
+  static const String users = FirebaseConstants.users;
+  static const String exercises = FirebaseConstants.exercises;
+  static const String workoutPlans = FirebaseConstants.workoutPlans;
+  static const String workoutSessions = FirebaseConstants.workoutSessions;
+  static const String userProgress = FirebaseConstants.userProgress;
+  static const String subscriptions = FirebaseConstants.subscriptions;
+  static const String notifications = FirebaseConstants.notifications;
+  static const String aiProviderConfigs = FirebaseConstants.aiProviderConfigs;
+  static const String userScores = FirebaseConstants.userScores;
 }

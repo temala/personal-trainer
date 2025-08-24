@@ -39,6 +39,8 @@ const _$AIRequestTypeEnumMap = {
   AIRequestType.createAvatar: 'createAvatar',
   AIRequestType.analyzeProgress: 'analyzeProgress',
   AIRequestType.customWorkflow: 'customWorkflow',
+  AIRequestType.evaluateCommitment: 'evaluateCommitment',
+  AIRequestType.generateAdvice: 'generateAdvice',
 };
 
 _$WorkoutPlanRequestImpl _$$WorkoutPlanRequestImplFromJson(
