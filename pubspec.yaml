@@ -91,4 +91,6 @@ flutter:
   assets:
     - assets/images/
     - assets/animations/
+    - assets/animations/celebrations/
+    - assets/animations/exercises/
     - assets/lottie/
