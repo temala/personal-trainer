@@ -1,10 +1,8 @@
-import 'package:flutter/foundation.dart';
+import 'package:fitness_training_app/core/utils/logger.dart';
+import 'package:fitness_training_app/shared/data/services/workout_session_persistence_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:fitness_training_app/core/utils/logger.dart';
-import 'package:fitness_training_app/shared/data/services/workout_session_persistence_service.dart';
 
 /// Handles app lifecycle events for workout session persistence
 class AppLifecycleHandler with WidgetsBindingObserver {

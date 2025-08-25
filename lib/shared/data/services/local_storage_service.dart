@@ -1,8 +1,5 @@
 import 'dart:async';
 
-import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
-
 import 'package:fitness_training_app/core/utils/logger.dart';
 import 'package:fitness_training_app/shared/data/models/offline/hive_adapters.dart';
 import 'package:fitness_training_app/shared/data/models/offline/local_database.dart';
@@ -10,6 +7,8 @@ import 'package:fitness_training_app/shared/data/models/offline/offline_models.d
 import 'package:fitness_training_app/shared/data/services/offline_manager.dart';
 import 'package:fitness_training_app/shared/data/services/sync_manager.dart';
 import 'package:fitness_training_app/shared/domain/entities/entities.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// Comprehensive local storage service with automatic sync queuing
 class LocalStorageService {

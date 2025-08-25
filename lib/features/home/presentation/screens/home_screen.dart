@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitness_training_app/core/utils/logger.dart';
 import 'package:fitness_training_app/features/auth/presentation/providers/auth_providers.dart';
 import 'package:fitness_training_app/features/workout/presentation/screens/workout_session_screen.dart';
@@ -14,6 +12,8 @@ import 'package:fitness_training_app/shared/presentation/themes/app_theme.dart';
 import 'package:fitness_training_app/shared/presentation/widgets/cartoon_card.dart';
 import 'package:fitness_training_app/shared/presentation/widgets/custom_button.dart';
 import 'package:fitness_training_app/shared/presentation/widgets/stats_card.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Home screen with dashboard and workout preview
 class HomeScreen extends ConsumerStatefulWidget {

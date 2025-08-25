@@ -1,17 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
-import 'package:hive/hive.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:fitness_training_app/core/utils/logger.dart';
 import 'package:fitness_training_app/shared/data/services/workout_session_manager.dart';
 import 'package:fitness_training_app/shared/domain/entities/workout_session.dart';
-import 'package:fitness_training_app/shared/domain/repositories/workout_repository.dart';
 import 'package:fitness_training_app/shared/domain/repositories/exercise_repository.dart';
+import 'package:fitness_training_app/shared/domain/repositories/workout_repository.dart';
+import 'package:flutter/widgets.dart';
+import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Service for persisting and recovering workout session state
 class WorkoutSessionPersistenceService {

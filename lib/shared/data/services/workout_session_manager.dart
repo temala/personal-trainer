@@ -1,15 +1,11 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:fitness_training_app/core/utils/logger.dart';
-import 'package:fitness_training_app/shared/data/services/exercise_alternative_service.dart';
-import 'package:fitness_training_app/shared/domain/entities/exercise.dart';
 import 'package:fitness_training_app/shared/domain/entities/workout_plan.dart';
 import 'package:fitness_training_app/shared/domain/entities/workout_session.dart';
 import 'package:fitness_training_app/shared/domain/repositories/exercise_repository.dart';
 import 'package:fitness_training_app/shared/domain/repositories/workout_repository.dart';
+import 'package:flutter/foundation.dart';
 
 /// Manages workout session state and execution
 class WorkoutSessionManager {

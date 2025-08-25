@@ -1,7 +1,6 @@
-import 'package:hive/hive.dart';
-
 import 'package:fitness_training_app/core/utils/logger.dart';
 import 'package:fitness_training_app/shared/data/models/offline/local_database.dart';
+import 'package:hive/hive.dart';
 
 /// Service for handling database migrations and schema changes
 class DatabaseMigrationService {

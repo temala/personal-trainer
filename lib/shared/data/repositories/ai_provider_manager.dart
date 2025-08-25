@@ -1,11 +1,10 @@
-import 'package:logger/logger.dart';
-
-import 'package:fitness_training_app/shared/domain/entities/ai_request.dart';
-import 'package:fitness_training_app/shared/domain/entities/ai_response.dart';
-import 'package:fitness_training_app/shared/domain/entities/ai_provider_config.dart';
-import 'package:fitness_training_app/shared/domain/repositories/ai_provider_repository.dart';
 import 'package:fitness_training_app/shared/data/datasources/chatgpt_provider.dart';
 import 'package:fitness_training_app/shared/data/datasources/n8n_provider.dart';
+import 'package:fitness_training_app/shared/domain/entities/ai_provider_config.dart';
+import 'package:fitness_training_app/shared/domain/entities/ai_request.dart';
+import 'package:fitness_training_app/shared/domain/entities/ai_response.dart';
+import 'package:fitness_training_app/shared/domain/repositories/ai_provider_repository.dart';
+import 'package:logger/logger.dart';
 
 /// Exception thrown when no AI providers are available
 class NoProvidersAvailableException implements Exception {

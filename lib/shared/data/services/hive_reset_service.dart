@@ -1,8 +1,7 @@
-import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
-
 import 'package:fitness_training_app/core/utils/logger.dart';
 import 'package:fitness_training_app/shared/data/services/database_migration_service.dart';
+import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
 
 /// Service for resetting Hive database during development
 class HiveResetService {

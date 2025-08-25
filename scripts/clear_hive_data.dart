@@ -97,7 +97,7 @@ Future<void> main(List<String> args) async {
 
         // Yield control to event loop every 500 files to avoid freezing
         if (filesScanned % 500 == 0) {
-          await Future.delayed(Duration(milliseconds: 1));
+          await Future.delayed(const Duration(milliseconds: 1));
         }
       }
     }

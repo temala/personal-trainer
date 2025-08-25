@@ -2,13 +2,12 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:hive/hive.dart';
-
 import 'package:fitness_training_app/core/constants/firebase_constants.dart';
 import 'package:fitness_training_app/core/utils/logger.dart';
 import 'package:fitness_training_app/shared/data/models/offline/offline_models.dart';
 import 'package:fitness_training_app/shared/domain/entities/exercise.dart';
 import 'package:fitness_training_app/shared/domain/repositories/exercise_repository.dart';
+import 'package:hive/hive.dart';
 
 /// Firebase implementation of ExerciseRepository with offline caching
 class FirebaseExerciseRepository implements ExerciseRepository {

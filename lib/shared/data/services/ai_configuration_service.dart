@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:fitness_training_app/shared/domain/entities/ai_provider_config.dart';
-import 'package:fitness_training_app/shared/domain/repositories/ai_service_repository.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Service for managing AI provider configurations
 class AIConfigurationService {

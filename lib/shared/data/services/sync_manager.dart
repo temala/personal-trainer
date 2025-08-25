@@ -1,8 +1,6 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:hive/hive.dart';
-
 import 'package:fitness_training_app/core/constants/firebase_constants.dart';
 import 'package:fitness_training_app/core/utils/logger.dart';
 import 'package:fitness_training_app/shared/data/models/offline/offline_models.dart';
@@ -10,6 +8,7 @@ import 'package:fitness_training_app/shared/data/services/offline_manager.dart';
 import 'package:fitness_training_app/shared/domain/entities/user_profile.dart';
 import 'package:fitness_training_app/shared/domain/entities/workout_plan.dart';
 import 'package:fitness_training_app/shared/domain/entities/workout_session.dart';
+import 'package:hive/hive.dart';
 
 /// Manages data synchronization between local cache and Firebase
 class SyncManager {
