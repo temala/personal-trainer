@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fitness_training_app/features/auth/presentation/providers/auth_providers.dart';
-import 'package:fitness_training_app/features/auth/presentation/screens/registration_screen.dart';
-import 'package:fitness_training_app/features/auth/presentation/screens/forgot_password_screen.dart';
-import 'package:fitness_training_app/features/auth/presentation/screens/email_verification_screen.dart';
-import 'package:fitness_training_app/shared/presentation/widgets/custom_button.dart';
-import 'package:fitness_training_app/shared/presentation/widgets/custom_text_field.dart';
-import 'package:fitness_training_app/shared/presentation/widgets/loading_overlay.dart';
+import '../../../../shared/presentation/themes/app_colors.dart';
+import '../../../../shared/presentation/themes/app_text_styles.dart';
+import '../../../../shared/presentation/themes/app_theme.dart';
+import '../../../../shared/presentation/widgets/cartoon_app_bar.dart';
+import '../../../../shared/presentation/widgets/cartoon_card.dart';
+import '../../../../shared/presentation/widgets/custom_button.dart';
+import '../../../../shared/presentation/widgets/custom_text_field.dart';
+import '../../../../shared/presentation/widgets/loading_overlay.dart';
+import '../providers/auth_providers.dart';
+import 'email_verification_screen.dart';
+import 'forgot_password_screen.dart';
+import 'registration_screen.dart';
 
 /// Sign in screen for existing users
 class SignInScreen extends ConsumerStatefulWidget {
@@ -38,170 +43,232 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final error = ref.watch(authErrorProvider);
 
     return Scaffold(
+      appBar: const CartoonAppBar(title: 'Welcome Back', showBackButton: true),
       body: LoadingOverlay(
         isLoading: isLoading,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 60),
-
-                  // App logo/icon placeholder
-                  Icon(
-                    Icons.fitness_center,
-                    size: 80,
-                    color: Theme.of(context).primaryColor,
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Title
-                  Text(
-                    'Welcome Back!',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  Text(
-                    'Sign in to continue your fitness journey',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
-                    textAlign: TextAlign.center,
-                  ),
-
-                  const SizedBox(height: 40),
-
-                  // Email field
-                  CustomTextField(
-                    controller: _emailController,
-                    labelText: 'Email',
-                    prefixIcon: Icons.email_outlined,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (!RegExp(
-                        r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                      ).hasMatch(value)) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Password field
-                  CustomTextField(
-                    controller: _passwordController,
-                    labelText: 'Password',
-                    prefixIcon: Icons.lock_outline,
-                    obscureText: _obscurePassword,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      return null;
-                    },
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  // Forgot password link
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.of(
-                          context,
-                        ).pushNamed(ForgotPasswordScreen.routeName);
-                      },
-                      child: Text(
-                        'Forgot Password?',
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Error message
-                  if (error != null) ...[
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppColors.background, AppColors.surfaceTint],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          child: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppTheme.spacingL),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Welcome illustration
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      width: 120,
+                      height: 120,
                       decoration: BoxDecoration(
-                        color: Colors.red[50],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.red[200]!),
+                        gradient: const LinearGradient(
+                          colors: [AppColors.accent, AppColors.accentLight],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.accent.withValues(alpha: 0.3),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                       ),
-                      child: Text(
-                        error,
-                        style: TextStyle(color: Colors.red[700], fontSize: 14),
+                      child: const Icon(
+                        Icons.waving_hand_rounded,
+                        size: 60,
+                        color: AppColors.white,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                  ],
 
-                  // Sign in button
-                  CustomButton(
-                    onPressed: _handleSignIn,
-                    text: 'Sign In',
-                    isLoading: isLoading,
-                  ),
+                    const SizedBox(height: AppTheme.spacingXL),
 
-                  const SizedBox(height: 24),
-
-                  // Register link
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Don't have an account? ",
-                        style: TextStyle(color: Colors.grey[600]),
+                    // Title and subtitle
+                    Text(
+                      'Welcome Back!',
+                      style: AppTextStyles.displayMedium.copyWith(
+                        color: AppColors.accent,
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(
-                            context,
-                          ).pushReplacementNamed(RegistrationScreen.routeName);
-                        },
-                        child: Text(
-                          'Create Account',
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontWeight: FontWeight.w600,
+                      textAlign: TextAlign.center,
+                    ),
+
+                    const SizedBox(height: AppTheme.spacingS),
+
+                    Text(
+                      'Sign in to continue your fitness journey',
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+
+                    const SizedBox(height: AppTheme.spacingXXL),
+
+                    // Sign-in form card
+                    CartoonCard(
+                      variant: CardVariant.surface,
+                      padding: const EdgeInsets.all(AppTheme.spacingL),
+                      child: Column(
+                        children: [
+                          // Email field
+                          CustomTextField(
+                            controller: _emailController,
+                            labelText: 'Email Address',
+                            prefixIcon: Icons.email_outlined,
+                            keyboardType: TextInputType.emailAddress,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Please enter your email';
+                              }
+                              if (!RegExp(
+                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                              ).hasMatch(value)) {
+                                return 'Please enter a valid email';
+                              }
+                              return null;
+                            },
+                          ),
+
+                          const SizedBox(height: AppTheme.spacingM),
+
+                          // Password field
+                          CustomTextField(
+                            controller: _passwordController,
+                            labelText: 'Password',
+                            prefixIcon: Icons.lock_outline_rounded,
+                            obscureText: _obscurePassword,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_rounded
+                                    : Icons.visibility_off_rounded,
+                                color: AppColors.textSecondary,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your password';
+                              }
+                              return null;
+                            },
+                          ),
+
+                          const SizedBox(height: AppTheme.spacingM),
+
+                          // Forgot password link
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.pushNamed(
+                                  context,
+                                  ForgotPasswordScreen.routeName,
+                                );
+                              },
+                              child: Text(
+                                'Forgot Password?',
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: AppTheme.spacingL),
+
+                          // Error message
+                          if (error != null) ...[
+                            Container(
+                              padding: const EdgeInsets.all(AppTheme.spacingM),
+                              decoration: BoxDecoration(
+                                color: AppColors.error.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(
+                                  AppTheme.radiusM,
+                                ),
+                                border: Border.all(
+                                  color: AppColors.error.withValues(alpha: 0.3),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.error_outline_rounded,
+                                    color: AppColors.error,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: AppTheme.spacingS),
+                                  Expanded(
+                                    child: Text(
+                                      error,
+                                      style: AppTextStyles.bodySmall.copyWith(
+                                        color: AppColors.error,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: AppTheme.spacingM),
+                          ],
+
+                          // Sign in button
+                          CustomButton(
+                            onPressed: _handleSignIn,
+                            text: 'Sign In',
+                            variant: ButtonVariant.gradient,
+                            isLoading: isLoading,
+                            width: double.infinity,
+                            height: 56,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: AppTheme.spacingXL),
+
+                    // Register link
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Don\'t have an account? ',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.textSecondary,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).pushReplacementNamed(
+                              RegistrationScreen.routeName,
+                            );
+                          },
+                          child: Text(
+                            'Sign Up',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: AppTheme.spacingL),
+                  ],
+                ),
               ),
             ),
           ),
@@ -224,24 +291,14 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
     if (success && mounted) {
       // Check if email is verified
-      final isEmailVerified = ref.read(isEmailVerifiedProvider);
-
-      if (!isEmailVerified) {
-        // Navigate to email verification screen
+      final user = ref.read(currentUserProvider);
+      if (user != null && !user.emailVerified) {
         Navigator.of(
           context,
         ).pushReplacementNamed(EmailVerificationScreen.routeName);
       } else {
-        // Check if user has profile, navigate accordingly
-        final hasProfile = await controller.hasUserProfile();
-
-        if (hasProfile) {
-          // Navigate to main app
-          Navigator.of(context).pushReplacementNamed('/home');
-        } else {
-          // Navigate to profile setup
-          Navigator.of(context).pushReplacementNamed('/profile-setup');
-        }
+        // Navigate to main app
+        Navigator.of(context).pushReplacementNamed('/home');
       }
     }
   }

@@ -100,7 +100,7 @@ class ChatGPTProvider extends BaseAIProvider {
         response.data['content'] as String,
       );
       return createSuccessResponse(request.requestId, {
-        'workout_plan': workoutPlan,
+        'workoutPlan': workoutPlan,
         'generated_at': DateTime.now().toIso8601String(),
       });
     } catch (e) {
@@ -123,7 +123,7 @@ class ChatGPTProvider extends BaseAIProvider {
         response.data['content'] as String,
       );
       return createSuccessResponse(request.requestId, {
-        'alternative_exercise': alternative,
+        'alternativeExercise': alternative,
         'reason': request.payload['alternativeType'],
       });
     } catch (e) {

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import '../themes/app_colors.dart';
+import '../themes/app_text_styles.dart';
+import '../themes/app_theme.dart';
 
-/// Custom text field widget with consistent styling
+/// Custom text field widget with cartoon-style design and consistent styling
 class CustomTextField extends StatelessWidget {
   const CustomTextField({
     super.key,
@@ -15,7 +18,7 @@ class CustomTextField extends StatelessWidget {
     this.onChanged,
     this.onSubmitted,
     this.enabled = true,
-    this.maxLines = 1,
+    this.maxLines,
     this.minLines,
     this.maxLength,
     this.textInputAction,
@@ -23,6 +26,8 @@ class CustomTextField extends StatelessWidget {
     this.autofocus = false,
     this.readOnly = false,
     this.onTap,
+    this.borderRadius,
+    this.fillColor,
   });
 
   final TextEditingController controller;
@@ -36,7 +41,7 @@ class CustomTextField extends StatelessWidget {
   final void Function(String)? onChanged;
   final void Function(String)? onSubmitted;
   final bool enabled;
-  final int maxLines;
+  final int? maxLines;
   final int? minLines;
   final int? maxLength;
   final TextInputAction? textInputAction;
@@ -44,9 +49,15 @@ class CustomTextField extends StatelessWidget {
   final bool autofocus;
   final bool readOnly;
   final VoidCallback? onTap;
+  final double? borderRadius;
+  final Color? fillColor;
 
   @override
   Widget build(BuildContext context) {
+    final effectiveBorderRadius = borderRadius ?? AppTheme.radiusM;
+    final effectiveFillColor =
+        fillColor ?? (enabled ? AppColors.surface : AppColors.grey100);
+
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
@@ -55,7 +66,7 @@ class CustomTextField extends StatelessWidget {
       onChanged: onChanged,
       onFieldSubmitted: onSubmitted,
       enabled: enabled,
-      maxLines: maxLines,
+      maxLines: maxLines ?? 1,
       minLines: minLines,
       maxLength: maxLength,
       textInputAction: textInputAction,
@@ -63,50 +74,52 @@ class CustomTextField extends StatelessWidget {
       autofocus: autofocus,
       readOnly: readOnly,
       onTap: onTap,
+      style: AppTextStyles.inputText,
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,
-        prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+        prefixIcon:
+            prefixIcon != null
+                ? Icon(prefixIcon, color: AppColors.textSecondary)
+                : null,
         suffixIcon: suffixIcon,
+        filled: true,
+        fillColor: effectiveFillColor,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+          borderRadius: BorderRadius.circular(effectiveBorderRadius),
+          borderSide: const BorderSide(color: AppColors.grey300),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+          borderRadius: BorderRadius.circular(effectiveBorderRadius),
+          borderSide: const BorderSide(color: AppColors.grey300),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Theme.of(context).primaryColor,
-            width: 2,
-          ),
+          borderRadius: BorderRadius.circular(effectiveBorderRadius),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.red, width: 1),
+          borderRadius: BorderRadius.circular(effectiveBorderRadius),
+          borderSide: const BorderSide(color: AppColors.error, width: 2),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.red, width: 2),
+          borderRadius: BorderRadius.circular(effectiveBorderRadius),
+          borderSide: const BorderSide(color: AppColors.error, width: 2),
         ),
         disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey[200]!, width: 1),
+          borderRadius: BorderRadius.circular(effectiveBorderRadius),
+          borderSide: const BorderSide(color: AppColors.grey200),
         ),
-        filled: true,
-        fillColor: enabled ? Colors.white : Colors.grey[50],
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
+          horizontal: AppTheme.spacingM,
+          vertical: AppTheme.spacingM,
         ),
-        labelStyle: TextStyle(color: Colors.grey[600], fontSize: 16),
-        hintStyle: TextStyle(color: Colors.grey[400], fontSize: 16),
-        errorStyle: const TextStyle(color: Colors.red, fontSize: 12),
-        counterStyle: TextStyle(color: Colors.grey[500], fontSize: 12),
+        labelStyle: AppTextStyles.inputLabel,
+        hintStyle: AppTextStyles.inputHint,
+        errorStyle: AppTextStyles.errorText,
+        counterStyle: AppTextStyles.labelSmall.copyWith(
+          color: AppColors.textSecondary,
+        ),
       ),
-      style: const TextStyle(fontSize: 16, color: Colors.black87),
     );
   }
 }

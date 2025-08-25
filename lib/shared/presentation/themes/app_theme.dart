@@ -1,37 +1,89 @@
 import 'package:flutter/material.dart';
 
-/// Application theme configuration
+/// Application theme configuration with colorful cartoon design system
 class AppTheme {
-  // Color palette for the cartoon-style design
+  // Primary color palette for the cartoon-style design
   static const Color primaryColor = Color(0xFF6C63FF);
+  static const Color primaryLight = Color(0xFF9C88FF);
+  static const Color primaryDark = Color(0xFF5A52E8);
+
   static const Color secondaryColor = Color(0xFFFF6B9D);
+  static const Color secondaryLight = Color(0xFFFF8FA3);
+  static const Color secondaryDark = Color(0xFFE85A8A);
+
   static const Color accentColor = Color(0xFF4ECDC4);
+  static const Color accentLight = Color(0xFF7EDDD6);
+  static const Color accentDark = Color(0xFF3BB5AD);
+
+  // Additional cartoon colors
+  static const Color sunnyYellow = Color(0xFFFFD93D);
+  static const Color energyOrange = Color(0xFFFF8C42);
+  static const Color freshGreen = Color(0xFF6BCF7F);
+  static const Color skyBlue = Color(0xFF4FC3F7);
+  static const Color lavenderPurple = Color(0xFFBA68C8);
+
+  // Background and surface colors
   static const Color backgroundColor = Color(0xFFF8F9FA);
   static const Color surfaceColor = Color(0xFFFFFFFF);
+  static const Color cardBackground = Color(0xFFFFFBFE);
+
+  // Status colors
   static const Color errorColor = Color(0xFFFF5252);
   static const Color successColor = Color(0xFF4CAF50);
   static const Color warningColor = Color(0xFFFF9800);
+  static const Color infoColor = Color(0xFF2196F3);
 
   // Text colors
   static const Color textPrimary = Color(0xFF2D3748);
   static const Color textSecondary = Color(0xFF718096);
   static const Color textLight = Color(0xFFA0AEC0);
+  static const Color textOnPrimary = Color(0xFFFFFFFF);
 
-  // Gradient colors
+  // Shadow colors
+  static const Color shadowLight = Color(0x1A000000);
+  static const Color shadowMedium = Color(0x33000000);
+  static const Color shadowDark = Color(0x4D000000);
+
+  // Gradient definitions
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [primaryColor, Color(0xFF9C88FF)],
+    colors: [primaryColor, primaryLight],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient secondaryGradient = LinearGradient(
-    colors: [secondaryColor, Color(0xFFFF8FA3)],
+    colors: [secondaryColor, secondaryLight],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient accentGradient = LinearGradient(
+    colors: [accentColor, accentLight],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient cardGradient = LinearGradient(
-    colors: [Color(0xFFFFFFFF), Color(0xFFF8F9FA)],
+    colors: [surfaceColor, cardBackground],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient backgroundGradient = LinearGradient(
+    colors: [backgroundColor, Color(0xFFF0F2F5)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  // Celebration gradients for animations
+  static const LinearGradient celebrationGradient = LinearGradient(
+    colors: [sunnyYellow, energyOrange, secondaryColor],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient successGradient = LinearGradient(
+    colors: [freshGreen, accentColor],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -150,7 +202,7 @@ class AppTheme {
           backgroundColor: primaryColor,
           foregroundColor: Colors.white,
           elevation: 4,
-          shadowColor: primaryColor.withOpacity(0.3),
+          shadowColor: primaryColor.withValues(alpha: 0.3),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -190,11 +242,11 @@ class AppTheme {
         fillColor: surfaceColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: textLight.withOpacity(0.3)),
+          borderSide: BorderSide(color: textLight.withValues(alpha: 0.3)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: textLight.withOpacity(0.3)),
+          borderSide: BorderSide(color: textLight.withValues(alpha: 0.3)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -220,7 +272,7 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: surfaceColor,
         elevation: 4,
-        shadowColor: Colors.black.withOpacity(0.1),
+        shadowColor: Colors.black.withValues(alpha: 0.1),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         margin: const EdgeInsets.all(8),
       ),
@@ -255,7 +307,36 @@ class AppTheme {
   /// Dark theme configuration (for future implementation)
   static ThemeData get darkTheme {
     // For now, return light theme
-    // TODO: Implement dark theme in future iterations
+    // TODO(theme): Implement dark theme in future iterations
     return lightTheme;
   }
+
+  // Spacing constants for consistent layout
+  static const double spacingXS = 4.0;
+  static const double spacingS = 8.0;
+  static const double spacingM = 16.0;
+  static const double spacingL = 24.0;
+  static const double spacingXL = 32.0;
+  static const double spacingXXL = 48.0;
+
+  // Border radius constants
+  static const double radiusS = 8.0;
+  static const double radiusM = 12.0;
+  static const double radiusL = 16.0;
+  static const double radiusXL = 20.0;
+  static const double radiusXXL = 24.0;
+  static const double radiusCircular = 50.0;
+
+  // Animation durations
+  static const Duration animationFast = Duration(milliseconds: 200);
+  static const Duration animationMedium = Duration(milliseconds: 300);
+  static const Duration animationSlow = Duration(milliseconds: 500);
+  static const Duration animationCelebration = Duration(milliseconds: 1000);
+
+  // Elevation levels
+  static const double elevationNone = 0.0;
+  static const double elevationLow = 2.0;
+  static const double elevationMedium = 4.0;
+  static const double elevationHigh = 8.0;
+  static const double elevationMax = 16.0;
 }

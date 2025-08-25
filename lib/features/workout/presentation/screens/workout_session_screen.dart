@@ -14,6 +14,8 @@ import 'package:fitness_training_app/shared/presentation/widgets/loading_overlay
 class WorkoutSessionScreen extends ConsumerStatefulWidget {
   const WorkoutSessionScreen({super.key});
 
+  static const routeName = '/workout-session';
+
   @override
   ConsumerState<WorkoutSessionScreen> createState() =>
       _WorkoutSessionScreenState();

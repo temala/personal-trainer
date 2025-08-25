@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import '../themes/app_colors.dart';
+import '../themes/app_text_styles.dart';
+import '../themes/app_theme.dart';
 
-/// Button variants
-enum ButtonVariant { filled, outlined, text }
+/// Button variants for different visual styles
+enum ButtonVariant { filled, outlined, text, gradient }
 
-/// Custom button widget with consistent styling
+/// Custom button widget with cartoon-style design and consistent styling
 class CustomButton extends StatelessWidget {
   const CustomButton({
     super.key,
@@ -15,11 +18,12 @@ class CustomButton extends StatelessWidget {
     this.width,
     this.height = 56,
     this.fontSize = 16,
-    this.borderRadius = 12,
+    this.borderRadius,
     this.color,
     this.textColor,
     this.borderColor,
     this.loadingColor,
+    this.gradient,
   });
 
   final VoidCallback? onPressed;
@@ -30,16 +34,17 @@ class CustomButton extends StatelessWidget {
   final double? width;
   final double height;
   final double fontSize;
-  final double borderRadius;
+  final double? borderRadius;
   final Color? color;
   final Color? textColor;
   final Color? borderColor;
   final Color? loadingColor;
+  final Gradient? gradient;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final primaryColor = color ?? theme.primaryColor;
+    final effectiveBorderRadius = borderRadius ?? AppTheme.radiusM;
+    final primaryColor = color ?? AppColors.primary;
     final isDisabled = onPressed == null || isLoading;
 
     final Widget child = Row(
@@ -57,17 +62,16 @@ class CustomButton extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppTheme.spacingM),
         ] else if (icon != null) ...[
           Icon(icon, size: 20, color: _getTextColor(context)),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppTheme.spacingS),
         ],
         Flexible(
           child: Text(
             text,
-            style: TextStyle(
+            style: AppTextStyles.buttonText.copyWith(
               fontSize: fontSize,
-              fontWeight: FontWeight.w600,
               color: _getTextColor(context),
             ),
             overflow: TextOverflow.ellipsis,
@@ -85,15 +89,18 @@ class CustomButton extends StatelessWidget {
           onPressed: isDisabled ? null : onPressed,
           style: ElevatedButton.styleFrom(
             backgroundColor: primaryColor,
-            foregroundColor: textColor ?? Colors.white,
-            disabledBackgroundColor: Colors.grey[300],
-            disabledForegroundColor: Colors.grey[500],
-            elevation: isDisabled ? 0 : 2,
-            shadowColor: primaryColor.withOpacity(0.3),
+            foregroundColor: textColor ?? AppColors.textOnPrimary,
+            disabledBackgroundColor: AppColors.grey300,
+            disabledForegroundColor: AppColors.grey500,
+            elevation: isDisabled ? 0 : AppTheme.elevationMedium,
+            shadowColor: primaryColor.withValues(alpha: 0.3),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
+              borderRadius: BorderRadius.circular(effectiveBorderRadius),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppTheme.spacingL,
+              vertical: AppTheme.spacingM,
+            ),
             minimumSize: Size(width ?? 0, height),
           ),
           child: child,
@@ -104,18 +111,21 @@ class CustomButton extends StatelessWidget {
           onPressed: isDisabled ? null : onPressed,
           style: OutlinedButton.styleFrom(
             foregroundColor: textColor ?? primaryColor,
-            disabledForegroundColor: Colors.grey[500],
+            disabledForegroundColor: AppColors.grey500,
             side: BorderSide(
               color:
                   isDisabled
-                      ? Colors.grey[300]!
+                      ? AppColors.grey300
                       : (borderColor ?? primaryColor),
-              width: 1.5,
+              width: 2,
             ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
+              borderRadius: BorderRadius.circular(effectiveBorderRadius),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppTheme.spacingL,
+              vertical: AppTheme.spacingM,
+            ),
             minimumSize: Size(width ?? 0, height),
           ),
           child: child,
@@ -126,14 +136,57 @@ class CustomButton extends StatelessWidget {
           onPressed: isDisabled ? null : onPressed,
           style: TextButton.styleFrom(
             foregroundColor: textColor ?? primaryColor,
-            disabledForegroundColor: Colors.grey[500],
+            disabledForegroundColor: AppColors.grey500,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
+              borderRadius: BorderRadius.circular(effectiveBorderRadius),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppTheme.spacingL,
+              vertical: AppTheme.spacingM,
+            ),
             minimumSize: Size(width ?? 0, height),
           ),
           child: child,
+        );
+
+      case ButtonVariant.gradient:
+        button = Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            gradient:
+                gradient ??
+                const LinearGradient(
+                  colors: [AppColors.primary, AppColors.primaryLight],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+            borderRadius: BorderRadius.circular(effectiveBorderRadius),
+            boxShadow:
+                isDisabled
+                    ? null
+                    : [
+                      BoxShadow(
+                        color: primaryColor.withValues(alpha: 0.4),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: isDisabled ? null : onPressed,
+              borderRadius: BorderRadius.circular(effectiveBorderRadius),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.spacingL,
+                  vertical: AppTheme.spacingM,
+                ),
+                child: child,
+              ),
+            ),
+          ),
         );
     }
 
@@ -151,10 +204,11 @@ class CustomButton extends StatelessWidget {
 
     switch (variant) {
       case ButtonVariant.filled:
-        return Colors.white;
+      case ButtonVariant.gradient:
+        return AppColors.textOnPrimary;
       case ButtonVariant.outlined:
       case ButtonVariant.text:
-        return color ?? Theme.of(context).primaryColor;
+        return color ?? AppColors.primary;
     }
   }
 }

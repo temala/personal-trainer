@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitness_training_app/features/auth/presentation/providers/auth_providers.dart';
-import 'package:fitness_training_app/features/auth/presentation/screens/sign_in_screen.dart';
 import 'package:fitness_training_app/features/auth/presentation/screens/email_verification_screen.dart';
+import 'package:fitness_training_app/features/auth/presentation/screens/sign_in_screen.dart';
+import 'package:fitness_training_app/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:fitness_training_app/features/profile/presentation/screens/profile_setup_screen.dart';
-import 'package:fitness_training_app/core/routing/app_router.dart';
 
 /// Authentication wrapper that determines which screen to show
 class AuthWrapper extends ConsumerWidget {
@@ -46,7 +46,7 @@ class AuthWrapper extends ConsumerWidget {
             }
 
             // User is fully set up - show main app
-            return const HomeScreen();
+            return const MainNavigationScreen();
           },
         );
       },

@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:fitness_training_app/features/auth/presentation/screens/sign_in_screen.dart';
-import 'package:fitness_training_app/features/auth/presentation/screens/registration_screen.dart';
 import 'package:fitness_training_app/features/auth/presentation/screens/email_verification_screen.dart';
 import 'package:fitness_training_app/features/auth/presentation/screens/forgot_password_screen.dart';
+import 'package:fitness_training_app/features/auth/presentation/screens/registration_screen.dart';
+import 'package:fitness_training_app/features/auth/presentation/screens/sign_in_screen.dart';
+import 'package:fitness_training_app/features/home/presentation/screens/home_screen.dart';
+import 'package:fitness_training_app/features/home/presentation/screens/main_navigation_screen.dart';
+import 'package:fitness_training_app/features/profile/presentation/screens/account_settings_screen.dart';
+import 'package:fitness_training_app/features/profile/presentation/screens/ai_provider_settings_screen.dart';
+import 'package:fitness_training_app/features/profile/presentation/screens/notification_settings_screen.dart';
+import 'package:fitness_training_app/features/profile/presentation/screens/privacy_settings_screen.dart';
 import 'package:fitness_training_app/features/profile/presentation/screens/profile_setup_screen.dart';
 import 'package:fitness_training_app/features/profile/presentation/screens/settings_screen.dart';
-import 'package:fitness_training_app/features/profile/presentation/screens/notification_settings_screen.dart';
-import 'package:fitness_training_app/features/profile/presentation/screens/ai_provider_settings_screen.dart';
-import 'package:fitness_training_app/features/profile/presentation/screens/privacy_settings_screen.dart';
-import 'package:fitness_training_app/features/profile/presentation/screens/account_settings_screen.dart';
+import 'package:fitness_training_app/features/workout/presentation/screens/workout_session_screen.dart';
 
 /// App router for handling navigation
 class AppRouter {
@@ -51,6 +54,12 @@ class AppRouter {
           settings: settings,
         );
 
+      case '/main':
+        return MaterialPageRoute(
+          builder: (_) => const MainNavigationScreen(),
+          settings: settings,
+        );
+
       case '/settings':
         return MaterialPageRoute(
           builder: (_) => const SettingsScreen(),
@@ -81,54 +90,18 @@ class AppRouter {
           settings: settings,
         );
 
+      case '/workout-session':
+        return MaterialPageRoute(
+          builder: (_) => const WorkoutSessionScreen(),
+          settings: settings,
+        );
+
       default:
         return MaterialPageRoute(
           builder: (_) => const NotFoundScreen(),
           settings: settings,
         );
     }
-  }
-}
-
-/// Home screen placeholder
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Fitness Training App'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.of(context).pushNamed('/settings');
-            },
-          ),
-        ],
-      ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.fitness_center, size: 100, color: Colors.blue),
-            SizedBox(height: 24),
-            Text(
-              'Welcome to your Fitness Journey!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Your authentication system is working!\nNow you can start building workout features.',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
