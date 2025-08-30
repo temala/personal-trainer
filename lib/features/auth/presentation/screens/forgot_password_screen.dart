@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:fitness_training_app/features/auth/presentation/providers/auth_providers.dart';
 import 'package:fitness_training_app/shared/presentation/widgets/custom_button.dart';
 import 'package:fitness_training_app/shared/presentation/widgets/custom_text_field.dart';
@@ -41,8 +42,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       body: LoadingOverlay(
         isLoading: isLoading,
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
             child: _emailSent ? _buildSuccessView() : _buildFormView(error),
           ),
         ),
@@ -81,7 +82,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
           // Description
           Text(
-            'Enter your email address and we\'ll send you a link to reset your password.',
+            "Enter your email address and we'll send you a link to reset your password.",
             style: Theme.of(
               context,
             ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
@@ -171,7 +172,11 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         const SizedBox(height: 60),
 
         // Success icon
-        Icon(Icons.mark_email_read_outlined, size: 100, color: Colors.green),
+        const Icon(
+          Icons.mark_email_read_outlined,
+          size: 100,
+          color: Colors.green,
+        ),
 
         const SizedBox(height: 32),
 
@@ -189,7 +194,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
         // Description
         Text(
-          'We\'ve sent a password reset link to:',
+          "We've sent a password reset link to:",
           style: Theme.of(
             context,
           ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
