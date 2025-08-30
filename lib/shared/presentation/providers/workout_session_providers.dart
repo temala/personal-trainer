@@ -1,78 +1,58 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fitness_training_app/core/utils/logger.dart';
 import 'package:hive/hive.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:fitness_training_app/shared/data/repositories/firebase_workout_repository.dart';
+import 'package:fitness_training_app/shared/data/repositories/simple_workout_repository.dart';
 import 'package:fitness_training_app/shared/data/services/workout_session_manager.dart';
 import 'package:fitness_training_app/shared/data/services/workout_session_persistence_service.dart';
 import 'package:fitness_training_app/shared/domain/entities/workout_plan.dart';
 import 'package:fitness_training_app/shared/domain/entities/workout_session.dart';
-import 'package:fitness_training_app/shared/domain/repositories/exercise_repository.dart';
 import 'package:fitness_training_app/shared/domain/repositories/workout_repository.dart';
+import 'package:fitness_training_app/shared/presentation/providers/app_providers.dart';
 import 'package:fitness_training_app/shared/presentation/providers/exercise_providers.dart';
 
-/// Workout repository provider
+/// Workout repository provider (using simple in-memory implementation)
 final workoutRepositoryProvider = Provider<WorkoutRepository>((ref) {
-  return FirebaseWorkoutRepository();
+  return SimpleWorkoutRepository();
 });
 
-/// Shared preferences provider
-final sharedPreferencesProvider = FutureProvider<SharedPreferences>((
-  ref,
-) async {
-  return SharedPreferences.getInstance();
-});
-
-/// Session persistence box provider
-final sessionPersistenceBoxProvider = FutureProvider<Box<Map<String, dynamic>>>(
-  (ref) async {
-    return Hive.openBox<Map<String, dynamic>>('session_persistence');
-  },
-);
-
-/// Workout session persistence service provider
-final workoutSessionPersistenceServiceProvider =
-    FutureProvider<WorkoutSessionPersistenceService>((ref) async {
-      final prefs = await ref.watch(sharedPreferencesProvider.future);
-      final box = await ref.watch(sessionPersistenceBoxProvider.future);
-
-      return WorkoutSessionPersistenceService(prefs: prefs, sessionBox: box);
-    });
+// Persistence providers removed for now to avoid Hive box conflicts
+// Will be re-added later with proper initialization
 
 /// Workout session manager provider
-final workoutSessionManagerProvider =
-    FutureProvider<PersistentWorkoutSessionManager>((ref) async {
-      final workoutRepository = ref.watch(workoutRepositoryProvider);
-      final exerciseRepository = ref.watch(exerciseRepositoryProvider);
-      final persistenceService = await ref.watch(
-        workoutSessionPersistenceServiceProvider.future,
-      );
+final workoutSessionManagerProvider = FutureProvider<WorkoutSessionManager>((
+  ref,
+) async {
+  final workoutRepository = ref.watch(workoutRepositoryProvider);
+  final exerciseRepository = ref.watch(exerciseRepositoryProvider);
 
-      return PersistentWorkoutSessionManager(
-        workoutRepository: workoutRepository,
-        exerciseRepository: exerciseRepository,
-        persistenceService: persistenceService,
-      );
-    });
+  return WorkoutSessionManager(
+    workoutRepository: workoutRepository,
+    exerciseRepository: exerciseRepository,
+  );
+});
 
 /// Current workout session manager provider (synchronous access)
-final currentWorkoutSessionManagerProvider =
-    Provider<PersistentWorkoutSessionManager?>((ref) {
-      final managerAsync = ref.watch(workoutSessionManagerProvider);
-      return managerAsync.when(
-        data: (manager) => manager,
-        loading: () => null,
-        error: (_, __) => null,
-      );
-    });
+final currentWorkoutSessionManagerProvider = Provider<WorkoutSessionManager?>((
+  ref,
+) {
+  final managerAsync = ref.watch(workoutSessionManagerProvider);
+  return managerAsync.when(
+    data: (manager) => manager,
+    loading: () => null,
+    error: (_, __) => null,
+  );
+});
 
 /// Current workout session state provider
 final workoutSessionStateProvider = StreamProvider<WorkoutSessionState>((ref) {
   final manager = ref.watch(currentWorkoutSessionManagerProvider);
   if (manager != null) {
+    AppLogger.info('WorkoutSessionManager is available, getting session state');
     return manager.sessionState;
   }
+  AppLogger.warning('WorkoutSessionManager is null, returning idle state');
   return Stream.value(const WorkoutSessionState.idle());
 });
 
@@ -367,7 +347,7 @@ class SessionProgress {
 class WorkoutSessionActions {
   const WorkoutSessionActions(this._manager);
 
-  final PersistentWorkoutSessionManager _manager;
+  final WorkoutSessionManager _manager;
 
   /// Start a new workout session
   Future<void> startSession(WorkoutPlan plan) => _manager.startSession(plan);
@@ -498,18 +478,14 @@ class NullableWorkoutSessionActions {
 final sessionRecoveryDataProvider = FutureProvider<List<SessionRecoveryData>>((
   ref,
 ) async {
-  final persistenceService = await ref.watch(
-    workoutSessionPersistenceServiceProvider.future,
-  );
-  return persistenceService.getPendingRecoverySessions();
+  // For now, return empty list since persistence service is not implemented
+  return <SessionRecoveryData>[];
 });
 
 /// Has sessions needing recovery provider
 final hasSessionsNeedingRecoveryProvider = FutureProvider<bool>((ref) async {
-  final persistenceService = await ref.watch(
-    workoutSessionPersistenceServiceProvider.future,
-  );
-  return persistenceService.hasSessionsNeedingRecovery();
+  // For now, return false since persistence service is not implemented
+  return false;
 });
 
 /// App lifecycle state provider

@@ -5,7 +5,6 @@ import 'package:lottie/lottie.dart';
 import 'package:fitness_training_app/core/utils/logger.dart';
 import 'package:fitness_training_app/shared/data/models/offline/offline_models.dart';
 import 'package:fitness_training_app/shared/data/services/exercise_alternative_service.dart';
-import 'package:fitness_training_app/shared/data/services/exercise_animation_service.dart';
 import 'package:fitness_training_app/shared/domain/entities/exercise.dart';
 import 'package:fitness_training_app/shared/presentation/providers/exercise_providers.dart';
 import 'package:fitness_training_app/shared/presentation/themes/app_theme.dart';
@@ -90,22 +89,33 @@ class _ExerciseDemonstrationWidgetState
             const SizedBox(height: 16),
 
             // Animation area with swipe detection
-            Expanded(child: _buildAnimationArea(animationAsync)),
+            Expanded(flex: 3, child: _buildAnimationArea(animationAsync)),
 
             const SizedBox(height: 16),
 
-            // Exercise instructions
-            _buildInstructions(),
+            // Scrollable content area
+            Expanded(
+              flex: 2,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Exercise instructions
+                    _buildInstructions(),
 
-            const SizedBox(height: 16),
+                    const SizedBox(height: 12),
 
-            // Swipe hints
-            _buildSwipeHints(),
+                    // Swipe hints
+                    _buildSwipeHints(),
 
-            const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-            // Action buttons
-            _buildActionButtons(),
+                    // Action buttons
+                    _buildActionButtons(),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -278,7 +288,7 @@ class _ExerciseDemonstrationWidgetState
                   Container(
                     width: 20,
                     height: 20,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: AppTheme.primaryColor,
                       shape: BoxShape.circle,
                     ),
@@ -330,14 +340,14 @@ class _ExerciseDemonstrationWidgetState
             children: [
               Expanded(
                 child: _buildSwipeHint(
-                  '← Don\'t like',
+                  "← Don't like",
                   'Get similar exercise',
                   Icons.thumb_down,
                 ),
               ),
               Expanded(
                 child: _buildSwipeHint(
-                  'Can\'t do →',
+                  "Can't do →",
                   'Get easier exercise',
                   Icons.accessibility_new,
                 ),
@@ -436,7 +446,7 @@ class _ExerciseDemonstrationWidgetState
     if (_isProcessingSwipe) return;
 
     final delta = details.delta;
-    final sensitivity = 2.0;
+    const sensitivity = 2.0;
 
     setState(() {
       _swipeAnimation = Tween<Offset>(
@@ -532,7 +542,7 @@ class _ExerciseDemonstrationWidgetState
   }
 
   void _showSwipeProcessingDialog(SwipeDirection direction) {
-    showDialog(
+    showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder:
@@ -553,7 +563,7 @@ class _ExerciseDemonstrationWidgetState
   }
 
   void _showNoAlternativeDialog(SwipeDirection direction) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder:
           (context) => AlertDialog(
@@ -570,13 +580,13 @@ class _ExerciseDemonstrationWidgetState
   }
 
   void _showErrorDialog() {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder:
           (context) => AlertDialog(
             title: const Text('Error'),
             content: const Text(
-              'Sorry, we couldn\'t find an alternative exercise right now. Please try again or continue with the current exercise.',
+              "Sorry, we couldn't find an alternative exercise right now. Please try again or continue with the current exercise.",
             ),
             actions: [
               TextButton(
@@ -604,13 +614,13 @@ class _ExerciseDemonstrationWidgetState
   String _getNoAlternativeMessage(SwipeDirection direction) {
     switch (direction) {
       case SwipeDirection.left:
-        return 'We couldn\'t find a similar exercise right now. You can skip this exercise or try to complete it.';
+        return "We couldn't find a similar exercise right now. You can skip this exercise or try to complete it.";
       case SwipeDirection.right:
-        return 'We couldn\'t find an easier alternative. You can skip this exercise or try to complete it.';
+        return "We couldn't find an easier alternative. You can skip this exercise or try to complete it.";
       case SwipeDirection.up:
-        return 'We couldn\'t find a more challenging exercise. You can skip this exercise or try to complete it.';
+        return "We couldn't find a more challenging exercise. You can skip this exercise or try to complete it.";
       case SwipeDirection.down:
-        return 'We couldn\'t find an equipment-free alternative. You can skip this exercise or try to complete it.';
+        return "We couldn't find an equipment-free alternative. You can skip this exercise or try to complete it.";
     }
   }
 

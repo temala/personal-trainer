@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:fitness_training_app/shared/data/models/offline/offline_models.dart';
-import 'package:fitness_training_app/shared/data/repositories/firebase_exercise_repository.dart';
+import 'package:fitness_training_app/shared/data/repositories/simple_exercise_repository.dart';
 import 'package:fitness_training_app/shared/data/services/exercise_animation_service.dart';
 import 'package:fitness_training_app/shared/data/services/exercise_alternative_service.dart';
 import 'package:fitness_training_app/shared/data/services/exercise_database_service.dart';
@@ -11,7 +11,7 @@ import 'package:fitness_training_app/shared/domain/repositories/exercise_reposit
 
 /// Exercise repository provider
 final exerciseRepositoryProvider = Provider<ExerciseRepository>((ref) {
-  return FirebaseExerciseRepository();
+  return SimpleExerciseRepository();
 });
 
 /// Exercise database service provider

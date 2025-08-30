@@ -27,7 +27,21 @@ class WorkoutSessionManager {
        _exerciseRepository = exerciseRepository;
 
   /// Current session state stream
-  Stream<WorkoutSessionState> get sessionState => _stateController.stream;
+  Stream<WorkoutSessionState> get sessionState {
+    return Stream.multi((controller) {
+      // Emit current state immediately
+      controller.add(_currentState);
+
+      // Then listen to state changes
+      final subscription = _stateController.stream.listen(
+        controller.add,
+        onError: controller.addError,
+        onDone: controller.close,
+      );
+
+      controller.onCancel = () => subscription.cancel();
+    });
+  }
 
   /// Current session state
   WorkoutSessionState get currentState => _currentState;
@@ -38,9 +52,38 @@ class WorkoutSessionManager {
       AppLogger.info('Starting workout session for plan: ${plan.id}');
 
       // Create new session from plan
-      final session = WorkoutSessionHelper.createFromPlan(
+      final now = DateTime.now();
+      final session = WorkoutSession(
+        id: 'session_${now.millisecondsSinceEpoch}',
         userId: plan.userId ?? '',
-        workoutPlan: plan,
+        workoutPlanId: plan.id,
+        status: SessionStatus.inProgress,
+        startedAt: now,
+        exerciseExecutions:
+            plan.exercises
+                .map(
+                  (exercise) => ExerciseExecution(
+                    exerciseId: exercise.exerciseId,
+                    order: exercise.order,
+                    status: ExecutionStatus.notStarted,
+                    startedAt: now,
+                    exerciseName: exercise.exerciseName,
+                    setExecutions: List.generate(
+                      exercise.sets,
+                      (setIndex) => SetExecution(
+                        setNumber: setIndex + 1,
+                        status: SetStatus.notStarted,
+                        startedAt: now,
+                        plannedReps: exercise.repsPerSet,
+                        restDurationSeconds: exercise.restBetweenSetsSeconds,
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
+        metadata: {'created_from_plan': plan.id, 'plan_name': plan.name},
+        workoutPlanName: plan.name,
+        completionPercentage: 0.0,
       );
 
       // Save session to repository

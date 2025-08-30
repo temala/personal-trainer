@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:fitness_training_app/core/utils/logger.dart';
+import 'package:fitness_training_app/shared/presentation/providers/ai_providers.dart';
 import 'package:fitness_training_app/shared/presentation/providers/exercise_providers.dart';
 
 /// Connectivity provider to monitor network status
@@ -53,6 +54,29 @@ final appInitializationProvider = FutureProvider<void>((ref) async {
     // Initialize exercise database (non-blocking)
     ref.read(exerciseDatabaseInitializationProvider);
     AppLogger.info('Exercise database initialization started');
+
+    // Initialize AI services (non-blocking)
+    try {
+      final aiService = ref.read(aiServiceProvider);
+
+      // Check provider configuration
+      final providerStatus = await aiService.getProviderStatus();
+      AppLogger.info('AI Provider Status: $providerStatus');
+
+      // Test connections
+      final connectionResults = await aiService.testProviderConnections();
+      AppLogger.info('AI Connection Results: $connectionResults');
+
+      final hasProvider = await aiService.hasAvailableProvider;
+      AppLogger.info('AI service initialized - has provider: $hasProvider');
+
+      // Check available providers
+      final availableProviders = aiService.availableProviders;
+      AppLogger.info('Available AI providers: $availableProviders');
+    } catch (e) {
+      AppLogger.warning('AI service initialization failed: $e');
+      // Continue without AI services
+    }
 
     AppLogger.info('App initialization completed successfully');
   } catch (e, stackTrace) {

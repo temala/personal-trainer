@@ -328,15 +328,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         preferences: {'duration': 30, 'equipment': 'none'},
       );
 
-      // Start workout session
-      final sessionActions = ref.read(workoutSessionActionsProvider);
-      await sessionActions.startSession(workoutPlan);
+      // Wait for workout session manager to be available and get it directly
+      AppLogger.info('Waiting for workout session manager...');
+      final sessionManager = await ref.read(
+        workoutSessionManagerProvider.future,
+      );
+      AppLogger.info('Workout session manager loaded successfully');
+
+      // Start workout session directly with the manager
+      AppLogger.info('Starting workout session...');
+      await sessionManager.startSession(workoutPlan);
+      AppLogger.info('Workout session started successfully');
 
       // Navigate to workout session screen
       if (mounted) {
+        AppLogger.info('Navigating to workout session screen...');
         await Navigator.of(context).pushNamed(WorkoutSessionScreen.routeName);
+        AppLogger.info('Navigation completed');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.error('Error starting workout', e, stackTrace);
       _showError('Error starting workout: $e');
     } finally {
       if (mounted) {

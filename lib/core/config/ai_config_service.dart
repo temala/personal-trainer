@@ -27,6 +27,10 @@ class AIConfigService {
       chatgptApiKey ??= await _secureStorage.read(key: _chatgptApiKeyKey);
       n8nWebhookUrl ??= await _secureStorage.read(key: _n8nWebhookUrlKey);
 
+      _logger.i(
+        'AI Config Debug - ChatGPT key from env: ${EnvConfig.chatgptApiKey}',
+      );
+
       // Check if we have at least one provider configured
       if (chatgptApiKey == null || chatgptApiKey.isEmpty) {
         _logger.w('No ChatGPT API key found in environment or secure storage');

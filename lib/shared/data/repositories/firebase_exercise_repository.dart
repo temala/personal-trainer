@@ -22,7 +22,7 @@ class FirebaseExerciseRepository implements ExerciseRepository {
 
   Box<CachedExercise>? _exerciseCache;
 
-  static const String _cacheBoxName = 'exercises_cache';
+  static const String _cacheBoxName = 'cached_exercises';
   static const Duration _cacheValidityDuration = Duration(days: 7);
 
   /// Safely get exercise cache box
@@ -76,9 +76,13 @@ class FirebaseExerciseRepository implements ExerciseRepository {
         return cachedExercises;
       }
 
-      // No data available
-      AppLogger.error('No exercise data available offline or online');
-      return [];
+      // No data available, return default exercises
+      AppLogger.warning(
+        'No exercise data available, returning default exercises',
+      );
+      final defaultExercises = _getDefaultExercises();
+      await _cacheExercises(defaultExercises);
+      return defaultExercises;
     } catch (e, stackTrace) {
       AppLogger.error('Error getting all exercises', e, stackTrace);
 
@@ -413,5 +417,115 @@ class FirebaseExerciseRepository implements ExerciseRepository {
       AppLogger.warning('Error checking connectivity, assuming offline');
       return false;
     }
+  }
+
+  /// Get default exercises when no data is available
+  List<Exercise> _getDefaultExercises() {
+    return [
+      Exercise(
+        id: 'default_push_ups',
+        name: 'Push-ups',
+        description:
+            'Classic upper body exercise targeting chest, shoulders, and arms',
+        category: ExerciseCategory.strength,
+        difficulty: DifficultyLevel.beginner,
+        targetMuscles: [
+          MuscleGroup.chest,
+          MuscleGroup.shoulders,
+          MuscleGroup.arms,
+        ],
+        equipment: [],
+        estimatedDurationSeconds: 120,
+        instructions: [
+          'Start in a plank position with hands shoulder-width apart',
+          'Lower your body until your chest nearly touches the floor',
+          'Push back up to the starting position',
+          'Keep your core engaged throughout the movement',
+        ],
+        tips: ['Keep your body in a straight line', 'Don\'t let your hips sag'],
+        metadata: {'calories_per_minute': 8, 'type': 'bodyweight'},
+      ),
+      Exercise(
+        id: 'default_squats',
+        name: 'Squats',
+        description: 'Fundamental lower body exercise for legs and glutes',
+        category: ExerciseCategory.strength,
+        difficulty: DifficultyLevel.beginner,
+        targetMuscles: [MuscleGroup.legs, MuscleGroup.glutes],
+        equipment: [],
+        estimatedDurationSeconds: 120,
+        instructions: [
+          'Stand with feet shoulder-width apart',
+          'Lower your body as if sitting back into a chair',
+          'Keep your chest up and knees behind your toes',
+          'Return to standing position',
+        ],
+        tips: [
+          'Keep your weight on your heels',
+          'Don\'t let your knees cave inward',
+        ],
+        metadata: {'calories_per_minute': 6, 'type': 'bodyweight'},
+      ),
+      Exercise(
+        id: 'default_jumping_jacks',
+        name: 'Jumping Jacks',
+        description: 'Full-body cardio exercise to get your heart rate up',
+        category: ExerciseCategory.cardio,
+        difficulty: DifficultyLevel.beginner,
+        targetMuscles: [MuscleGroup.fullBody],
+        equipment: [],
+        estimatedDurationSeconds: 60,
+        instructions: [
+          'Start standing with feet together and arms at your sides',
+          'Jump while spreading your legs shoulder-width apart',
+          'Simultaneously raise your arms overhead',
+          'Jump back to the starting position',
+        ],
+        tips: ['Land softly on the balls of your feet', 'Keep a steady rhythm'],
+        metadata: {'calories_per_minute': 10, 'type': 'cardio'},
+      ),
+      Exercise(
+        id: 'default_plank',
+        name: 'Plank',
+        description: 'Core strengthening exercise that builds stability',
+        category: ExerciseCategory.strength,
+        difficulty: DifficultyLevel.beginner,
+        targetMuscles: [MuscleGroup.core, MuscleGroup.shoulders],
+        equipment: [],
+        estimatedDurationSeconds: 60,
+        instructions: [
+          'Start in a push-up position',
+          'Lower onto your forearms',
+          'Keep your body in a straight line from head to heels',
+          'Hold the position while breathing normally',
+        ],
+        tips: [
+          'Don\'t let your hips sag or pike up',
+          'Engage your core muscles',
+        ],
+        metadata: {'calories_per_minute': 4, 'type': 'isometric'},
+      ),
+      Exercise(
+        id: 'default_lunges',
+        name: 'Lunges',
+        description: 'Single-leg exercise for lower body strength and balance',
+        category: ExerciseCategory.strength,
+        difficulty: DifficultyLevel.beginner,
+        targetMuscles: [MuscleGroup.legs, MuscleGroup.glutes],
+        equipment: [],
+        estimatedDurationSeconds: 120,
+        instructions: [
+          'Stand with feet hip-width apart',
+          'Step forward with one leg and lower your hips',
+          'Both knees should be bent at 90 degrees',
+          'Push back to the starting position and repeat',
+        ],
+        tips: [
+          'Keep your front knee over your ankle',
+          'Don\'t let your back knee touch the ground',
+        ],
+        metadata: {'calories_per_minute': 7, 'type': 'bodyweight'},
+      ),
+    ];
   }
 }
