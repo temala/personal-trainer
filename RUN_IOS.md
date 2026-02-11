@@ -1,0 +1,224 @@
+# Run Guide (Beginner-Friendly): Native iOS Workout Planner
+
+This document explains **every step** to build and run the app on iPhone Simulator, even if you are new to Swift/Xcode.
+
+---
+
+## 1) What is in this repository right now?
+
+There are 2 relevant parts:
+
+1. `Sources/WorkoutPlannerCore` + `Tests/WorkoutPlannerCoreTests`
+   - A Swift Package containing the planning logic and tests.
+2. `ios-native-app/`
+   - SwiftUI app source files (views/view model/services), ready to be used inside an Xcode iOS app target.
+
+> Important: `ios-native-app/` is source code, not a complete `.xcodeproj` yet. In this guide, you will create a clean iOS project in Xcode and plug these files in.
+
+---
+
+## 2) Prerequisites (Mac)
+
+You need:
+
+- A Mac (Apple Silicon or Intel).
+- **Xcode 15+** (recommended latest stable from App Store).
+- At least one iOS Simulator runtime installed.
+- Internet access (for exercise API requests to `https://wger.de/api/v2/exerciseinfo/`).
+
+### Check versions in Terminal
+
+Open **Terminal** and run:
+
+```bash
+xcodebuild -version
+swift --version
+```
+
+Expected:
+- Xcode version prints correctly.
+- Swift version prints correctly.
+
+If either command fails:
+
+1. Open Xcode once.
+2. Accept license prompts.
+3. Install command-line tools:
+   - Xcode → Settings → Locations → Command Line Tools (pick your Xcode version).
+
+---
+
+## 3) Verify core logic/tests first (recommended)
+
+From repository root:
+
+```bash
+cd /workspace/personal-trainer
+swift test
+```
+
+If tests pass, your core planner logic compiles correctly.
+
+---
+
+## 4) Create the iOS app project in Xcode
+
+1. Open **Xcode**.
+2. Click **Create a new project**.
+3. Choose **iOS** → **App** → Next.
+4. Fill fields:
+   - Product Name: `WorkoutPlanner`
+   - Team: (your Apple team, or leave personal if simulator-only)
+   - Organization Identifier: e.g. `com.yourname`
+   - Interface: **SwiftUI**
+   - Language: **Swift**
+   - Use Core Data: **unchecked**
+   - Include Tests: optional
+5. Save this project **inside this repo** at:
+   - `/workspace/personal-trainer/ios-native-app-project`
+
+After creation, Xcode opens your new project.
+
+---
+
+## 5) Add the local Swift Package dependency
+
+You must attach `WorkoutPlannerCore` package to the app target.
+
+1. In Xcode menu: **File → Add Package Dependencies...**
+2. Click **Add Local...**
+3. Select folder: `/workspace/personal-trainer` (repo root containing `Package.swift`).
+4. Choose product: `WorkoutPlannerCore`.
+5. Add it to your app target (usually `WorkoutPlanner`).
+
+Quick check:
+- In target settings → **General** → **Frameworks, Libraries, and Embedded Content**, `WorkoutPlannerCore` should appear.
+
+---
+
+## 6) Add app source files from `ios-native-app/`
+
+You now import source code into your project.
+
+1. In Finder, open `/workspace/personal-trainer/ios-native-app/`.
+2. In Xcode project navigator, right click your project folder.
+3. Choose **Add Files to "WorkoutPlanner"...**
+4. Select these folders/files:
+   - `Models` (if present)
+   - `Services`
+   - `ViewModels`
+   - `Views`
+   - `WorkoutPlannerApp.swift`
+5. In options:
+   - Check **Copy items if needed**.
+   - Ensure your app target is checked under “Add to targets”.
+
+---
+
+## 7) Replace default app entry point (important)
+
+The new project has its own default app file (for example `WorkoutPlannerApp.swift` created by Xcode). You must keep only one `@main` app entry.
+
+1. Delete or exclude the default Xcode-generated app file.
+2. Keep repository file:
+   - `ios-native-app/WorkoutPlannerApp.swift`
+
+If you get error `multiple '@main' types`, this step was not done fully.
+
+---
+
+## 8) Build and run on Simulator
+
+1. At top of Xcode, choose an iPhone simulator (e.g. **iPhone 16**).
+2. Press **⌘B** to build.
+3. Press **⌘R** to run.
+4. App should launch to **Next Exercise** screen.
+
+On first launch:
+- App fetches exercise list from Wger API.
+- App builds plan and shows first exercise.
+
+---
+
+## 9) First-time functional checks
+
+Run this quick manual checklist:
+
+1. You see **Next Exercise** title.
+2. Exercise card shows name + muscle + equipment.
+3. Enter `40` in weight field, tap **Complete exercise**.
+4. Next exercise should appear.
+5. Swipe alternatives section and pick another exercise.
+6. Tap **Goals**, update focus/reduced/excluded muscles, tap **Apply**.
+7. Plan regenerates.
+
+---
+
+## 10) Configure your LLM provider (when you are ready)
+
+Current `OpenAIPlanOrchestrator` is scaffolded with a deterministic fallback planner.
+
+To enable real LLM orchestration for plan generation:
+
+1. Edit `ios-native-app/Services/OpenAIPlanOrchestrator.swift`.
+2. Implement API call in `buildPlan(...)`.
+3. Keep the rule: use LLM only in plan build/rebuild path.
+4. Keep strict JSON schema decoding and fallback behavior.
+
+---
+
+## 11) Common errors and fixes
+
+### Error: `No such module 'WorkoutPlannerCore'`
+Fix:
+- Ensure local package dependency is added (Section 5).
+- Ensure app target links package product.
+
+### Error: `multiple '@main' types`
+Fix:
+- Remove extra app entry file generated by Xcode.
+
+### App shows error building plan/network issue
+Fix:
+- Confirm internet connection.
+- Test API in browser:
+  - `https://wger.de/api/v2/exerciseinfo/?language=2&limit=5`
+
+### Signing errors (device run)
+Fix:
+- For simulator, signing often not required beyond defaults.
+- For physical iPhone: set Team + unique bundle identifier.
+
+---
+
+## 12) Run on a physical iPhone (optional)
+
+1. Connect iPhone via USB.
+2. Trust computer on phone.
+3. In Xcode target:
+   - Signing & Capabilities → choose Team.
+   - Ensure unique bundle identifier.
+4. Select your device in run destination.
+5. Press **⌘R**.
+
+If prompted on device: Settings → Privacy & Security → Developer Mode.
+
+---
+
+## 13) Useful commands recap
+
+From repo root:
+
+```bash
+# run package tests
+swift test
+
+# inspect changed files
+git status
+```
+
+---
+
+## 14) Recommended next step
+
+If you want, the next iteration can include a committed `.xcodeproj` so you can run with **one click** and skip manual project creation.
