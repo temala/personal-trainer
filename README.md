@@ -28,6 +28,3 @@ The app calls an LLM provider only when generating a new plan from:
 - PR/max weight history.
 
 Generated plan is persisted locally and executed offline during workout sessions.
-
-## How to build/run
-For a complete beginner-friendly setup and run guide, see `RUN_IOS.md`.
